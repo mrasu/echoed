@@ -2,10 +2,11 @@
   "name": "tobikura",
   "version": "0.0.1",
   "description": "",
+  "bin": "dist/create/bin.js",
   "scripts": {
     "build": "npm run protos && npm run build:reporter && npm run build:package",
     "build:reporter": "cd reporter && npm run build",
-    "build:package": "npx tsup",
+    "build:package": "rm -rf ./dist &&  npx tsup",
     "serve": "nodemon --files --watch 'src/**/*.ts' --exec 'ts-node' src/server.ts",
     "protos": "npm run submodule && npm run protos:generate",
     "protos:generate": "npm run protos:generate:js && npm run protos:generate:ts",

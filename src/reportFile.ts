@@ -78,6 +78,10 @@ export class ReportFile {
     </script>
     `,
     );
+
+    await fs.promises.mkdir(path.dirname(this.outputFilePath), {
+      recursive: true,
+    });
     await fs.promises.writeFile(this.outputFilePath, fileContent, "utf-8");
   }
 
@@ -174,7 +178,7 @@ export class ReportFile {
       } else if (log.type === "testFinished") {
         const testInfo = currentTestForFile[log.file];
         if (!testInfo) {
-          console.error("Invalid state: testInfo not found", log);
+          // No testInfo when `.test` file is empty.
           continue;
         }
 
