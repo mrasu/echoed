@@ -2,30 +2,50 @@
   import { Span, TestInfo } from "../../lib/TobikuraParam";
   import List, { Item, Separator, Text } from "@smui/list";
   import { push } from "svelte-spa-router";
+  import Paper, { Title, Content } from "@smui/paper";
+  import { link } from "svelte-spa-router";
+  import SucceededIcon from "../../components/status_icons/SucceededIcon.svelte";
+  import FailedIcon from "../../components/status_icons/FailedIcon.svelte";
 
   export let testInfo: TestInfo;
 
-  const traceRecords: Record<string, Span[]> = {};
+  const spansMap: Map<string, Span[]> = new Map();
   testInfo?.spans.forEach((span) => {
     const traceId = span.traceId;
-    if (!traceRecords[traceId]) {
-      traceRecords[traceId] = [];
-    }
-    traceRecords[traceId].push(span);
+
+    const spans = spansMap.get(traceId) || [];
+    spans.push(span);
+    spansMap.set(traceId, spans);
   });
 
-  const toTraceName = (spans: Span[]): string => {
+  const fetchMapByTraceId = testInfo.getFetchMapByTraceId();
+
+  const toTraceName = (traceId: string): string => {
+    const traceFetch = fetchMapByTraceId.get(traceId);
+    if (traceFetch) {
+      const req = traceFetch.request;
+      return `${req.method} ${req.url}`;
+    }
+
+    const spans = spansMap.get(traceId);
+    if (!spans) {
+      return "";
+    }
+
     // TODO: Search for the `http.url`-ish key using breadth-first
     return spans[0].name;
   };
 
-  type Trace = { traceId: string; name: string; spans: Span[]; status: string };
+  type Trace = { traceId: string; name: string; succeeded: boolean };
   const traces: Trace[] = testInfo.orderedTraceIds.map((traceId) => {
+    const spans = spansMap.get(traceId) || [];
+    const succeeded =
+      spans.filter((span: Span) => !span.succeeded).length === 0;
+
     return {
       traceId,
-      name: toTraceName(traceRecords[traceId]),
-      spans: traceRecords[traceId],
-      status: "success",
+      name: toTraceName(traceId),
+      succeeded: succeeded,
     };
   });
 
@@ -34,22 +54,39 @@
   };
 </script>
 
-<div>
-  <span>&quot{testInfo.name}&quot</span>
-  <span>at {testInfo.file}</span>
+<div style="margin-bottom: 20px">
+  <Text><a href="/" use:link>Tests</a></Text>
+  <Text>/</Text>
+  <Text>
+    <Text>&quot{testInfo.name}&quot</Text>
+    <Text>at {testInfo.file}</Text>
+  </Text>
 </div>
-<div>
-  Traces
-  <List class="demo-list">
-    {#each traces as trace}
+
+<Paper>
+  <Title>Traces</Title>
+  <Content>
+    <List class="demo-list">
+      {#each traces as trace}
+        <Separator />
+        <Item on:SMUI:action={() => moveToTrace(trace)}>
+          {#if trace.succeeded}
+            <SucceededIcon />
+          {:else}
+            <FailedIcon />
+          {/if}
+          <Text style="margin-left: 10px">
+            {trace.name}
+            <Text style="margin-left: 10px; font-size: 0.85rem">
+              {trace.traceId}
+            </Text>
+          </Text>
+        </Item>
+      {/each}
       <Separator />
-      <Item on:SMUI:action={() => moveToTrace(trace)}>
-        <Text>{trace.name} - {trace.traceId} - {trace.status}</Text>
-      </Item>
-    {/each}
-    <Separator />
-  </List>
-</div>
+    </List>
+  </Content>
+</Paper>
 
 <style>
 </style>

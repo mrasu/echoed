@@ -1,25 +1,28 @@
 <script lang="ts">
-  import { TestInfo, TobikuraParam } from "../../lib/TobikuraParam";
-  import List, { Item, Separator, Text } from "@smui/list";
-  import { push } from "svelte-spa-router";
+  import { TobikuraParam } from "../../lib/TobikuraParam";
+  import List, { Separator, Group, Subheader } from "@smui/list";
+  import Paper, { Title, Content } from "@smui/paper";
+  import TestListInSameFile from "./TestListInSameFile.svelte";
 
   const tobikuraParam = TobikuraParam.convert(window.__tobikura_param__);
-  const testInfos = tobikuraParam.testInfos;
+  const testInfosByFile = tobikuraParam.testInfosByFile();
 
-  const moveToTest = (testInfo: TestInfo) => {
-    push(`/test/${testInfo.testId}`);
-  };
+  const orderedFileName = [...testInfosByFile.keys()].sort((a, b) =>
+    a < b ? -1 : 1,
+  );
 </script>
 
-<div>
-  Tests
-  <List class="demo-list">
-    {#each testInfos as testInfo}
+<Paper>
+  <Title>Tests</Title>
+  <Content>
+    {#each orderedFileName as fileName}
+      <Group>
+        <Subheader>{fileName}</Subheader>
+        <List class="demo-list">
+          <TestListInSameFile testInfos={testInfosByFile.get(fileName) || []} />
+        </List>
+      </Group>
       <Separator />
-      <Item on:SMUI:action={() => moveToTest(testInfo)}>
-        <Text>{testInfo.name} - {testInfo.file} - {testInfo.status}</Text>
-      </Item>
     {/each}
-    <Separator />
-  </List>
-</div>
+  </Content>
+</Paper>

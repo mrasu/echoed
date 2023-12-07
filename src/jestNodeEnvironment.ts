@@ -1,11 +1,15 @@
 import NodeEnvironment from "jest-environment-node";
+import type {
+  JestEnvironmentConfig,
+  EnvironmentContext,
+} from "@jest/environment";
 import { patchFetch, restoreFetch } from "./fetchPatch";
 import { getTmpDirFromEnv } from "./env";
 
 export class JestNodeEnvironment extends NodeEnvironment {
   testPath: string;
 
-  constructor(config: any, context: any) {
+  constructor(config: JestEnvironmentConfig, context: EnvironmentContext) {
     super(config, context);
 
     this.testPath = context.testPath;

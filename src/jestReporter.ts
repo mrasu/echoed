@@ -15,6 +15,7 @@ import { setTmpDirToEnv } from "./env";
 import { TestFinishedLog, TestStartedLog } from "./types";
 
 export class JestReporter implements Reporter {
+  private readonly jestRootDir: string;
   private readonly output: string;
   private readonly tmpdir: string;
   private readonly filename: string;
@@ -22,7 +23,7 @@ export class JestReporter implements Reporter {
   private readonly serverStopAfter: number;
 
   constructor(
-    _globalConfig: Config.GlobalConfig,
+    globalConfig: Config.GlobalConfig,
     {
       output,
       serverPort = 3000,
@@ -32,6 +33,7 @@ export class JestReporter implements Reporter {
     if (!output) {
       throw new Error("Tobikura: invalid report option. `output` is required");
     }
+    this.jestRootDir = globalConfig.rootDir;
 
     this.output = output;
     this.serverPort = serverPort;
@@ -53,7 +55,11 @@ export class JestReporter implements Reporter {
     const { capturedSpans, capturedLogs } =
       await globalThis.__SERVER__.stopAfter(this.serverStopAfter);
 
-    const reportFile = new ReportFile(this.output, this.tmpdir);
+    const reportFile = new ReportFile(
+      this.jestRootDir,
+      this.output,
+      this.tmpdir,
+    );
     await reportFile.generate(capturedSpans, capturedLogs);
   }
 
@@ -64,6 +70,7 @@ export class JestReporter implements Reporter {
     await this.logStarted({
       type: "testStarted",
       file: test.path,
+      startTimeMillis: Date.now(),
       time: process.hrtime.bigint().toString(),
       testFullName: testCaseStartInfo.fullName,
     });

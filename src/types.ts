@@ -1,3 +1,5 @@
+import opentelemetry from "./generated/otelpbj";
+
 export type Log =
   | TestStartedLog
   | TestFinishedLog
@@ -9,6 +11,7 @@ export type TimeHoldingLog = TestStartedLog | TestFinishedLog | FetchStartedLog;
 export type TestStartedLog = {
   type: "testStarted";
   time: string;
+  startTimeMillis: number;
   file: string;
   testFullName: string;
 };
@@ -43,3 +46,6 @@ export type FetchFinishedLog = {
     body?: string;
   };
 };
+
+export type ITobikuraLogRecord =
+  opentelemetry.opentelemetry.proto.logs.v1.ILogRecord;

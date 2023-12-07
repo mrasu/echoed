@@ -1,10 +1,12 @@
 import fs from "fs";
 import path from "path";
-import opentelemetry from "./generated/otelpbj";
-import { FetchFinishedLog, Log, TimeHoldingLog } from "./types";
-
-type ISpan = opentelemetry.opentelemetry.proto.trace.v1.ISpan;
-type ILogRecord = opentelemetry.opentelemetry.proto.logs.v1.ILogRecord;
+import { TobikuraSpan } from "./type/tobikuraSpan";
+import {
+  FetchFinishedLog,
+  ITobikuraLogRecord,
+  Log,
+  TimeHoldingLog,
+} from "./types";
 
 type TobikuraParam = {
   testInfos: TestInfo[];
@@ -14,6 +16,7 @@ type TestInfo = {
   testId: string;
   file: string;
   name: string;
+  startTimeMillis: number;
   status: string;
   orderedTraceIds: string[];
   fetches: Fetch[];
@@ -26,18 +29,18 @@ type TestInfo = {
 
 type Fetch = {
   traceId: string;
-  response: FetchResponse;
   request: FetchRequest;
-};
-
-type FetchResponse = {
-  status: number;
-  body?: string;
+  response: FetchResponse;
 };
 
 type FetchRequest = {
   url: string;
   method: string;
+  body?: string;
+};
+
+type FetchResponse = {
+  status: number;
   body?: string;
 };
 
@@ -48,13 +51,14 @@ const reportHtmlTemplatePath = path.resolve(
 
 export class ReportFile {
   constructor(
+    private testRootDir: string,
     private outputFilePath: string,
     private tmpLogDir: string,
   ) {}
 
   async generate(
-    capturedSpans: Record<string, ISpan[]>,
-    capturedLogs: Record<string, ILogRecord[]>,
+    capturedSpans: Record<string, TobikuraSpan[]>,
+    capturedLogs: Record<string, ITobikuraLogRecord[]>,
   ) {
     const logs = this.readLogs();
     const testInfos = this.toTestInfos(logs);
@@ -109,6 +113,7 @@ export class ReportFile {
           file: parsed.file,
           testFullName: parsed.testFullName,
           time: parsed.time,
+          startTimeMillis: parsed.startTimeMillis,
         });
       } else if (parsed.type === "testFinished") {
         logs.push({
@@ -134,15 +139,11 @@ export class ReportFile {
           request: {
             url: parsed.request.url,
             method: parsed.request.method,
-            body: parsed.request.body
-              ? JSON.stringify(parsed.request.body)
-              : undefined,
+            body: parsed.request.body || undefined,
           },
           response: {
             status: parsed.response.status,
-            body: parsed.response.body
-              ? JSON.stringify(parsed.response.body)
-              : undefined,
+            body: parsed.response.body || undefined,
           },
         });
       } else {
@@ -164,8 +165,9 @@ export class ReportFile {
       if (log.type === "testStarted") {
         const testInfo: TestInfo = {
           testId: testId.toString(),
-          file: log.file,
+          file: log.file.replace(this.testRootDir, ""),
           name: log.testFullName,
+          startTimeMillis: log.startTimeMillis,
           status: "unknown",
           orderedTraceIds: [],
           fetches: [],
@@ -176,7 +178,8 @@ export class ReportFile {
 
         testId++;
       } else if (log.type === "testFinished") {
-        const testInfo = currentTestForFile[log.file];
+        const testFile = log.file.replace(this.testRootDir, "");
+        const testInfo = currentTestForFile[testFile];
         if (!testInfo) {
           // No testInfo when `.test` file is empty.
           continue;
@@ -188,9 +191,10 @@ export class ReportFile {
         testInfo.duration = log.duration;
 
         testInfos.push(testInfo);
-        delete currentTestForFile[log.file];
+        delete currentTestForFile[testFile];
       } else if (log.type === "fetchStarted") {
-        const testInfo = currentTestForFile[log.testPath];
+        const testFile = log.testPath.replace(this.testRootDir, "");
+        const testInfo = currentTestForFile[testFile];
         if (!testInfo) {
           // Ignore request outside of test
           continue;
@@ -256,12 +260,12 @@ export class ReportFile {
 
   private createTobikuraParam(
     testInfos: TestInfo[],
-    capturedSpans: Record<string, ISpan[]>,
-    capturedLogs: Record<string, ILogRecord[]>,
+    capturedSpans: Record<string, TobikuraSpan[]>,
+    capturedLogs: Record<string, ITobikuraLogRecord[]>,
   ): TobikuraParam {
     for (const testInfo of testInfos) {
-      let traceSpans: ISpan[] = [];
-      let traceLogs: ILogRecord[] = [];
+      let traceSpans: TobikuraSpan[] = [];
+      let traceLogs: ITobikuraLogRecord[] = [];
 
       for (const traceId of testInfo.orderedTraceIds) {
         traceSpans = traceSpans.concat(capturedSpans[traceId]);

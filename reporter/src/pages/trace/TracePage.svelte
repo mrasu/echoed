@@ -6,6 +6,9 @@
 
   const tobikuraParam = TobikuraParam.convert(window.__tobikura_param__);
   const testInfo = tobikuraParam.pickTest(params.testId);
+  const traceFetch = testInfo?.fetches.find(
+    (fetch) => fetch.traceId === params.traceId,
+  );
   const traceSpans =
     testInfo?.spans.filter((span) => span.traceId === params.traceId) || [];
   const traceLogs =
@@ -17,7 +20,8 @@
 {#if testInfo}
   <TraceView
     traceId={params.traceId}
-    spans={traceSpans}
+    {traceSpans}
+    {traceFetch}
     {traceLogs}
     {testInfo}
   />

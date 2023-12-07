@@ -6,6 +6,7 @@ export type ITestInfo = {
   testId: string;
   file: string;
   name: string;
+  startTimeMillis: number;
   status: string;
   orderedTraceIds: string[];
   fetches: IFetch[];
@@ -18,18 +19,18 @@ export type ITestInfo = {
 
 export type IFetch = {
   traceId: string;
-  response: IFetchResponse;
   request: IFetchRequest;
-};
-
-export type IFetchResponse = {
-  status: number;
-  body?: string;
+  response: IFetchResponse;
 };
 
 export type IFetchRequest = {
   url: string;
   method: string;
+  body?: string;
+};
+
+export type IFetchResponse = {
+  status: number;
   body?: string;
 };
 
@@ -45,6 +46,8 @@ export type ISpan = {
   links?: ILink[];
   kind?: string;
   status?: IStatus;
+  resource?: IResource;
+  scope?: IInstrumentationScope;
 };
 
 export type ILogRecord = {
@@ -103,4 +106,16 @@ export type ILink = {
 export type IStatus = {
   message?: string | null;
   code?: number | null;
+};
+
+export type IResource = {
+  attributes?: IKeyValue[] | null;
+  droppedAttributesCount?: number | null;
+};
+
+export type IInstrumentationScope = {
+  name?: string | null;
+  version?: string | null;
+  attributes?: IKeyValue[] | null;
+  droppedAttributesCount?: number | null;
 };

@@ -7,9 +7,12 @@
   Chart.register(HierarchicalScale);
 </script>
 
-<main>
+<main id="main">
   <Router {routes} />
 </main>
 
 <style>
+  #main {
+    width: 80vw;
+  }
 </style>

@@ -12,6 +12,11 @@ import type {
   IArrayValue,
   ITestInfo,
   ILogRecord,
+  IResource,
+  IInstrumentationScope,
+  IFetch,
+  IFetchRequest,
+  IFetchResponse,
 } from "../types/tobikura_param";
 import Long from "long";
 
@@ -32,14 +37,41 @@ export class TobikuraParam {
   pickTest(testId: string): TestInfo | undefined {
     return this.testInfos.find((testInfo) => testInfo.testId === testId);
   }
+
+  testInfosByFile(): Map<string, TestInfo[]> {
+    const map = new Map<string, TestInfo[]>();
+    this.testInfos.forEach((testInfo) => {
+      const testInfos = map.get(testInfo.file) || [];
+      testInfos.push(testInfo);
+      map.set(testInfo.file, testInfos);
+    });
+
+    return map;
+  }
 }
+
+// https://github.com/jestjs/jest/blob/e54c0ebb048e10331345dbe99f8ec07654a43f1c/packages/jest-util/src/specialChars.ts#L13
+const testStatuses = [
+  "passed",
+  "failed",
+  "skipped",
+  "pending",
+  "todo",
+  "disabled",
+  // "focused" appears when `.test.only()` is used.
+  "focused",
+];
+
+type TestStatus = (typeof testStatuses)[number];
 
 export class TestInfo {
   testId: string;
   file: string;
   name: string;
-  status: string;
+  startDate: Date;
+  statusString: string;
   orderedTraceIds: string[];
+  fetches: Fetch[];
   spans: Span[];
   logRecords: LogRecord[];
 
@@ -47,13 +79,64 @@ export class TestInfo {
     this.testId = testInfo.testId;
     this.file = testInfo.file;
     this.name = testInfo.name;
-    this.status = testInfo.status;
+    this.startDate = new Date(testInfo.startTimeMillis);
+    this.statusString = testInfo.status;
+    this.fetches = testInfo.fetches.map((fetch) => new Fetch(fetch));
     this.orderedTraceIds = testInfo.orderedTraceIds.map((traceId) =>
       toHex(decodeBase64(traceId)),
     );
     this.spans = testInfo.spans?.map((span: ISpan) => new Span(span)) || [];
     this.logRecords =
       testInfo.logRecords?.map((log: ILogRecord) => new LogRecord(log)) || [];
+  }
+
+  get status(): TestStatus | undefined {
+    if (testStatuses.includes(this.statusString)) {
+      return this.statusString as TestStatus;
+    }
+    return undefined;
+  }
+
+  getFetchMapByTraceId(): Map<string, Fetch> {
+    const map = new Map<string, Fetch>();
+    this.fetches.forEach((fetch) => {
+      map.set(fetch.traceId, fetch);
+    });
+    return map;
+  }
+}
+
+export class Fetch {
+  traceId: string;
+  request: FetchRequest;
+  response: FetchResponse;
+
+  constructor(fetch: IFetch) {
+    this.traceId = toHex(decodeBase64(fetch.traceId));
+    this.request = new FetchRequest(fetch.request);
+    this.response = new FetchResponse(fetch.response);
+  }
+}
+
+export class FetchRequest {
+  url: string;
+  method: string;
+  body?: string;
+
+  constructor(request: IFetchRequest) {
+    this.url = request.url;
+    this.method = request.method;
+    this.body = request.body;
+  }
+}
+
+export class FetchResponse {
+  status: number;
+  body?: string;
+
+  constructor(response: IFetchResponse) {
+    this.status = response.status;
+    this.body = response.body;
   }
 }
 
@@ -69,6 +152,8 @@ export class Span {
   links?: Link[];
   kind?: string;
   status?: Status;
+  resource?: Resource;
+  scope?: InstrumentationScope;
 
   constructor(span: ISpan) {
     this.attributes = span.attributes?.map((kv) => new KeyValue(kv)) || [];
@@ -86,16 +171,40 @@ export class Span {
     this.links = span.links?.map((link) => new Link(link)) || [];
     this.kind = span.kind;
     this.status = span.status ? new Status(span.status) : undefined;
+    this.resource = span.resource ? new Resource(span.resource) : undefined;
+    this.scope = span.scope ? new InstrumentationScope(span.scope) : undefined;
+  }
+
+  get serviceName(): string | undefined {
+    const service = this.resource?.attributes?.find(
+      (kv) => kv.key === "service.name",
+    );
+    return service?.value?.stringValue;
+  }
+
+  get startTime(): Date {
+    return new Date(this.startTimeMillis);
   }
 
   get startTimeMillis(): number {
-    return this.startTimeUnixNano
-      ? this.startTimeUnixNano.toNumber() / Million
-      : 0;
+    return nanoToMillis(this.startTimeUnixNano);
+  }
+
+  get endTime(): Date {
+    return new Date(this.endTimeMillis);
   }
 
   get endTimeMillis(): number {
-    return this.endTimeUnixNano ? this.endTimeUnixNano.toNumber() / Million : 0;
+    return nanoToMillis(this.endTimeUnixNano);
+  }
+
+  get succeeded(): boolean {
+    if (!this.status) {
+      return true;
+    }
+
+    // 2 is ERROR
+    return this.status.code !== 2;
   }
 }
 
@@ -141,6 +250,30 @@ export class Status {
   }
 }
 
+export class Resource {
+  attributes?: KeyValue[];
+  droppedAttributesCount?: number;
+
+  constructor(status: IResource) {
+    this.attributes = status.attributes?.map((kv) => new KeyValue(kv));
+    this.droppedAttributesCount = status.droppedAttributesCount || undefined;
+  }
+}
+
+export class InstrumentationScope {
+  name?: string;
+  version?: string;
+  attributes?: KeyValue[];
+  droppedAttributesCount?: number;
+
+  constructor(status: IInstrumentationScope) {
+    this.name = status.name || undefined;
+    this.version = status.version || undefined;
+    this.attributes = status.attributes?.map((kv) => new KeyValue(kv));
+    this.droppedAttributesCount = status.droppedAttributesCount || undefined;
+  }
+}
+
 export class LogRecord {
   traceId?: string;
   spanId?: string;
@@ -173,6 +306,26 @@ export class LogRecord {
     this.droppedAttributesCount = logRecord.droppedAttributesCount || undefined;
     this.flags = logRecord.flags || undefined;
   }
+
+  get bodyText(): string {
+    return this.body?.displayText || "";
+  }
+
+  get time(): Date {
+    return new Date(this.timeMillis);
+  }
+
+  get timeMillis(): number {
+    return nanoToMillis(this.timeUnixNano);
+  }
+
+  get observedTime(): Date {
+    return new Date(this.observedTimeMillis);
+  }
+
+  get observedTimeMillis(): number {
+    return nanoToMillis(this.observedTimeUnixNano);
+  }
 }
 
 export class KeyValue {
@@ -182,6 +335,10 @@ export class KeyValue {
   constructor(kv: IKeyValue) {
     this.key = kv.key || undefined;
     this.value = kv.value ? new AnyValue(kv.value) : undefined;
+  }
+
+  get displayText(): string {
+    return JSON.stringify({ key: this.key, value: this.value?.displayText });
   }
 }
 
@@ -209,6 +366,28 @@ export class AnyValue {
       ? new KeyValueList(value.kvlistValue)
       : undefined;
   }
+
+  get displayText(): string {
+    if (this.stringValue) {
+      return this.stringValue;
+    } else if (this.boolValue) {
+      return this.boolValue ? "true" : "false";
+    } else if (this.intValue) {
+      return this.intValue;
+    } else if (this.doubleValue) {
+      return this.doubleValue.toString();
+    } else if (this.bytesValue) {
+      return toHex(this.bytesValue);
+    } else if (this.arrayValue) {
+      return this.arrayValue.values?.map((v) => v.displayText).join(", ") || "";
+    } else if (this.kvlistValue) {
+      return (
+        this.kvlistValue.values?.map((kv) => kv.displayText).join(", ") || ""
+      );
+    } else {
+      return "-";
+    }
+  }
 }
 
 export class ArrayValue {
@@ -233,4 +412,9 @@ function decodeBase64(bytes: string): Uint8Array {
 
 function toHex(bytes: Uint8Array): string {
   return Buffer.from(bytes).toString("hex");
+}
+
+function nanoToMillis(nano: Long | undefined): number {
+  if (!nano) return 0;
+  return nano.toNumber() / Million;
 }

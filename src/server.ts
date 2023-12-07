@@ -3,16 +3,16 @@ import bodyParser from "body-parser";
 import opentelemetry from "./generated/otelpbj";
 import http from "http";
 import { sleep, toBase64 } from "./util";
+import { ITobikuraLogRecord } from "./types";
+import { TobikuraSpan } from "./type/tobikuraSpan";
 
 const TracesData = opentelemetry.opentelemetry.proto.trace.v1.TracesData;
 const LogsData = opentelemetry.opentelemetry.proto.logs.v1.LogsData;
-type ISpan = opentelemetry.opentelemetry.proto.trace.v1.ISpan;
-type ILogRecord = opentelemetry.opentelemetry.proto.logs.v1.ILogRecord;
 
 export class Server {
   private server?: http.Server;
-  private capturedSpans: Record<string, ISpan[]> = {};
-  private capturedLogs: Record<string, ILogRecord[]> = {};
+  private capturedSpans: Record<string, TobikuraSpan[]> = {};
+  private capturedLogs: Record<string, ITobikuraLogRecord[]> = {};
 
   static async start(port: number) {
     const server = new Server();
@@ -53,7 +53,12 @@ export class Server {
     tracesData.resourceSpans.forEach((resourceSpan) => {
       resourceSpan.scopeSpans?.forEach((scopeSpan) => {
         scopeSpan.spans?.forEach((span) => {
-          this.captureSpan(span);
+          const resource =
+            resourceSpan.resource as opentelemetry.opentelemetry.proto.resource.v1.Resource;
+          const scope =
+            scopeSpan.scope as opentelemetry.opentelemetry.proto.common.v1.InstrumentationScope;
+          const tobikuraSpan = new TobikuraSpan(span, resource, scope);
+          this.captureSpan(tobikuraSpan);
         });
       });
     });
@@ -70,7 +75,7 @@ export class Server {
     });
   }
 
-  private captureSpan(span: ISpan) {
+  private captureSpan(span: TobikuraSpan) {
     this.debugLogSpan(span);
 
     let traceId = toBase64(span.traceId);
@@ -78,7 +83,7 @@ export class Server {
     this.capturedSpans[traceId].push(span);
   }
 
-  private captureLog(log: ILogRecord) {
+  private captureLog(log: ITobikuraLogRecord) {
     this.debugLogLogRecord(log);
 
     let traceId = toBase64(log.traceId);
@@ -86,7 +91,7 @@ export class Server {
     this.capturedLogs[traceId].push(log);
   }
 
-  private debugLogSpan(span: ISpan) {
+  private debugLogSpan(span: TobikuraSpan) {
     console.log(
       "Trace",
       "TraceId",
@@ -100,7 +105,7 @@ export class Server {
     );
   }
 
-  private debugLogLogRecord(log: ILogRecord) {
+  private debugLogLogRecord(log: ITobikuraLogRecord) {
     console.log(
       "Log",
       "TraceId",
