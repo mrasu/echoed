@@ -1,7 +1,7 @@
 import crypto from "crypto";
 
 describe("Simple test", () => {
-  it("runs", async () => {
+  it("should pass", async () => {
     const sessionId = crypto.randomUUID();
 
     const response = await fetch(

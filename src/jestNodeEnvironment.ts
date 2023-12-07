@@ -21,7 +21,7 @@ export class JestNodeEnvironment extends NodeEnvironment {
     const tmpDir = getTmpDirFromEnv();
     if (!tmpDir) {
       console.warn(
-        "No output due to invalid setting for Tobikura: no tmpDir. reporter is not set?",
+        "No output due to invalid setting for Tobikura. Reporter is not set?",
       );
     }
 

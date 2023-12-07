@@ -268,8 +268,8 @@ export class ReportFile {
       let traceLogs: ITobikuraLogRecord[] = [];
 
       for (const traceId of testInfo.orderedTraceIds) {
-        traceSpans = traceSpans.concat(capturedSpans[traceId]);
-        traceLogs = traceLogs.concat(capturedLogs[traceId]);
+        traceSpans = traceSpans.concat(capturedSpans[traceId] || []);
+        traceLogs = traceLogs.concat(capturedLogs[traceId] || []);
       }
 
       testInfo.spans = traceSpans;
