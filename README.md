@@ -13,7 +13,7 @@ Choose one of the following methods to install Tobikura based on your testing ne
 1. Initialize a new directory using npx:
     ```
     mkdir my_test_directory && cd my_test_directory
-    npx tobikura
+    npx tobikura@latest
     ```
 2. Review the example tests in the generated `README.md`:
     ```

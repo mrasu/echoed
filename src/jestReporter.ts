@@ -28,7 +28,7 @@ export class JestReporter implements Reporter {
     globalConfig: Config.GlobalConfig,
     {
       output,
-      serverPort = 14318,
+      serverPort = 3000,
       serverStopAfter = 20,
       debug = false,
     }: {
