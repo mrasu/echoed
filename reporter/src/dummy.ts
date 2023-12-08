@@ -95,13 +95,28 @@ const fetches: IFetch[] = [
 
 // prettier-ignore
 const testInfos: ITestInfo[] = [
-  { testId: "0", file: "api/buyItem.test.ts", name: "buy items / simple1", startTimeMillis: 1701873955941, status: "passed", orderedTraceIds: ["YUMtSIxXQHea1DTgS+G2zg==", "ztGplbofNomvXRjV4xq+8A==",], fetches: fetches, spans: spans, logRecords: logs },
-  { testId: "1", file: "api/buyItem.test.ts", name: "failed test2", startTimeMillis: 1701873955942, status: "failed", orderedTraceIds: [], fetches: fetches, spans: spans, logRecords: logs },
-  { testId: "2", file: "api/5buyItem.test.ts", name: "skipped test3", startTimeMillis: 1701873955943, status: "skipped", orderedTraceIds: [], fetches: fetches, spans: spans, logRecords: logs },
-  { testId: "4", file: "api/333buyItem.test.ts", name: "todo test5", startTimeMillis: 1701873955945, status: "todo", orderedTraceIds: [], fetches: fetches, spans: spans, logRecords: logs },
-  { testId: "5", file: "api/333buyItem.test.ts", name: "disabled test6", startTimeMillis: 1701873955946, status: "disabled", orderedTraceIds: [], fetches: fetches, spans: spans, logRecords: logs },
-  { testId: "6", file: "api/buyItem.test.ts", name: "focused test7", startTimeMillis: 1701873955947, status: "focused", orderedTraceIds: [], fetches: fetches, spans: spans, logRecords: logs },
-  { testId: "3", file: "api/buyItem.test.ts", name: "pending test4", startTimeMillis: 1701873955944, status: "pending", orderedTraceIds: [], fetches: fetches, spans: spans, logRecords: logs },
+  { testId: "0", file: "api/buyItem.test.ts", name: "buy items / simple1", startTimeMillis: 1701873955941, status: "passed", orderedTraceIds: ["YUMtSIxXQHea1DTgS+G2zg==", "ztGplbofNomvXRjV4xq+8A==",], fetches: fetches, spans: spans, logRecords: logs, duration: 1234, failureDetails: [], failureMessages: [] },
+  { testId: "1", file: "api/buyItem.test.ts", name: "failed test2", startTimeMillis: 1701873955942, status: "failed", orderedTraceIds: ["MDAwMDAwMDA="], fetches: fetches, spans: spans, logRecords: logs,
+    failureDetails: [
+        "{\"cause\":{\"errno\":-111,\"code\":\"ECONNREFUSED\",\"syscall\":\"connect\",\"address\":\"127.0.0.1\",\"port\":8080}}"
+    ],
+        "failureMessages": [
+        "TypeError: fetch failed\n    at Object.fetch (node:internal/deps/undici/undici:11730:11)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at callAndExtractFromFetch (/path/to/dist/index.js:40341:22)\n    at /path/to/dist/index.js:40272:37",
+        "TypeError: fetch failed\n    at Object.fetch (node:internal/deps/undici/undici:11730:11)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at callAndExtractFromFetch (/path/to/dist/index.js:40341:22)\n    at /path/to/dist/index.js:40272:37",
+    ],
+  },
+  { testId: "2", file: "api/5buyItem.test.ts", name: "skipped test3", startTimeMillis: 1701873955943, status: "skipped", orderedTraceIds: [], fetches: fetches, spans: spans, logRecords: logs, duration: 1234, failureDetails: [], failureMessages: [] },
+  { testId: "4", file: "api/333buyItem.test.ts", name: "todo test5", startTimeMillis: 1701873955945, status: "todo", orderedTraceIds: [], fetches: fetches, spans: spans, logRecords: logs, duration: 1234, failureDetails: [], failureMessages: [] },
+  { testId: "5", file: "api/333buyItem.test.ts", name: "disabled test6", startTimeMillis: 1701873955946, status: "disabled", orderedTraceIds: [], fetches: fetches, spans: spans, logRecords: logs, duration: 1234, failureDetails: [], failureMessages: [] },
+  { testId: "6", file: "api/buyItem.test.ts", name: "focused test7", startTimeMillis: 1701873955947, status: "focused", orderedTraceIds: [], fetches: fetches, spans: spans, logRecords: logs, duration: 1234, failureDetails: [], failureMessages: [] },
+  { testId: "3", file: "api/buyItem.test.ts", name: "failing test4", startTimeMillis: 1701873955944, status: "failed", orderedTraceIds: [], fetches: fetches, spans: spans, logRecords: logs, duration: 1234,
+    failureDetails: [
+      "{\"matcherResult\":{\"actual\":10,\"expected\":9,\"message\":\"\\u001b[2mexpect(\\u001b[22m\\u001b[31mreceived\\u001b[39m\\u001b[2m).\\u001b[22mtoBe\\u001b[2m(\\u001b[22m\\u001b[32mexpected\\u001b[39m\\u001b[2m) // Object.is equality\\u001b[22m\\n\\nExpected: \\u001b[32m9\\u001b[39m\\nReceived: \\u001b[31m10\\u001b[39m\",\"name\":\"toBe\",\"pass\":false}}"
+    ],
+    failureMessages: [
+      `Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m9\u001b[39m\nReceived: \u001b[31m10\u001b[39m\n    at /path/to/example/test/products.test.ts:19:29\n    at Generator.next (<anonymous>)\n    at fulfilled (/path/to/example/test/products.test.ts:5:58)`
+    ],
+  },
 ];
 
 window.__tobikura_param__ = {

@@ -74,6 +74,9 @@ export class TestInfo {
   fetches: Fetch[];
   spans: Span[];
   logRecords: LogRecord[];
+  failureDetails?: unknown[];
+  failureMessages?: string[];
+  duration?: number;
 
   constructor(testInfo: ITestInfo) {
     this.testId = testInfo.testId;
@@ -88,6 +91,10 @@ export class TestInfo {
     this.spans = testInfo.spans?.map((span: ISpan) => new Span(span)) || [];
     this.logRecords =
       testInfo.logRecords?.map((log: ILogRecord) => new LogRecord(log)) || [];
+
+    this.failureDetails = testInfo.failureDetails?.map((v) => JSON.parse(v));
+    this.failureMessages = testInfo.failureMessages;
+    this.duration = testInfo.duration;
   }
 
   get status(): TestStatus | undefined {

@@ -401,9 +401,13 @@
                 </Content>
               </Panel>
             </Accordion>
-          {:else}
+          {:else if traceSpans.length > 0}
             <Paper variant="unelevated">
               <Content>Click span to see information</Content>
+            </Paper>
+          {:else}
+            <Paper variant="unelevated">
+              <Content>No spans found</Content>
             </Paper>
           {/if}
         </Content>

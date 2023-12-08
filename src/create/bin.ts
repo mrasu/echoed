@@ -2,6 +2,7 @@
 
 import fs from "fs";
 import { Creator } from "./create";
+import { AnsiGreen, AnsiReset } from "../ansi";
 
 const cwd = process.cwd();
 if (fs.existsSync(cwd)) {
@@ -17,6 +18,6 @@ creator.run().then(() => {
   console.log(`Finish initializing Tobikura.
 
 The initialization also creates example tests to demonstrate Tobikura's behavior.
-Refer README.md to run the tests.
+Refer ${AnsiGreen}README.md${AnsiReset} to run the tests.
 `);
 });

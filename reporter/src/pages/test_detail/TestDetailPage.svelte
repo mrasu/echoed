@@ -1,5 +1,5 @@
 <script lang="ts">
-  import TraceList from "./TraceList.svelte";
+  import TestDetail from "./TestDetail.svelte";
   import { TobikuraParam } from "../..//lib/TobikuraParam";
 
   export let params: { testId: string };
@@ -9,7 +9,7 @@
 </script>
 
 {#if testInfo}
-  <TraceList {testInfo} />
+  <TestDetail {testInfo} />
 {:else}
   Invalid test-id
 {/if}

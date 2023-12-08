@@ -6,6 +6,7 @@
   import { link } from "svelte-spa-router";
   import SucceededIcon from "../../components/status_icons/SucceededIcon.svelte";
   import FailedIcon from "../../components/status_icons/FailedIcon.svelte";
+  import BlockedIcon from "../../components/status_icons/BlockedIcon.svelte";
 
   export let testInfo: TestInfo;
 
@@ -36,7 +37,25 @@
     return spans[0].name;
   };
 
-  type Trace = { traceId: string; name: string; succeeded: boolean };
+  const getTraceStatus = (
+    traceId: string,
+  ): "succeeded" | "failed" | "unknown" => {
+    const spans = spansMap.get(traceId) || [];
+    if (spans.length === 0) {
+      return "unknown";
+    }
+
+    const succeeded =
+      spans.filter((span: Span) => !span.succeeded).length === 0;
+
+    return succeeded ? "succeeded" : "failed";
+  };
+
+  type Trace = {
+    traceId: string;
+    name: string;
+    status: "succeeded" | "failed" | "unknown";
+  };
   const traces: Trace[] = testInfo.orderedTraceIds.map((traceId) => {
     const spans = spansMap.get(traceId) || [];
     const succeeded =
@@ -45,7 +64,7 @@
     return {
       traceId,
       name: toTraceName(traceId),
-      succeeded: succeeded,
+      status: getTraceStatus(traceId),
     };
   });
 
@@ -54,15 +73,6 @@
   };
 </script>
 
-<div style="margin-bottom: 20px">
-  <Text><a href="/" use:link>Tests</a></Text>
-  <Text>/</Text>
-  <Text>
-    <Text>&quot{testInfo.name}&quot</Text>
-    <Text>at {testInfo.file}</Text>
-  </Text>
-</div>
-
 <Paper>
   <Title>Traces</Title>
   <Content>
@@ -70,10 +80,13 @@
       {#each traces as trace}
         <Separator />
         <Item on:SMUI:action={() => moveToTrace(trace)}>
-          {#if trace.succeeded}
+          {#if trace.status === "succeeded"}
             <SucceededIcon />
-          {:else}
+          {:else if trace.status === "failed"}
             <FailedIcon />
+          {:else}
+            <BlockedIcon />
+            <Text style="margin-left: 5px">({trace.status})</Text>
           {/if}
           <Text style="margin-left: 10px">
             {trace.name}
