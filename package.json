@@ -1,6 +1,6 @@
 {
   "name": "tobikura",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Observable API testing library using OpenTelemetry for Jest.",
   "bin": "dist/create/bin.js",
   "scripts": {
