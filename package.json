@@ -1,7 +1,7 @@
 {
   "name": "tobikura",
   "version": "0.0.1",
-  "description": "",
+  "description": "Observable API testing library using OpenTelemetry for Jest.",
   "bin": "dist/create/bin.js",
   "scripts": {
     "build": "npm run protos && npm run build:reporter && npm run build:package",
@@ -14,8 +14,14 @@
     "protos:generate:ts": "pbts -o src/generated/otelpbj.d.ts src/generated/otelpbj.js",
     "submodule": "git submodule sync --recursive && git submodule update --init --recursive"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "opentelemetry",
+    "observability",
+    "test",
+    "integration",
+    "api"
+  ],
+  "author": "mrasu",
   "license": "MIT",
   "devDependencies": {
     "@types/jest": "^29.5.10",
