@@ -5,6 +5,7 @@ import type {
 } from "@jest/environment";
 import { patchFetch, restoreFetch } from "./fetchPatch";
 import { getTmpDirFromEnv } from "./env";
+import { Logger } from "./logger";
 
 export class JestNodeEnvironment extends NodeEnvironment {
   testPath: string;
@@ -20,7 +21,7 @@ export class JestNodeEnvironment extends NodeEnvironment {
 
     const tmpDir = getTmpDirFromEnv();
     if (!tmpDir) {
-      console.warn(
+      Logger.warn(
         "No output due to invalid setting for Tobikura. Reporter is not set?",
       );
     }

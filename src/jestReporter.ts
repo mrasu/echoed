@@ -13,6 +13,8 @@ import { Test, TestCaseResult, TestContext } from "@jest/test-result";
 import { Circus } from "@jest/types";
 import { setTmpDirToEnv } from "./env";
 import { TestFinishedLog, TestStartedLog } from "./types";
+import { Logger } from "./logger";
+import { AnsiGreen, AnsiReset } from "./ansi";
 
 export class JestReporter implements Reporter {
   private readonly jestRootDir: string;
@@ -26,9 +28,15 @@ export class JestReporter implements Reporter {
     globalConfig: Config.GlobalConfig,
     {
       output,
-      serverPort = 3000,
+      serverPort = 14318,
       serverStopAfter = 20,
-    }: { output?: string; serverPort?: number; serverStopAfter?: number },
+      debug = false,
+    }: {
+      output?: string;
+      serverPort?: number;
+      serverStopAfter?: number;
+      debug?: boolean;
+    },
   ) {
     if (!output) {
       throw new Error("Tobikura: invalid report option. `output` is required");
@@ -38,6 +46,7 @@ export class JestReporter implements Reporter {
     this.output = output;
     this.serverPort = serverPort;
     this.serverStopAfter = serverStopAfter;
+    Logger.setShowDebug(debug);
 
     const tmpdir = fs.mkdtempSync(path.join(os.tmpdir(), "tobikura-"));
     setTmpDirToEnv(tmpdir);
@@ -47,7 +56,7 @@ export class JestReporter implements Reporter {
   }
 
   async onRunStart(results: AggregatedResult, options: ReporterOnStartOptions) {
-    console.log("[Tobikura] Starting server...");
+    Logger.log("Starting server...");
     globalThis.__SERVER__ = await Server.start(this.serverPort);
   }
 
@@ -60,7 +69,11 @@ export class JestReporter implements Reporter {
       this.output,
       this.tmpdir,
     );
-    await reportFile.generate(capturedSpans, capturedLogs);
+    const outputPath = await reportFile.generate(capturedSpans, capturedLogs);
+
+    Logger.log(
+      `Report file is generated at ${AnsiGreen}${outputPath}${AnsiReset}`,
+    );
   }
 
   async onTestCaseStart(

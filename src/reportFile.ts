@@ -7,6 +7,7 @@ import {
   Log,
   TimeHoldingLog,
 } from "./types";
+import { Logger } from "./logger";
 
 type TobikuraParam = {
   testInfos: TestInfo[];
@@ -59,7 +60,7 @@ export class ReportFile {
   async generate(
     capturedSpans: Record<string, TobikuraSpan[]>,
     capturedLogs: Record<string, ITobikuraLogRecord[]>,
-  ) {
+  ): Promise<string> {
     const logs = this.readLogs();
     const testInfos = this.toTestInfos(logs);
 
@@ -87,6 +88,8 @@ export class ReportFile {
       recursive: true,
     });
     await fs.promises.writeFile(this.outputFilePath, fileContent, "utf-8");
+
+    return this.outputFilePath;
   }
 
   private readLogs(): Log[] {
@@ -147,7 +150,7 @@ export class ReportFile {
           },
         });
       } else {
-        console.warn("unknown log type found: ", parsed.type);
+        Logger.warn("unknown log type found: ", parsed.type);
       }
     });
 
@@ -203,7 +206,7 @@ export class ReportFile {
         testInfo.orderedTraceIds.push(log.traceId);
         const fetchFinishedLog = fetchFinishedRecord[log.traceId];
         if (!fetchFinishedLog) {
-          console.error("Invalid state: requestLog not found", log);
+          Logger.error("Invalid state: requestLog not found", log);
           continue;
         }
 

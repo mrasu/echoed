@@ -5,6 +5,7 @@ import http from "http";
 import { sleep, toBase64 } from "./util";
 import { ITobikuraLogRecord } from "./types";
 import { TobikuraSpan } from "./type/tobikuraSpan";
+import { Logger } from "./logger";
 
 const TracesData = opentelemetry.opentelemetry.proto.trace.v1.TracesData;
 const LogsData = opentelemetry.opentelemetry.proto.logs.v1.LogsData;
@@ -92,7 +93,7 @@ export class Server {
   }
 
   private debugLogSpan(span: TobikuraSpan) {
-    console.log(
+    Logger.debug(
       "Trace",
       "TraceId",
       toBase64(span.traceId),
@@ -106,7 +107,7 @@ export class Server {
   }
 
   private debugLogLogRecord(log: ITobikuraLogRecord) {
-    console.log(
+    Logger.debug(
       "Log",
       "TraceId",
       toBase64(log.traceId),
@@ -118,7 +119,11 @@ export class Server {
   }
 
   async stopAfter(waitSec: number) {
-    await sleep(1000 * waitSec);
+    Logger.writeWithTag(`waiting for OpenTelemetry for ${waitSec} seconds`);
+    await sleep(1000 * waitSec, () => {
+      Logger.write(".");
+    });
+    Logger.write("\n");
 
     await this.stop();
 

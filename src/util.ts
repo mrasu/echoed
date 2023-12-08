@@ -1,7 +1,19 @@
 import fs from "fs";
 
-export async function sleep(ms: number) {
-  await new Promise((res) => setTimeout(res, ms));
+const sleepingCallbackIntervalMs = 1000;
+type sleepingCallbackFn = () => void;
+
+export async function sleep(ms: number, sleeping: sleepingCallbackFn) {
+  let waitMs = 0;
+  while (waitMs < ms) {
+    if (waitMs > 0) {
+      sleeping();
+    }
+
+    const nextMs = Math.min(ms - waitMs, sleepingCallbackIntervalMs);
+    await new Promise((res) => setTimeout(res, nextMs));
+    waitMs += nextMs;
+  }
 }
 
 export function hexToBase64(hex: string): string {

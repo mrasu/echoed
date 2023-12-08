@@ -4,6 +4,6 @@ module.exports = {
   testEnvironment: "./__scripts/testEnvironment.ts",
   reporters: [
     "default",
-    ["./__scripts/reporter.js", { output: "dist/report.html" }],
+    ["./__scripts/reporter.js", { output: "report/result.html" }],
   ],
 };
