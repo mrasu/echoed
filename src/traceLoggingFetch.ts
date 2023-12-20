@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import { appendFileLine, hexToBase64 } from "./util";
+import { hexToBase64 } from "./util/byte";
 import { FetchFinishedLog, FetchStartedLog } from "./types";
 import { readBodyInit, readStreamFully } from "./stream";
 

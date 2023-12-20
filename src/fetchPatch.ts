@@ -2,7 +2,7 @@ import crypto from "crypto";
 import * as path from "path";
 import type { Global } from "@jest/types";
 import { buildTraceLoggingFetch } from "./traceLoggingFetch";
-import { appendFileLine } from "./util";
+import { appendFileLine } from "./util/file";
 
 let originalFetch: (
   input: RequestInfo | URL,

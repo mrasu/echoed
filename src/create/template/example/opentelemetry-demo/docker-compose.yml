@@ -260,12 +260,6 @@ services:
     depends_on:
       frontend:
         condition: service_started
-      loadgenerator:
-        condition: service_started
-      jaeger:
-        condition: service_started
-      grafana:
-        condition: service_started
 
   # Payment service
   paymentservice:
@@ -441,8 +435,6 @@ services:
     ports:
       - "4317"          # OTLP over gRPC receiver
       - "4318"          # OTLP over HTTP receiver
-    depends_on:
-      - jaeger
     logging: *logging
     environment:
       - ENVOY_PORT

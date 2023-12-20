@@ -10,7 +10,13 @@ import {
 import { Logger } from "./logger";
 
 type TobikuraParam = {
+  config: ReportConfig;
   testInfos: TestInfo[];
+  orphanTraces: Trace[];
+};
+
+export type ReportConfig = {
+  propagationTestEnabled: boolean;
 };
 
 type TestInfo = {
@@ -24,7 +30,7 @@ type TestInfo = {
   failureDetails?: string[];
   failureMessages?: string[];
   duration?: number;
-  spans: any[];
+  spans: TobikuraSpan[];
   logRecords: any[];
 };
 
@@ -45,6 +51,12 @@ type FetchResponse = {
   body?: string;
 };
 
+type Trace = {
+  traceId: string;
+  spans: TobikuraSpan[];
+  logRecords: any[];
+};
+
 const reportHtmlTemplatePath = path.resolve(
   __dirname,
   "reporter/dist/index.html",
@@ -55,10 +67,12 @@ export class ReportFile {
     private testRootDir: string,
     private outputFilePath: string,
     private tmpLogDir: string,
+    private config: ReportConfig,
   ) {}
 
   async generate(
     capturedSpans: Record<string, TobikuraSpan[]>,
+    capturedOrphanSpans: Record<string, TobikuraSpan[]>,
     capturedLogs: Record<string, ITobikuraLogRecord[]>,
   ): Promise<string> {
     const logs = this.readLogs();
@@ -72,6 +86,7 @@ export class ReportFile {
     const tobikuraParam = this.createTobikuraParam(
       testInfos,
       capturedSpans,
+      capturedOrphanSpans,
       capturedLogs,
     );
 
@@ -264,6 +279,7 @@ export class ReportFile {
   private createTobikuraParam(
     testInfos: TestInfo[],
     capturedSpans: Record<string, TobikuraSpan[]>,
+    capturedOrphanSpans: Record<string, TobikuraSpan[]>,
     capturedLogs: Record<string, ITobikuraLogRecord[]>,
   ): TobikuraParam {
     for (const testInfo of testInfos) {
@@ -279,6 +295,15 @@ export class ReportFile {
       testInfo.logRecords = traceLogs;
     }
 
-    return { testInfos: testInfos };
+    const orphanTraces: Trace[] = [];
+    for (const traceId of Object.keys(capturedOrphanSpans)) {
+      orphanTraces.push({
+        traceId: traceId,
+        spans: capturedOrphanSpans[traceId],
+        logRecords: capturedLogs[traceId] || [],
+      });
+    }
+
+    return { testInfos: testInfos, orphanTraces, config: this.config };
   }
 }

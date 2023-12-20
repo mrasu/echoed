@@ -17,6 +17,8 @@ import type {
   IFetch,
   IFetchRequest,
   IFetchResponse,
+  ITrace,
+  IConfig,
 } from "../types/tobikura_param";
 import Long from "long";
 
@@ -24,18 +26,26 @@ const Million = 1000 * 1000;
 
 export class TobikuraParam {
   static convert(param: ITobikuraParam): TobikuraParam {
-    const testInfos: TestInfo[] =
-      param.testInfos?.map((testInfo: ITestInfo) => {
-        return new TestInfo(testInfo);
-      }) || [];
+    const config = new Config(param.config);
 
-    return new TobikuraParam(testInfos);
+    const testInfos = param.testInfos.map((testInfo) => new TestInfo(testInfo));
+    const orphanTraces = param.orphanTraces.map((trace) => new Trace(trace));
+
+    return new TobikuraParam(config, testInfos, orphanTraces);
   }
 
-  constructor(public testInfos: TestInfo[]) {}
+  constructor(
+    public config: Config,
+    public testInfos: TestInfo[],
+    public orphanTraces: Trace[],
+  ) {}
 
   pickTest(testId: string): TestInfo | undefined {
     return this.testInfos.find((testInfo) => testInfo.testId === testId);
+  }
+
+  pickOrphanTrace(traceId: string): Trace | undefined {
+    return this.orphanTraces.find((trace) => trace.traceId === traceId);
   }
 
   testInfosByFile(): Map<string, TestInfo[]> {
@@ -47,6 +57,18 @@ export class TobikuraParam {
     });
 
     return map;
+  }
+
+  hasOrphanTrace(): boolean {
+    return this.orphanTraces.length > 0;
+  }
+}
+
+export class Config {
+  public readonly propagationTestEnabled: boolean;
+
+  constructor(conf: IConfig) {
+    this.propagationTestEnabled = conf.propagationTestEnabled;
   }
 }
 
@@ -180,6 +202,10 @@ export class Span {
     this.status = span.status ? new Status(span.status) : undefined;
     this.resource = span.resource ? new Resource(span.resource) : undefined;
     this.scope = span.scope ? new InstrumentationScope(span.scope) : undefined;
+  }
+
+  get isRoot(): boolean {
+    return this.parentSpanId === "";
   }
 
   get serviceName(): string | undefined {
@@ -410,6 +436,24 @@ export class KeyValueList {
 
   constructor(value: IKeyValueList) {
     this.values = value.values?.map((v: IKeyValue) => new KeyValue(v));
+  }
+}
+
+export class Trace {
+  traceId: string;
+  spans: Span[];
+  logRecords: LogRecord[];
+
+  constructor(trace: ITrace) {
+    this.traceId = toHex(decodeBase64(trace.traceId));
+    this.spans = trace.spans.map((span: ISpan) => new Span(span));
+    this.logRecords = trace.logRecords.map(
+      (log: ILogRecord) => new LogRecord(log),
+    );
+  }
+
+  get rootSpan(): Span | undefined {
+    return this.spans.find((span: Span) => span.isRoot);
   }
 }
 

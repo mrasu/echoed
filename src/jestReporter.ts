@@ -1,6 +1,6 @@
 import path from "path";
 import fs from "fs";
-import { ReportFile } from "./reportFile";
+import { ReportConfig, ReportFile } from "./reportFile";
 import {
   AggregatedResult,
   Config,
@@ -14,7 +14,12 @@ import { Circus } from "@jest/types";
 import { setTmpDirToEnv } from "./env";
 import { TestFinishedLog, TestStartedLog } from "./types";
 import { Logger } from "./logger";
-import { AnsiGreen, AnsiReset } from "./ansi";
+import { AnsiGreen, AnsiRed, AnsiReset } from "./ansi";
+import { TobikuraSpan } from "./type/tobikuraSpan";
+import {
+  PropagationTestConfig,
+  PropagationTestConfigType,
+} from "./config/propagationTestConfig";
 
 export class JestReporter implements Reporter {
   private readonly jestRootDir: string;
@@ -23,6 +28,9 @@ export class JestReporter implements Reporter {
   private readonly filename: string;
   private readonly serverPort: number;
   private readonly serverStopAfter: number;
+  private readonly propagationTestConfig: PropagationTestConfig;
+
+  private lastError: Error | undefined;
 
   constructor(
     globalConfig: Config.GlobalConfig,
@@ -31,11 +39,13 @@ export class JestReporter implements Reporter {
       serverPort = 3000,
       serverStopAfter = 20,
       debug = false,
+      propagationTest,
     }: {
       output?: string;
       serverPort?: number;
       serverStopAfter?: number;
       debug?: boolean;
+      propagationTest?: PropagationTestConfigType;
     },
   ) {
     if (!output) {
@@ -53,6 +63,8 @@ export class JestReporter implements Reporter {
 
     this.tmpdir = tmpdir;
     this.filename = crypto.randomUUID() + ".json";
+
+    this.propagationTestConfig = new PropagationTestConfig(propagationTest);
   }
 
   async onRunStart(results: AggregatedResult, options: ReporterOnStartOptions) {
@@ -60,20 +72,103 @@ export class JestReporter implements Reporter {
     globalThis.__SERVER__ = await Server.start(this.serverPort);
   }
 
+  readonly getLastError = () => {
+    return this.lastError;
+  };
+
   async onRunComplete(_contexts: Set<TestContext>, _results: AggregatedResult) {
     const { capturedSpans, capturedLogs } =
       await globalThis.__SERVER__.stopAfter(this.serverStopAfter);
+
+    const { spans, orphanSpans } = this.splitByOrphanOrNot(capturedSpans);
 
     const reportFile = new ReportFile(
       this.jestRootDir,
       this.output,
       this.tmpdir,
+      this.buildReportConfig(),
     );
-    const outputPath = await reportFile.generate(capturedSpans, capturedLogs);
+
+    const outputPath = await reportFile.generate(
+      spans,
+      orphanSpans,
+      capturedLogs,
+    );
 
     Logger.log(
       `Report file is generated at ${AnsiGreen}${outputPath}${AnsiReset}`,
     );
+
+    if (this.propagationTestConfig.enabled) {
+      const passed = this.logPropagationTestResult(orphanSpans);
+      if (!passed) {
+        this.lastError = new Error("Propagation leak found");
+      }
+    }
+  }
+
+  private splitByOrphanOrNot(allSpans: Record<string, TobikuraSpan[]>): {
+    spans: Record<string, TobikuraSpan[]>;
+    orphanSpans: Record<string, TobikuraSpan[]>;
+  } {
+    const orphanTraceIds: Set<string> = new Set();
+
+    for (const [traceId, spanList] of Object.entries(allSpans)) {
+      for (const span of spanList) {
+        if (!span.isRoot) continue;
+        if (span.shouldIgnoreFromPropagationTest(this.propagationTestConfig)) {
+          continue;
+        }
+
+        orphanTraceIds.add(traceId);
+        break;
+      }
+    }
+
+    const spans: Record<string, TobikuraSpan[]> = {};
+    const orphanSpans: Record<string, TobikuraSpan[]> = {};
+
+    for (const [traceId, spanList] of Object.entries(allSpans)) {
+      if (orphanTraceIds.has(traceId)) {
+        orphanSpans[traceId] = spanList;
+      } else {
+        spans[traceId] = spanList;
+      }
+    }
+
+    return { spans, orphanSpans };
+  }
+
+  private buildReportConfig(): ReportConfig {
+    return {
+      propagationTestEnabled: this.propagationTestConfig.enabled,
+    };
+  }
+
+  private logPropagationTestResult(
+    orphanSpans: Record<string, TobikuraSpan[]>,
+  ): boolean {
+    const orphanSpanLength = Object.keys(orphanSpans).length;
+    const testName = "Propagation test";
+    if (orphanSpanLength === 0) {
+      Logger.log(`${AnsiGreen}✓${AnsiReset} ${testName}`);
+      return true;
+    }
+
+    Logger.log(`${AnsiRed}✕${AnsiReset} ${testName}`);
+    Logger.logGrayComment(`${orphanSpanLength} spans lack propagation`);
+
+    let count = 0;
+    for (const [traceId, spans] of Object.entries(orphanSpans)) {
+      for (const span of spans) {
+        if (!span.isRoot) continue;
+
+        Logger.logGrayComment(`${count + 1}: ${JSON.stringify(span)}`);
+        count++;
+      }
+    }
+
+    return false;
   }
 
   async onTestCaseStart(

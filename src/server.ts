@@ -2,7 +2,8 @@ import express from "express";
 import bodyParser from "body-parser";
 import opentelemetry from "./generated/otelpbj";
 import http from "http";
-import { sleep, toBase64 } from "./util";
+import { sleep } from "./util/async";
+import { toBase64 } from "./util/byte";
 import { ITobikuraLogRecord } from "./types";
 import { TobikuraSpan } from "./type/tobikuraSpan";
 import { Logger } from "./logger";
@@ -93,29 +94,11 @@ export class Server {
   }
 
   private debugLogSpan(span: TobikuraSpan) {
-    Logger.debug(
-      "Trace",
-      "TraceId",
-      toBase64(span.traceId),
-      "SpanId",
-      toBase64(span.spanId),
-      "ParentSpanId",
-      toBase64(span.parentSpanId),
-      "Name",
-      span.name,
-    );
+    Logger.debug("Trace", "JSON", JSON.stringify(span));
   }
 
   private debugLogLogRecord(log: ITobikuraLogRecord) {
-    Logger.debug(
-      "Log",
-      "TraceId",
-      toBase64(log.traceId),
-      "SpanId",
-      toBase64(log.spanId),
-      "Body",
-      log.body,
-    );
+    Logger.debug("Log", "JSON", JSON.stringify(log));
   }
 
   async stopAfter(waitSec: number) {

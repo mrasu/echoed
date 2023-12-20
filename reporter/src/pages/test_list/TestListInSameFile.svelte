@@ -1,10 +1,11 @@
 <script lang="ts">
   import { TestInfo } from "../../lib/TobikuraParam";
-  import { Item, Separator, Text, Group, Subheader } from "@smui/list";
+  import { Text } from "@smui/list";
   import { push } from "svelte-spa-router";
   import SucceededIcon from "../../components/status_icons/SucceededIcon.svelte";
   import FailedIcon from "../../components/status_icons/FailedIcon.svelte";
   import BlockedIcon from "../../components/status_icons/BlockedIcon.svelte";
+  import ListItem from "../..//components/list/ListItem.svelte";
 
   export let testInfos: TestInfo[];
 
@@ -18,8 +19,7 @@
 </script>
 
 {#each orderedTestInfos as testInfo}
-  <Separator />
-  <Item on:SMUI:action={() => moveToTest(testInfo)}>
+  <ListItem on:click={() => moveToTest(testInfo)}>
     <div style="margin-right: 10px; display: flex">
       {#if testInfo.status === "passed"}
         <SucceededIcon />
@@ -31,5 +31,5 @@
       {/if}
     </div>
     <Text>{testInfo.name}</Text>
-  </Item>
+  </ListItem>
 {/each}

@@ -1,5 +1,11 @@
 export type ITobikuraParam = {
-  testInfos?: ITestInfo[];
+  config: IConfig;
+  testInfos: ITestInfo[];
+  orphanTraces: ITrace[];
+};
+
+export type IConfig = {
+  propagationTestEnabled: boolean;
 };
 
 export type ITestInfo = {
@@ -118,4 +124,10 @@ export type IInstrumentationScope = {
   version?: string | null;
   attributes?: IKeyValue[] | null;
   droppedAttributesCount?: number | null;
+};
+
+export type ITrace = {
+  traceId: string;
+  spans: ISpan[];
+  logRecords: ILogRecord[];
 };

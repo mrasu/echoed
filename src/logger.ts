@@ -1,4 +1,7 @@
+import { AnsiGray, AnsiReset } from "./ansi";
+
 const tag = "[Tobikura]";
+const tagSpace = " ".repeat(tag.length);
 
 export class Logger {
   static showDebug = false;
@@ -22,6 +25,13 @@ export class Logger {
 
   static log(message?: any, ...optionalParams: any[]) {
     console.log(`${tag} ${message}`, ...optionalParams);
+  }
+
+  static logGrayComment(message?: any, ...optionalParams: any[]) {
+    console.log(
+      `${tagSpace} ${AnsiGray}${message}${AnsiReset}`,
+      ...optionalParams,
+    );
   }
 
   static writeWithTag(message: string) {
