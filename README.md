@@ -45,26 +45,14 @@ Choose one of the following methods to install Tobikura based on your testing ne
     ```js
     module.exports = {
       // ... other configurations
-      testEnvironment: "./__scripts/testEnvironment.ts", // Load the following testEnvironment.ts
+      testEnvironment: "tobikura/jest/nodeEnvironment",
       reporters: [
         "default",
-        ["./__scripts/reporter.js", { output: "results/report.html" }],  // Load the following reporter.js
+        ["tobikura/jest/reporter", { output: "results/report.html" }],
       ],
     };
     ```
-2. Create `testEnvironment.ts`
-    ```ts
-    import {JestNodeEnvironment} from "tobikura";
-    
-    module.exports = JestNodeEnvironment;
-    ```
-3. Create `reporter.js`
-    ```js
-    const tobikura = require("tobikura");
-    
-    module.exports = tobikura.JestReporter;
-    ```
-4. Update your OpenTelemetry endpoint to use Tobikura:
+2. Update your OpenTelemetry endpoint to use Tobikura:
     If you are using the OpenTelemetry Collector, modify its settings as shown below:
     ```yml
     exporters:

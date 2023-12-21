@@ -3,9 +3,9 @@ import type {
   JestEnvironmentConfig,
   EnvironmentContext,
 } from "@jest/environment";
-import { patchFetch, restoreFetch } from "./fetchPatch";
-import { getTmpDirFromEnv } from "./env";
-import { Logger } from "./logger";
+import { patchFetch, restoreFetch } from "@/fetchPatch";
+import { getTmpDirFromEnv } from "@/env";
+import { Logger } from "@/logger";
 
 export class JestNodeEnvironment extends NodeEnvironment {
   testPath: string;

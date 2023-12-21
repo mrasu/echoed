@@ -1,25 +1,27 @@
 import path from "path";
 import fs from "fs";
-import { ReportConfig, ReportFile } from "./reportFile";
+import { ReportConfig, ReportFile } from "@/reportFile";
 import {
   AggregatedResult,
   Config,
   Reporter,
   ReporterOnStartOptions,
 } from "@jest/reporters";
-import { Server } from "./server";
+import { Server } from "@/server";
 import os from "os";
 import { Test, TestCaseResult, TestContext } from "@jest/test-result";
 import { Circus } from "@jest/types";
-import { setTmpDirToEnv } from "./env";
-import { TestFinishedLog, TestStartedLog } from "./types";
-import { Logger } from "./logger";
-import { AnsiGreen, AnsiRed, AnsiReset } from "./ansi";
-import { TobikuraSpan } from "./type/tobikuraSpan";
+import { setTmpDirToEnv } from "@/env";
+import { TestFinishedLog, TestStartedLog } from "@/types";
+import { Logger } from "@/logger";
+import { AnsiGreen, AnsiRed, AnsiReset } from "@/ansi";
+import { TobikuraSpan } from "@/type/tobikuraSpan";
 import {
   PropagationTestConfig,
   PropagationTestConfigType,
-} from "./config/propagationTestConfig";
+} from "@/config/propagationTestConfig";
+
+const TOBIKURA_ROOT_DIR = path.resolve(__dirname, "../../");
 
 export class JestReporter implements Reporter {
   private readonly jestRootDir: string;
@@ -86,6 +88,7 @@ export class JestReporter implements Reporter {
       this.jestRootDir,
       this.output,
       this.tmpdir,
+      TOBIKURA_ROOT_DIR,
       this.buildReportConfig(),
     );
 

@@ -57,16 +57,14 @@ type Trace = {
   logRecords: any[];
 };
 
-const reportHtmlTemplatePath = path.resolve(
-  __dirname,
-  "reporter/dist/index.html",
-);
+const REPORT_HTML_TEMPLATE_PATH_FROM_ROOT_DIR = "reporter/dist/index.html";
 
 export class ReportFile {
   constructor(
     private testRootDir: string,
     private outputFilePath: string,
     private tmpLogDir: string,
+    private tobikuraRootDir: string,
     private config: ReportConfig,
   ) {}
 
@@ -78,10 +76,11 @@ export class ReportFile {
     const logs = this.readLogs();
     const testInfos = this.toTestInfos(logs);
 
-    const htmlContent = await fs.promises.readFile(
-      reportHtmlTemplatePath,
-      "utf-8",
+    const reportHtmlPath = path.resolve(
+      this.tobikuraRootDir,
+      REPORT_HTML_TEMPLATE_PATH_FROM_ROOT_DIR,
     );
+    const htmlContent = await fs.promises.readFile(reportHtmlPath, "utf-8");
 
     const tobikuraParam = this.createTobikuraParam(
       testInfos,

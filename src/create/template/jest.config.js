@@ -1,11 +1,11 @@
 module.exports = {
   preset: "ts-jest",
   verbose: true,
-  testEnvironment: "./__scripts/testEnvironment.ts",
+  testEnvironment: "tobikura/jest/nodeEnvironment",
   reporters: [
     "default",
     [
-      "./__scripts/reporter.js",
+      "tobikura/jest/reporter",
       {
         output: "report/result.html",
         /* Example configuration to ignore spans from propagation test.

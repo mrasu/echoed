@@ -46,5 +46,14 @@
     "package.json",
     "dist/reporter/reporter_html.html"
   ],
-  "main": "./dist/index.js"
+  "exports": {
+    "./jest/reporter": {
+      "default": "./dist/jest/reporter/index.js",
+      "types": "./dist/jest/reporter/index.d.ts"
+    },
+    "./jest/nodeEnvironment": {
+      "default": "./dist/jest/nodeEnvironment/index.js",
+      "types": "./dist/jest/nodeEnvironment/index.d.ts"
+    }
+  }
 }
