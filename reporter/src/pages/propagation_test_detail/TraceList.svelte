@@ -6,7 +6,7 @@
   import FailedIcon from "../../components/status_icons/FailedIcon.svelte";
   import ListItem from "../../components/list/ListItem.svelte";
 
-  export let orphanTraces: Trace[];
+  export let propagationFailedTraces: Trace[];
   const moveToTrace = (trace: Trace) => {
     push(`/propagation_test/unpropagated/${trace.traceId}`);
   };
@@ -16,7 +16,7 @@
   <Title>Traces</Title>
   <Content>
     <List>
-      {#each orphanTraces as trace}
+      {#each propagationFailedTraces as trace}
         <ListItem on:click={() => moveToTrace(trace)}>
           <FailedIcon />
           <Text style="margin-left: 10px">

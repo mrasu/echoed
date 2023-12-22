@@ -1,18 +1,15 @@
 import fs from "fs";
 import path from "path";
 import { TobikuraSpan } from "@/type/tobikuraSpan";
-import {
-  FetchFinishedLog,
-  ITobikuraLogRecord,
-  Log,
-  TimeHoldingLog,
-} from "@/types";
-import { Logger } from "@/logger";
+import { ITobikuraLogRecord } from "@/types";
+import { TestResult } from "@/testResult";
+import { TestCaseResult } from "@/testCaseResult";
+import { TobikuraConfig } from "@/config/tobikuraConfig";
 
 type TobikuraParam = {
   config: ReportConfig;
   testInfos: TestInfo[];
-  orphanTraces: Trace[];
+  propagationFailedTraces: Trace[];
 };
 
 export type ReportConfig = {
@@ -61,33 +58,19 @@ const REPORT_HTML_TEMPLATE_PATH_FROM_ROOT_DIR = "reporter/dist/index.html";
 
 export class ReportFile {
   constructor(
-    private testRootDir: string,
     private outputFilePath: string,
-    private tmpLogDir: string,
     private tobikuraRootDir: string,
-    private config: ReportConfig,
+    private config: TobikuraConfig,
   ) {}
 
-  async generate(
-    capturedSpans: Record<string, TobikuraSpan[]>,
-    capturedOrphanSpans: Record<string, TobikuraSpan[]>,
-    capturedLogs: Record<string, ITobikuraLogRecord[]>,
-  ): Promise<string> {
-    const logs = this.readLogs();
-    const testInfos = this.toTestInfos(logs);
-
+  async generate(testResult: TestResult): Promise<string> {
     const reportHtmlPath = path.resolve(
       this.tobikuraRootDir,
       REPORT_HTML_TEMPLATE_PATH_FROM_ROOT_DIR,
     );
     const htmlContent = await fs.promises.readFile(reportHtmlPath, "utf-8");
 
-    const tobikuraParam = this.createTobikuraParam(
-      testInfos,
-      capturedSpans,
-      capturedOrphanSpans,
-      capturedLogs,
-    );
+    const tobikuraParam = this.createTobikuraParam(testResult);
 
     const fileContent = htmlContent.replace(
       /<!-- -z- replace:dummy start -z- -->.+<!-- -z- replace:dummy end -z- -->/s,
@@ -106,203 +89,62 @@ export class ReportFile {
     return this.outputFilePath;
   }
 
-  private readLogs(): Log[] {
-    const logFiles = fs.readdirSync(this.tmpLogDir);
-
-    const rawLogs = logFiles
-      .map((file: string) =>
-        fs.readFileSync(path.join(this.tmpLogDir, file), "utf-8").split("\n"),
-      )
-      .flat();
-
-    const logs: Log[] = [];
-    rawLogs.forEach((rawLog: string) => {
-      let parsed: any;
-      try {
-        parsed = JSON.parse(rawLog);
-      } catch (e) {
-        return;
-      }
-
-      if (parsed.type === "testStarted") {
-        logs.push({
-          type: "testStarted",
-          file: parsed.file,
-          testFullName: parsed.testFullName,
-          time: parsed.time,
-          startTimeMillis: parsed.startTimeMillis,
-        });
-      } else if (parsed.type === "testFinished") {
-        logs.push({
-          type: "testFinished",
-          duration: parsed.duration,
-          failureDetails: parsed.failureDetails,
-          failureMessages: parsed.failureMessages,
-          file: parsed.file,
-          status: parsed.status,
-          time: parsed.time,
-        });
-      } else if (parsed.type === "fetchStarted") {
-        logs.push({
-          type: "fetchStarted",
-          time: parsed.time,
-          traceId: parsed.traceId,
-          testPath: parsed.testPath,
-        });
-      } else if (parsed.type === "fetchFinished") {
-        logs.push({
-          type: "fetchFinished",
-          traceId: parsed.traceId,
-          request: {
-            url: parsed.request.url,
-            method: parsed.request.method,
-            body: parsed.request.body || undefined,
-          },
-          response: {
-            status: parsed.response.status,
-            body: parsed.response.body || undefined,
-          },
-        });
-      } else {
-        Logger.warn("unknown log type found: ", parsed.type);
-      }
-    });
-
-    return logs;
-  }
-
-  private toTestInfos(logs: Log[]): TestInfo[] {
-    const timeHoldingLogs = this.extractOrderedTimeHoldingLogs(logs);
-    const fetchFinishedRecord = this.extractFetchFinishedLogAsRecord(logs);
-
-    const currentTestForFile: Record<string, TestInfo> = {};
-    const testInfos: TestInfo[] = [];
-    let testId = 0;
-    for (const log of timeHoldingLogs) {
-      if (log.type === "testStarted") {
-        const testInfo: TestInfo = {
-          testId: testId.toString(),
-          file: log.file.replace(this.testRootDir, ""),
-          name: log.testFullName,
-          startTimeMillis: log.startTimeMillis,
-          status: "unknown",
-          orderedTraceIds: [],
-          fetches: [],
-          spans: [],
-          logRecords: [],
-        };
-        currentTestForFile[testInfo.file] = testInfo;
-
-        testId++;
-      } else if (log.type === "testFinished") {
-        const testFile = log.file.replace(this.testRootDir, "");
-        const testInfo = currentTestForFile[testFile];
-        if (!testInfo) {
-          // No testInfo when `.test` file is empty.
-          continue;
-        }
-
-        testInfo.status = log.status;
-        testInfo.failureDetails = log.failureDetails;
-        testInfo.failureMessages = log.failureMessages;
-        testInfo.duration = log.duration;
-
-        testInfos.push(testInfo);
-        delete currentTestForFile[testFile];
-      } else if (log.type === "fetchStarted") {
-        const testFile = log.testPath.replace(this.testRootDir, "");
-        const testInfo = currentTestForFile[testFile];
-        if (!testInfo) {
-          // Ignore request outside of test
-          continue;
-        }
-
-        testInfo.orderedTraceIds.push(log.traceId);
-        const fetchFinishedLog = fetchFinishedRecord[log.traceId];
-        if (!fetchFinishedLog) {
-          Logger.error("Invalid state: requestLog not found", log);
-          continue;
-        }
-
-        const fetch: Fetch = {
-          traceId: fetchFinishedLog.traceId,
-          request: {
-            url: fetchFinishedLog.request.url,
-            method: fetchFinishedLog.request.method,
-            body: fetchFinishedLog.request.body,
-          },
-          response: {
-            status: fetchFinishedLog.response.status,
-            body: fetchFinishedLog.response.body,
-          },
-        };
-        testInfo.fetches.push(fetch);
-      }
-    }
-
-    return testInfos;
-  }
-
-  private extractOrderedTimeHoldingLogs(logs: Log[]): TimeHoldingLog[] {
-    const timeHoldingLogs: TimeHoldingLog[] = [];
-    for (const log of logs) {
-      if (
-        log.type === "fetchStarted" ||
-        log.type === "testStarted" ||
-        log.type === "testFinished"
-      ) {
-        timeHoldingLogs.push(log);
-      }
-    }
-    timeHoldingLogs.sort((a, b) => {
-      return a.time > b.time ? 1 : -1;
-    });
-
-    return timeHoldingLogs;
-  }
-
-  private extractFetchFinishedLogAsRecord(
-    logs: Log[],
-  ): Record<string, FetchFinishedLog> {
-    const fetchRequestRecord: Record<string, FetchFinishedLog> = {};
-    for (const log of logs) {
-      if (log.type !== "fetchFinished") {
-        continue;
-      }
-      fetchRequestRecord[log.traceId] = log;
-    }
-
-    return fetchRequestRecord;
-  }
-
-  private createTobikuraParam(
-    testInfos: TestInfo[],
-    capturedSpans: Record<string, TobikuraSpan[]>,
-    capturedOrphanSpans: Record<string, TobikuraSpan[]>,
-    capturedLogs: Record<string, ITobikuraLogRecord[]>,
-  ): TobikuraParam {
-    for (const testInfo of testInfos) {
+  private createTobikuraParam(testResult: TestResult): TobikuraParam {
+    const testInfos = testResult.testCaseResults.map((result) => {
       let traceSpans: TobikuraSpan[] = [];
       let traceLogs: ITobikuraLogRecord[] = [];
 
-      for (const traceId of testInfo.orderedTraceIds) {
-        traceSpans = traceSpans.concat(capturedSpans[traceId] || []);
-        traceLogs = traceLogs.concat(capturedLogs[traceId] || []);
+      for (const traceId of result.orderedTraceIds) {
+        traceSpans = traceSpans.concat(testResult.capturedSpans[traceId] || []);
+        traceLogs = traceLogs.concat(testResult.capturedLogs[traceId] || []);
       }
 
-      testInfo.spans = traceSpans;
-      testInfo.logRecords = traceLogs;
-    }
+      const testInfo: TestInfo = {
+        testId: result.testId,
+        file: result.file,
+        name: result.name,
+        startTimeMillis: result.startTimeMillis,
+        status: result.status,
+        orderedTraceIds: result.orderedTraceIds,
+        fetches: this.toFetches(result),
+        failureDetails: result.failureDetails,
+        failureMessages: result.failureMessages,
+        duration: result.duration,
+        spans: traceSpans,
+        logRecords: traceLogs,
+      };
+      return testInfo;
+    });
 
-    const orphanTraces: Trace[] = [];
-    for (const traceId of Object.keys(capturedOrphanSpans)) {
-      orphanTraces.push({
+    const propagationFailedTraces: Trace[] = [];
+    for (const traceId of Object.keys(testResult.propagationFailedSpans)) {
+      propagationFailedTraces.push({
         traceId: traceId,
-        spans: capturedOrphanSpans[traceId],
-        logRecords: capturedLogs[traceId] || [],
+        spans: testResult.propagationFailedSpans[traceId],
+        logRecords: testResult.capturedLogs[traceId] || [],
       });
     }
 
-    return { testInfos: testInfos, orphanTraces, config: this.config };
+    return {
+      testInfos,
+      propagationFailedTraces,
+      config: this.buildReportConfig(),
+    };
+  }
+
+  private toFetches(testCaseResult: TestCaseResult): Fetch[] {
+    return testCaseResult.fetches.map((fetch): Fetch => {
+      return {
+        traceId: fetch.traceId,
+        request: { ...fetch.request },
+        response: { ...fetch.response },
+      };
+    });
+  }
+
+  private buildReportConfig(): ReportConfig {
+    return {
+      propagationTestEnabled: this.config.propagationTestConfig.enabled,
+    };
   }
 }

@@ -29,23 +29,27 @@ export class TobikuraParam {
     const config = new Config(param.config);
 
     const testInfos = param.testInfos.map((testInfo) => new TestInfo(testInfo));
-    const orphanTraces = param.orphanTraces.map((trace) => new Trace(trace));
+    const propagationFailedTraces = param.propagationFailedTraces.map(
+      (trace) => new Trace(trace),
+    );
 
-    return new TobikuraParam(config, testInfos, orphanTraces);
+    return new TobikuraParam(config, testInfos, propagationFailedTraces);
   }
 
   constructor(
     public config: Config,
     public testInfos: TestInfo[],
-    public orphanTraces: Trace[],
+    public propagationFailedTraces: Trace[],
   ) {}
 
   pickTest(testId: string): TestInfo | undefined {
     return this.testInfos.find((testInfo) => testInfo.testId === testId);
   }
 
-  pickOrphanTrace(traceId: string): Trace | undefined {
-    return this.orphanTraces.find((trace) => trace.traceId === traceId);
+  pickPropagationFailedTrace(traceId: string): Trace | undefined {
+    return this.propagationFailedTraces.find(
+      (trace) => trace.traceId === traceId,
+    );
   }
 
   testInfosByFile(): Map<string, TestInfo[]> {
@@ -59,8 +63,8 @@ export class TobikuraParam {
     return map;
   }
 
-  hasOrphanTrace(): boolean {
-    return this.orphanTraces.length > 0;
+  hasPropagationFailedTrace(): boolean {
+    return this.propagationFailedTraces.length > 0;
   }
 }
 

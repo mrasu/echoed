@@ -1,7 +1,7 @@
 export type ITobikuraParam = {
   config: IConfig;
   testInfos: ITestInfo[];
-  orphanTraces: ITrace[];
+  propagationFailedTraces: ITrace[];
 };
 
 export type IConfig = {

@@ -5,7 +5,7 @@
   export let params: { traceId: string };
 
   const tobikuraParam = TobikuraParam.convert(window.__tobikura_param__);
-  const trace = tobikuraParam.pickOrphanTrace(params.traceId);
+  const trace = tobikuraParam.pickPropagationFailedTrace(params.traceId);
 </script>
 
 {#if trace}

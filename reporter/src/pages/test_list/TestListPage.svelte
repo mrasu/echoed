@@ -13,7 +13,7 @@
   );
 
   const propagationTestEnabled = tobikuraParam.config.propagationTestEnabled;
-  const hasOrphanTrace = tobikuraParam.hasOrphanTrace();
+  const hasPropagationFailedTrace = tobikuraParam.hasPropagationFailedTrace();
 
   const showOtherTests = propagationTestEnabled;
 </script>
@@ -39,7 +39,7 @@
 
         <OtherTestsList
           {propagationTestEnabled}
-          propagationTestPassed={!hasOrphanTrace}
+          propagationTestPassed={!hasPropagationFailedTrace}
         />
       </Group>
     {/if}

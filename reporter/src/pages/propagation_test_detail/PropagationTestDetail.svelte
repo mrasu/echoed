@@ -6,8 +6,8 @@
   import Description from "./Description.svelte";
   import TraceList from "./TraceList.svelte";
 
-  export let orphanTraces: Trace[];
-  const passed = orphanTraces.length === 0;
+  export let propagationFailedTraces: Trace[];
+  const passed = propagationFailedTraces.length === 0;
 </script>
 
 <div style="margin-bottom: 20px">
@@ -22,7 +22,7 @@
   <Description {passed}></Description>
 </div>
 {#if !passed}
-  <TraceList {orphanTraces} />
+  <TraceList {propagationFailedTraces} />
 {/if}
 
 <style>

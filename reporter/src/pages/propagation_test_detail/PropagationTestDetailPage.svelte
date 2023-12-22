@@ -3,7 +3,7 @@
   import PropagationTestDetail from "./PropagationTestDetail.svelte";
 
   const tobikuraParam = TobikuraParam.convert(window.__tobikura_param__);
-  const orphanTraces = tobikuraParam.orphanTraces;
+  const propagationFailedTraces = tobikuraParam.propagationFailedTraces;
 </script>
 
-<PropagationTestDetail {orphanTraces} />
+<PropagationTestDetail {propagationFailedTraces} />

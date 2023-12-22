@@ -1,3 +1,5 @@
-reporter
-generated
-opentelemetry-proto
+/dist
+/reporter
+/src/generated
+/src/opentelemetry-proto
+/src/create

@@ -121,7 +121,7 @@ const testInfos: ITestInfo[] = [
 ];
 
 // prettier-ignore
-const orphanTraces: ITrace[] = [
+const propagationFailedTraces: ITrace[] = [
   {
     "traceId": "joz74teNvhfM4Zk5KymVaQ==",
     "spans": [
@@ -149,5 +149,5 @@ window.__tobikura_param__ = {
     propagationTestEnabled: true,
   },
   testInfos: testInfos,
-  orphanTraces: orphanTraces,
+  propagationFailedTraces: propagationFailedTraces,
 };
