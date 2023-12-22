@@ -13,6 +13,26 @@ import { Logger } from "@/logger";
 import { PropagationTestConfig } from "@/config/propagationTestConfig";
 import { TobikuraConfig } from "@/config/tobikuraConfig";
 import { FetchInfo } from "@/fetchInfo";
+import { opentelemetry } from "@/generated/otelpbj";
+
+const SpanKind = opentelemetry.proto.trace.v1.Span.SpanKind;
+
+const PropagationRequiredKinds = new Set([
+  SpanKind.SPAN_KIND_SERVER,
+  SpanKind.SPAN_KIND_CONSUMER,
+]);
+
+function isPropagationRequiredSpan(span: TobikuraSpan): boolean {
+  if (span.kind) {
+    if (!PropagationRequiredKinds.has(span.kind)) {
+      return false;
+    }
+  }
+
+  if (!span.isRoot) return false;
+
+  return true;
+}
 
 function extractPropagationFailedSpans(
   propagationTestConfig: PropagationTestConfig,
@@ -22,7 +42,7 @@ function extractPropagationFailedSpans(
 
   for (const [traceId, spanList] of Object.entries(allSpans)) {
     for (const span of spanList) {
-      if (!span.isRoot) continue;
+      if (!isPropagationRequiredSpan(span)) continue;
       if (span.shouldIgnoreFromPropagationTest(propagationTestConfig)) {
         continue;
       }
