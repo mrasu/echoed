@@ -1,7 +1,7 @@
 import crypto from "crypto";
-import { hexToBase64 } from "./util/byte";
-import { FetchFinishedLog, FetchStartedLog } from "./types";
-import { readBodyInit, readStreamFully } from "./stream";
+import { hexToBase64 } from "@/util/byte";
+import { FetchFinishedLog, FetchStartedLog } from "@/types";
+import { readBodyInit, readStreamFully } from "@/stream";
 
 type FetchType = typeof global.fetch;
 

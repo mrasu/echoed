@@ -1,7 +1,3 @@
-import { TobikuraSpan } from "./../type/tobikuraSpan";
-import { opentelemetry } from "./../generated/otelpbj";
-import { isUserAgentInternalProgram } from "./../util/ua";
-
 export type PropagationTestConfigType = {
   enabled?: boolean;
   ignore?: {

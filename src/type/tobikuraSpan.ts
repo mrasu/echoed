@@ -1,6 +1,6 @@
-import { opentelemetry } from "./../generated/otelpbj";
-import { isUserAgentInternalProgram } from "./../util/ua";
-import { PropagationTestConfig } from "./../config/propagationTestConfig";
+import { opentelemetry } from "@/generated/otelpbj";
+import { isUserAgentInternalProgram } from "@/util/ua";
+import { PropagationTestConfig } from "@/config/propagationTestConfig";
 
 const USER_AGENT_ATTRIBUTE_KEYS = new Set(["user-agent", "http.user_agent"]);
 

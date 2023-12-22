@@ -1,13 +1,13 @@
 import fs from "fs";
 import path from "path";
-import { TobikuraSpan } from "./type/tobikuraSpan";
+import { TobikuraSpan } from "@/type/tobikuraSpan";
 import {
   FetchFinishedLog,
   ITobikuraLogRecord,
   Log,
   TimeHoldingLog,
-} from "./types";
-import { Logger } from "./logger";
+} from "@/types";
+import { Logger } from "@/logger";
 
 type TobikuraParam = {
   config: ReportConfig;

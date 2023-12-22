@@ -1,4 +1,4 @@
-import { Server } from "./server";
+import { Server } from "@/server";
 
 declare global {
   var __SERVER__: Server;

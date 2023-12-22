@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 import fs from "fs";
-import { Creator } from "./create";
-import { AnsiGreen, AnsiReset } from "../ansi";
+import { Creator } from "@/create/create";
+import { AnsiGreen, AnsiReset } from "@/ansi";
 
 const cwd = process.cwd();
 if (fs.existsSync(cwd)) {

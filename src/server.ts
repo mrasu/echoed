@@ -1,12 +1,12 @@
 import express from "express";
 import bodyParser from "body-parser";
-import opentelemetry from "./generated/otelpbj";
+import opentelemetry from "@/generated/otelpbj";
 import http from "http";
-import { sleep } from "./util/async";
-import { toBase64 } from "./util/byte";
-import { ITobikuraLogRecord } from "./types";
-import { TobikuraSpan } from "./type/tobikuraSpan";
-import { Logger } from "./logger";
+import { sleep } from "@/util/async";
+import { toBase64 } from "@/util/byte";
+import { ITobikuraLogRecord } from "@/types";
+import { TobikuraSpan } from "@/type/tobikuraSpan";
+import { Logger } from "@/logger";
 
 const TracesData = opentelemetry.opentelemetry.proto.trace.v1.TracesData;
 const LogsData = opentelemetry.opentelemetry.proto.logs.v1.LogsData;

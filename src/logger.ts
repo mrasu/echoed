@@ -1,4 +1,4 @@
-import { AnsiGray, AnsiReset } from "./ansi";
+import { AnsiGray, AnsiReset } from "@/ansi";
 
 const tag = "[Tobikura]";
 const tagSpace = " ".repeat(tag.length);

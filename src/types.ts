@@ -1,4 +1,4 @@
-import opentelemetry from "./generated/otelpbj";
+import opentelemetry from "@/generated/otelpbj";
 
 export type Log =
   | TestStartedLog
