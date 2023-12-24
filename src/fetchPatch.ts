@@ -32,7 +32,7 @@ export function patchFetch(
   global.fetch = customFetch;
 }
 
-export function restoreFetch() {
+export function restoreFetch(global: Global.Global) {
   // @ts-ignore
   global.fetch = originalFetch;
 }

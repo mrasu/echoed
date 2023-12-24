@@ -1,6 +1,7 @@
 import { opentelemetry } from "@/generated/otelpbj";
 import { isUserAgentInternalProgram } from "@/util/ua";
 import { PropagationTestConfig } from "@/config/propagationTestConfig";
+import { matchAttributeValue } from "@/util/span";
 
 const USER_AGENT_ATTRIBUTE_KEYS = new Set(["user-agent", "http.user_agent"]);
 
@@ -62,12 +63,7 @@ function isIgnoredAttribute(
     if (ignoreValue === null || ignoreValue === undefined) continue;
 
     const val = attr.value;
-    if (
-      ignoreValue === val?.stringValue ||
-      ignoreValue === val?.intValue ||
-      ignoreValue === val?.doubleValue ||
-      ignoreValue === val?.boolValue
-    ) {
+    if (matchAttributeValue(val, ignoreValue)) {
       return true;
     }
 

@@ -21,13 +21,15 @@ import {
 } from "@/config/propagationTestConfig";
 import { TestResult } from "@/testResult";
 import { TobikuraConfig } from "@/config/tobikuraConfig";
+import { FileSpace } from "@/fileSpace";
 
 const TOBIKURA_ROOT_DIR = path.resolve(__dirname, "../../");
 
 export class JestReporter implements Reporter {
   private readonly jestRootDir: string;
+  private readonly maxWorkers: number;
   private readonly output: string;
-  private readonly tmpdir: string;
+  private readonly fileSpace: FileSpace;
   private readonly filename: string;
   private readonly serverPort: number;
   private readonly serverStopAfter: number;
@@ -55,6 +57,7 @@ export class JestReporter implements Reporter {
       throw new Error("Tobikura: invalid report option. `output` is required");
     }
     this.jestRootDir = globalConfig.rootDir;
+    this.maxWorkers = globalConfig.maxWorkers;
 
     this.output = output;
     this.serverPort = serverPort;
@@ -64,7 +67,9 @@ export class JestReporter implements Reporter {
     const tmpdir = fs.mkdtempSync(path.join(os.tmpdir(), "tobikura-"));
     setTmpDirToEnv(tmpdir);
 
-    this.tmpdir = tmpdir;
+    this.fileSpace = new FileSpace(tmpdir);
+    this.fileSpace.ensureDirectoryExistence();
+
     this.filename = crypto.randomUUID() + ".json";
 
     this.config = new TobikuraConfig(
@@ -74,7 +79,13 @@ export class JestReporter implements Reporter {
 
   async onRunStart(results: AggregatedResult, options: ReporterOnStartOptions) {
     Logger.log("Starting server...");
-    globalThis.__SERVER__ = await Server.start(this.serverPort);
+
+    const busFiles: string[] = [];
+    for (let i = 0; i < this.maxWorkers; i++) {
+      busFiles.push(this.fileSpace.eventBusFilePath((i + 1).toString()));
+    }
+
+    globalThis.__SERVER__ = await Server.start(this.serverPort, busFiles);
   }
 
   readonly getLastError = () => {
@@ -87,7 +98,7 @@ export class JestReporter implements Reporter {
 
     const testResult = await TestResult.collect(
       this.jestRootDir,
-      this.tmpdir,
+      this.fileSpace.testLogDir,
       capturedSpans,
       capturedLogs,
       this.config,
@@ -134,6 +145,7 @@ export class JestReporter implements Reporter {
     test: Test,
     testCaseStartInfo: Circus.TestCaseStartInfo,
   ) {
+    // TODO: no need to log? isn't memory enough?
     await this.logStarted({
       type: "testStarted",
       file: test.path,
@@ -144,6 +156,7 @@ export class JestReporter implements Reporter {
   }
 
   async onTestCaseResult(test: Test, testCaseResult: TestCaseResult) {
+    // TODO: no need to log? isn't memory enough?
     await this.logFinished({
       type: "testFinished",
       file: test.path,
@@ -179,6 +192,6 @@ export class JestReporter implements Reporter {
   }
 
   private get logFilePath() {
-    return path.join(this.tmpdir, this.filename);
+    return path.join(this.fileSpace.testLogDir, this.filename);
   }
 }

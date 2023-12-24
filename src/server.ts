@@ -7,22 +7,71 @@ import { toBase64 } from "@/util/byte";
 import { ITobikuraLogRecord } from "@/types";
 import { TobikuraSpan } from "@/type/tobikuraSpan";
 import { Logger } from "@/logger";
+import { FileBus } from "@/eventBus/infra/fileBus";
+import { Mutex } from "async-mutex";
+import { SpanBus } from "@/eventBus/spanBus";
+import { WantSpanRequest } from "@/eventBus/wantSpanRequest";
 
 const TracesData = opentelemetry.opentelemetry.proto.trace.v1.TracesData;
 const LogsData = opentelemetry.opentelemetry.proto.logs.v1.LogsData;
 
 export class Server {
-  private server?: http.Server;
+  private wantSpanRequests: Map<string, WantSpanRequest[]> = new Map();
+  private mutex = new Mutex();
+
+  private buses?: FileBus[];
+  private httpServer?: http.Server;
   private capturedSpans: Record<string, TobikuraSpan[]> = {};
   private capturedLogs: Record<string, ITobikuraLogRecord[]> = {};
 
-  static async start(port: number) {
+  static async start(port: number, busFiles: string[]) {
     const server = new Server();
-    await server.start(port);
+    await server.start(port, busFiles);
     return server;
   }
 
-  private async start(port: number) {
+  private async start(port: number, busFiles: string[]) {
+    const server = await this.startHttpServer(port);
+    const buses = await this.startBus(busFiles);
+
+    this.httpServer = server;
+    this.buses = buses;
+  }
+
+  private async startBus(busFiles: string[]): Promise<FileBus[]> {
+    const buses: FileBus[] = busFiles.map((file) => new FileBus(file));
+
+    buses.forEach((bus) => {
+      bus.open();
+
+      const spanBus = new SpanBus(bus);
+      spanBus.listenWantSpanEvent(async (data) => {
+        const request = new WantSpanRequest(spanBus, data);
+        await this.handleWantSpanRequest(request);
+      });
+    });
+
+    return buses;
+  }
+
+  private async handleWantSpanRequest(request: WantSpanRequest) {
+    const traceId = request.traceId;
+
+    let spans: TobikuraSpan[] | undefined = [];
+    await this.mutex.runExclusive(async () => {
+      spans = this.capturedSpans[traceId];
+
+      const requests = this.wantSpanRequests.get(traceId) || [];
+      requests.push(request);
+      this.wantSpanRequests.set(traceId, requests);
+    });
+
+    spans?.forEach((span) => {
+      request.respondIfMatch(span);
+    });
+  }
+
+  private async startHttpServer(port: number): Promise<http.Server> {
     const app = express();
 
     app.use(bodyParser.raw({ inflate: true, limit: "100Mb", type: "*/*" }));
@@ -47,7 +96,7 @@ export class Server {
       });
     });
 
-    this.server = server;
+    return server;
   }
 
   private handleOtelTraces(body: any) {
@@ -77,12 +126,20 @@ export class Server {
     });
   }
 
-  private captureSpan(span: TobikuraSpan) {
+  private async captureSpan(span: TobikuraSpan) {
     this.debugLogSpan(span);
 
     let traceId = toBase64(span.traceId);
     this.capturedSpans[traceId] = this.capturedSpans[traceId] || [];
-    this.capturedSpans[traceId].push(span);
+
+    await this.mutex.runExclusive(async () => {
+      this.capturedSpans[traceId].push(span);
+    });
+
+    const requests = this.wantSpanRequests.get(traceId);
+    requests?.forEach((request) => {
+      request.respondIfMatch(span);
+    });
   }
 
   private captureLog(log: ITobikuraLogRecord) {
@@ -118,9 +175,13 @@ export class Server {
 
   private async stop() {
     await new Promise((resolve) => {
-      this.server?.close(() => {
+      this.httpServer?.close(() => {
         resolve(undefined);
       });
+    });
+
+    this.buses?.forEach((bus) => {
+      bus.close();
     });
   }
 }

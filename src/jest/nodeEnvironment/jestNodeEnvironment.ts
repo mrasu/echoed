@@ -6,6 +6,8 @@ import type {
 import { patchFetch, restoreFetch } from "@/fetchPatch";
 import { getTmpDirFromEnv } from "@/env";
 import { Logger } from "@/logger";
+import { openBus, closeBus } from "@/openBus";
+import { FileSpace } from "@/fileSpace";
 
 export class JestNodeEnvironment extends NodeEnvironment {
   testPath: string;
@@ -22,14 +24,26 @@ export class JestNodeEnvironment extends NodeEnvironment {
     const tmpDir = getTmpDirFromEnv();
     if (!tmpDir) {
       Logger.warn(
-        "No output due to invalid setting for Tobikura. Reporter is not set?",
+        "No trace inspection and output due to invalid setting for Tobikura. Reporter is not set?",
       );
     }
 
-    patchFetch(tmpDir, this.testPath, this.global);
+    if (tmpDir) {
+      const fileSpace = new FileSpace(tmpDir);
+      patchFetch(fileSpace.testLogDir, this.testPath, this.global);
+
+      const workerID = process.env["JEST_WORKER_ID"];
+      if (workerID) {
+        const busFilePath = fileSpace.eventBusFilePath(workerID);
+        await openBus(busFilePath, this.global);
+      }
+    }
   }
 
   async teardown() {
-    restoreFetch();
+    closeBus(this.global);
+    restoreFetch(this.global);
+
+    await super.teardown();
   }
 }

@@ -8,3 +8,7 @@ export function toBase64(bytes: Uint8Array | null | undefined): string {
   }
   return Buffer.from(bytes).toString("base64");
 }
+
+export function decodeBase64(base64: string): Uint8Array {
+  return new Uint8Array(Buffer.from(base64, "base64"));
+}

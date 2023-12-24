@@ -11,6 +11,8 @@ type fetchRequestInfo = {
   body: string | null;
 };
 
+export const traceIdPropertyName = "__tobikura_traceId";
+
 export function buildTraceLoggingFetch(
   testPath: string,
   origFetch: FetchType,
@@ -26,6 +28,7 @@ export function buildTraceLoggingFetch(
       input,
       init,
     );
+    (response as any)[traceIdPropertyName] = traceId;
 
     await logFetchFinished(traceId, requestInfo, response);
 

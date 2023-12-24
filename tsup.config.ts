@@ -2,6 +2,7 @@ import { defineConfig } from "tsup";
 
 export default defineConfig({
   entry: [
+    "src/index.ts",
     "src/jest/reporter/index.ts",
     "src/jest/nodeEnvironment/index.ts",
     "src/create/bin.ts",

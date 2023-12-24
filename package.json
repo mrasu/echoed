@@ -4,6 +4,7 @@
   "description": "Observable API testing library using OpenTelemetry for Jest.",
   "bin": "dist/create/bin.js",
   "scripts": {
+    "dev": "tsup --sourcemap --watch",
     "build": "npm run protos && npm run build:reporter && npm run build:package",
     "build:reporter": "cd reporter && npm run build",
     "build:package": "rm -rf ./dist &&  npx tsup",
@@ -30,13 +31,16 @@
     "prettier": "3.1.0",
     "ts-jest": "^29.1.1",
     "ts-node": "^10.9.1",
+    "tsconfig-paths": "^4.2.0",
     "tsup": "^8.0.1"
   },
   "dependencies": {
     "@jest/reporters": "^29.7.0",
     "@types/express": "^4.17.21",
+    "async-mutex": "^0.4.0",
     "detect-browser": "^5.3.0",
     "express": "^4.18.2",
+    "long": "^5.2.3",
     "protobufjs": "^7.2.5",
     "protobufjs-cli": "^1.1.2",
     "typescript": "^5.3.2"
@@ -47,6 +51,10 @@
     "dist/reporter/reporter_html.html"
   ],
   "exports": {
+    ".": {
+      "default": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
     "./jest/reporter": {
       "default": "./dist/jest/reporter/index.js",
       "types": "./dist/jest/reporter/index.d.ts"
