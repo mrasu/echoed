@@ -113,6 +113,14 @@ export class TestResult {
   }
 }
 
+// Usually, logs are order by time.
+// But when logged at the same time, logs are ordered by `logOrder` order
+const logOrder = {
+  testFinished: 0,
+  testStarted: 1,
+  fetchStarted: 2,
+};
+
 class TestCaseLogCollector {
   constructor(
     private testRootDir: string,
@@ -148,8 +156,7 @@ class TestCaseLogCollector {
           type: "testStarted",
           file: parsed.file,
           testFullName: parsed.testFullName,
-          time: parsed.time,
-          startTimeMillis: parsed.startTimeMillis,
+          timeMillis: parsed.timeMillis,
         });
       } else if (parsed.type === "testFinished") {
         logs.push({
@@ -159,12 +166,12 @@ class TestCaseLogCollector {
           failureMessages: parsed.failureMessages,
           file: parsed.file,
           status: parsed.status,
-          time: parsed.time,
+          timeMillis: parsed.timeMillis,
         });
       } else if (parsed.type === "fetchStarted") {
         logs.push({
           type: "fetchStarted",
-          time: parsed.time,
+          timeMillis: parsed.timeMillis,
           traceId: parsed.traceId,
           testPath: parsed.testPath,
         });
@@ -203,7 +210,7 @@ class TestCaseLogCollector {
           testId.toString(),
           log.file.replace(this.testRootDir, ""),
           log.testFullName,
-          log.startTimeMillis,
+          log.timeMillis,
           "unknown",
           [],
           [],
@@ -272,7 +279,15 @@ class TestCaseLogCollector {
       }
     }
     timeHoldingLogs.sort((a, b) => {
-      return a.time > b.time ? 1 : -1;
+      const diff = a.timeMillis - b.timeMillis;
+      if (diff !== 0) {
+        return diff;
+      }
+
+      const aOrder = logOrder[a.type];
+      const bOrder = logOrder[b.type];
+
+      return aOrder - bOrder;
     });
 
     return timeHoldingLogs;

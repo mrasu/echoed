@@ -10,15 +10,14 @@ export type TimeHoldingLog = TestStartedLog | TestFinishedLog | FetchStartedLog;
 
 export type TestStartedLog = {
   type: "testStarted";
-  time: string;
-  startTimeMillis: number;
+  timeMillis: number;
   file: string;
   testFullName: string;
 };
 
 export type TestFinishedLog = {
   type: "testFinished";
-  time: string;
+  timeMillis: number;
   file: string;
   status: string;
   failureDetails: string[];
@@ -30,7 +29,7 @@ export type FetchStartedLog = {
   type: "fetchStarted";
   traceId: string;
   testPath: string;
-  time: string;
+  timeMillis: number;
 };
 
 export type FetchFinishedLog = {

@@ -37,6 +37,8 @@ export class JestReporter implements Reporter {
 
   private lastError: Error | undefined;
 
+  private currentTests: Map<string, Circus.TestCaseStartInfo> = new Map();
+
   constructor(
     globalConfig: Config.GlobalConfig,
     {
@@ -149,18 +151,30 @@ export class JestReporter implements Reporter {
     await this.logStarted({
       type: "testStarted",
       file: test.path,
-      startTimeMillis: Date.now(),
-      time: process.hrtime.bigint().toString(),
+      timeMillis: testCaseStartInfo.startedAt || Date.now(),
       testFullName: testCaseStartInfo.fullName,
     });
+    this.currentTests.set(test.path, testCaseStartInfo);
   }
 
   async onTestCaseResult(test: Test, testCaseResult: TestCaseResult) {
+    const startInfo = this.currentTests.get(test.path);
+
+    let finishedAt: number;
+    if (startInfo?.startedAt && testCaseResult.duration) {
+      finishedAt = startInfo.startedAt + testCaseResult.duration;
+    } else {
+      Logger.warn(
+        "Unexpected situation. Traces may not appear correctly. no startInfo?.startedAt or testCaseResult.duration",
+      );
+      finishedAt = Date.now();
+    }
+
     // TODO: no need to log? isn't memory enough?
     await this.logFinished({
       type: "testFinished",
       file: test.path,
-      time: process.hrtime.bigint().toString(),
+      timeMillis: finishedAt,
       status: testCaseResult.status,
       failureDetails: testCaseResult.failureDetails.map((v) =>
         JSON.stringify(v),

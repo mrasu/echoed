@@ -50,7 +50,7 @@ export function buildTraceLoggingFetch(
       type: "fetchStarted",
       traceId: traceId,
       testPath: testPath,
-      time: process.hrtime.bigint().toString(),
+      timeMillis: Date.now(),
     };
 
     await logFileFn(JSON.stringify(value));
