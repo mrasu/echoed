@@ -9,8 +9,8 @@ export class TestCaseResult {
     public status: string,
     public orderedTraceIds: string[],
     public fetches: FetchInfo[],
+    public duration: number,
     public failureDetails?: string[],
     public failureMessages?: string[],
-    public duration?: number,
   ) {}
 }

@@ -4,9 +4,9 @@ import path from "path";
 import { TobikuraSpan } from "@/type/tobikuraSpan";
 import {
   FetchFinishedLog,
+  FetchStartedLog,
   ITobikuraLogRecord,
   Log,
-  TimeHoldingLog,
 } from "@/types";
 import { TestCaseResult } from "@/testCaseResult";
 import { Logger } from "@/logger";
@@ -14,6 +14,8 @@ import { PropagationTestConfig } from "@/config/propagationTestConfig";
 import { TobikuraConfig } from "@/config/tobikuraConfig";
 import { FetchInfo } from "@/fetchInfo";
 import { opentelemetry } from "@/generated/otelpbj";
+import { TestCase } from "@/testCase";
+import { omitDirPath } from "@/util/file";
 
 const SpanKind = opentelemetry.proto.trace.v1.Span.SpanKind;
 
@@ -64,7 +66,7 @@ function extractPropagationFailedSpans(
 }
 
 export class TestResult {
-  public testCaseResults: TestCaseResult[];
+  public testCaseResults: Map<string, TestCaseResult[]>;
   public capturedSpans: Record<string, TobikuraSpan[]>;
   public propagationFailedSpans: Record<string, TobikuraSpan[]>;
   public capturedLogs: Record<string, ITobikuraLogRecord[]>;
@@ -75,15 +77,16 @@ export class TestResult {
     capturedSpans: Record<string, TobikuraSpan[]>,
     capturedLogs: Record<string, ITobikuraLogRecord[]>,
     config: TobikuraConfig,
+    testCases: Map<string, TestCase[]>,
   ): Promise<TestResult> {
     const collector = new TestCaseLogCollector(testRootDir, tmpLogDir);
-    const testCaseLogs = await collector.collect();
+    const testCaseResults = await collector.collect(testCases);
 
-    return new TestResult(testCaseLogs, capturedSpans, capturedLogs, config);
+    return new TestResult(testCaseResults, capturedSpans, capturedLogs, config);
   }
 
   constructor(
-    testCaseResults: TestCaseResult[],
+    testCaseResults: Map<string, TestCaseResult[]>,
     capturedSpans: Record<string, TobikuraSpan[]>,
     capturedLogs: Record<string, ITobikuraLogRecord[]>,
     config: TobikuraConfig,
@@ -113,23 +116,17 @@ export class TestResult {
   }
 }
 
-// Usually, logs are order by time.
-// But when logged at the same time, logs are ordered by `logOrder` order
-const logOrder = {
-  testFinished: 0,
-  testStarted: 1,
-  fetchStarted: 2,
-};
-
 class TestCaseLogCollector {
   constructor(
     private testRootDir: string,
     private tmpLogDir: string,
   ) {}
 
-  async collect(): Promise<TestCaseResult[]> {
+  async collect(
+    testCases: Map<string, TestCase[]>,
+  ): Promise<Map<string, TestCaseResult[]>> {
     const logs = this.readLogs();
-    const testCaseResults = this.toTestCaseResults(logs);
+    const testCaseResults = this.toTestCaseResults(testCases, logs);
     return testCaseResults;
   }
 
@@ -151,24 +148,7 @@ class TestCaseLogCollector {
         return;
       }
 
-      if (parsed.type === "testStarted") {
-        logs.push({
-          type: "testStarted",
-          file: parsed.file,
-          testFullName: parsed.testFullName,
-          timeMillis: parsed.timeMillis,
-        });
-      } else if (parsed.type === "testFinished") {
-        logs.push({
-          type: "testFinished",
-          duration: parsed.duration,
-          failureDetails: parsed.failureDetails,
-          failureMessages: parsed.failureMessages,
-          file: parsed.file,
-          status: parsed.status,
-          timeMillis: parsed.timeMillis,
-        });
-      } else if (parsed.type === "fetchStarted") {
+      if (parsed.type === "fetchStarted") {
         logs.push({
           type: "fetchStarted",
           timeMillis: parsed.timeMillis,
@@ -197,113 +177,155 @@ class TestCaseLogCollector {
     return logs;
   }
 
-  private toTestCaseResults(logs: Log[]): TestCaseResult[] {
-    const timeHoldingLogs = this.extractOrderedTimeHoldingLogs(logs);
-    const fetchFinishedRecord = this.extractFetchFinishedLogAsRecord(logs);
+  private toTestCaseResults(
+    testCasesMap: Map<string, TestCase[]>,
+    logs: Log[],
+  ): Map<string, TestCaseResult[]> {
+    const fetchInfoMap = this.buildFetchInfoMapFor(testCasesMap, logs);
 
-    const currentResultForFile: Record<string, TestCaseResult> = {};
-    const results: TestCaseResult[] = [];
-    let testId = 0;
-    for (const log of timeHoldingLogs) {
-      if (log.type === "testStarted") {
-        const result = new TestCaseResult(
-          testId.toString(),
-          log.file.replace(this.testRootDir, ""),
-          log.testFullName,
-          log.timeMillis,
-          "unknown",
-          [],
-          [],
-        );
-        currentResultForFile[result.file] = result;
-
-        testId++;
-      } else if (log.type === "testFinished") {
-        const testFile = log.file.replace(this.testRootDir, "");
-        const result = currentResultForFile[testFile];
-        if (!result) {
-          // No testInfo when `.test` file is empty.
-          continue;
-        }
-
-        result.status = log.status;
-        result.failureDetails = log.failureDetails;
-        result.failureMessages = log.failureMessages;
-        result.duration = log.duration;
-
-        results.push(result);
-        delete currentResultForFile[testFile];
-      } else if (log.type === "fetchStarted") {
-        const testFile = log.testPath.replace(this.testRootDir, "");
-        const result = currentResultForFile[testFile];
-        if (!result) {
-          // Ignore request outside of test
-          continue;
-        }
-
-        result.orderedTraceIds.push(log.traceId);
-        const fetchFinishedLog = fetchFinishedRecord[log.traceId];
-        if (!fetchFinishedLog) {
-          Logger.error("Invalid state: requestLog not found", log);
-          continue;
-        }
-
-        const fetch: FetchInfo = {
-          traceId: fetchFinishedLog.traceId,
-          request: {
-            url: fetchFinishedLog.request.url,
-            method: fetchFinishedLog.request.method,
-            body: fetchFinishedLog.request.body,
-          },
-          response: {
-            status: fetchFinishedLog.response.status,
-            body: fetchFinishedLog.response.body,
-          },
-        };
-        result.fetches.push(fetch);
-      }
+    const ret = new Map<string, TestCaseResult[]>();
+    for (const [file, testCases] of testCasesMap.entries()) {
+      const results = testCases.map((testCase) => {
+        const fetchInfos = fetchInfoMap.get(testCase.testId) || [];
+        const orderedTraceIds = fetchInfos.map((f) => f.traceId);
+        return testCase.toResult(orderedTraceIds, fetchInfos);
+      });
+      ret.set(file, results);
     }
 
-    return results;
+    return ret;
   }
 
-  private extractOrderedTimeHoldingLogs(logs: Log[]): TimeHoldingLog[] {
-    const timeHoldingLogs: TimeHoldingLog[] = [];
+  /**
+   * buildFetchInfoMapFor returns a map from testId to FetchInfo[].
+   */
+  private buildFetchInfoMapFor(
+    testCases: Map<string, TestCase[]>,
+    logs: Log[],
+  ): Map<string, FetchInfo[]> {
+    const fetchFinishedLogMap = this.extractFetchFinishedLogs(logs);
+    const seeker = new TestCaseSeeker(this.testRootDir, testCases);
+
+    const ret = new Map<string, FetchInfo[]>();
+
+    const fetchStartedLogs = this.extractOrderedFetchStartedLogs(logs);
+    for (const log of fetchStartedLogs) {
+      const fetchFinishedLog = fetchFinishedLogMap.get(log.traceId);
+      if (!fetchFinishedLog) {
+        Logger.error("Invalid state: fetchFinishedLog not found", log);
+        continue;
+      }
+
+      const testCase = seeker.seekCorrespondingTestCase(log);
+      if (!testCase) continue;
+
+      const fetch: FetchInfo = {
+        traceId: fetchFinishedLog.traceId,
+        request: {
+          url: fetchFinishedLog.request.url,
+          method: fetchFinishedLog.request.method,
+          body: fetchFinishedLog.request.body,
+        },
+        response: {
+          status: fetchFinishedLog.response.status,
+          body: fetchFinishedLog.response.body,
+        },
+      };
+
+      const fetches = ret.get(testCase.testId) ?? [];
+      fetches.push(fetch);
+      ret.set(testCase.testId, fetches);
+    }
+
+    return ret;
+  }
+
+  private extractOrderedFetchStartedLogs(logs: Log[]): FetchStartedLog[] {
+    const ret: FetchStartedLog[] = [];
     for (const log of logs) {
-      if (
-        log.type === "fetchStarted" ||
-        log.type === "testStarted" ||
-        log.type === "testFinished"
-      ) {
-        timeHoldingLogs.push(log);
+      if (log.type === "fetchStarted") {
+        ret.push(log);
       }
     }
-    timeHoldingLogs.sort((a, b) => {
-      const diff = a.timeMillis - b.timeMillis;
-      if (diff !== 0) {
-        return diff;
-      }
 
-      const aOrder = logOrder[a.type];
-      const bOrder = logOrder[b.type];
-
-      return aOrder - bOrder;
+    ret.sort((a, b) => {
+      return a.timeMillis - b.timeMillis;
     });
 
-    return timeHoldingLogs;
+    return ret;
   }
 
-  private extractFetchFinishedLogAsRecord(
-    logs: Log[],
-  ): Record<string, FetchFinishedLog> {
-    const fetchRequestRecord: Record<string, FetchFinishedLog> = {};
+  private extractFetchFinishedLogs(logs: Log[]): Map<string, FetchFinishedLog> {
+    const fetchFinishedLogs: FetchFinishedLog[] = [];
     for (const log of logs) {
       if (log.type !== "fetchFinished") {
         continue;
       }
-      fetchRequestRecord[log.traceId] = log;
+      fetchFinishedLogs.push(log);
     }
 
-    return fetchRequestRecord;
+    const ret = new Map<string, FetchFinishedLog>(
+      fetchFinishedLogs.map((log) => [log.traceId, log]),
+    );
+    return ret;
+  }
+}
+
+class TestCaseSeeker {
+  private readonly testRootDir: string;
+  private currentTestIndexes: Map<string, number>;
+  private testCases: Map<string, TestCase[]>;
+
+  constructor(testRootDir: string, testCases: Map<string, TestCase[]>) {
+    this.testRootDir = testRootDir;
+    this.testCases = testCases;
+    this.currentTestIndexes = new Map(
+      [...testCases.keys()].map((file) => [file, 0]),
+    );
+  }
+
+  /**
+   * seekCorrespondingTestCase returns a TestCase that corresponds to the given fetchLog.
+   *
+   * When multiple TestCase started the same time, the last testCase is returned.
+   * This comes from below assumptions,
+   * * Fetch takes longer than one millisecond
+   * * Test doesn't finish in the same millisecond.
+   * So, tests using fetch won't have the same started time with other tests.
+   */
+  seekCorrespondingTestCase(fetchLog: FetchStartedLog): TestCase | undefined {
+    const testFile = omitDirPath(fetchLog.testPath, this.testRootDir);
+    const testCases = this.testCases.get(testFile);
+    if (!testCases) {
+      return undefined;
+    }
+
+    const startIndex = this.currentTestIndexes.get(testFile);
+    if (startIndex === undefined) {
+      return undefined;
+    }
+
+    for (let i = startIndex; i < testCases.length; i++) {
+      const testCase = testCases[i];
+
+      if (i + 1 < testCases.length) {
+        const nextTestCase = testCases[i + 1];
+        if (testCase.startTimeMillis === nextTestCase.startTimeMillis) {
+          continue;
+        }
+      }
+
+      if (fetchLog.timeMillis < testCase.startTimeMillis) {
+        return undefined;
+      }
+      if (testCase.finishTimeMillis <= fetchLog.timeMillis) {
+        continue;
+      }
+
+      this.currentTestIndexes.set(testFile, i);
+      return testCase;
+    }
+
+    return undefined;
   }
 }

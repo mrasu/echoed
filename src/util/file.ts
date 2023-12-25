@@ -31,3 +31,7 @@ export async function createEmptyFile(file: string) {
   });
   await fs.promises.writeFile(file, "");
 }
+
+export function omitDirPath(file: string, dir: string): string {
+  return file.replace(dir, "");
+}

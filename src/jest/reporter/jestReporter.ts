@@ -12,7 +12,6 @@ import os from "os";
 import { Test, TestCaseResult, TestContext } from "@jest/test-result";
 import { Circus } from "@jest/types";
 import { setTmpDirToEnv } from "@/env";
-import { TestFinishedLog, TestStartedLog } from "@/types";
 import { Logger } from "@/logger";
 import { AnsiGreen, AnsiRed, AnsiReset } from "@/ansi";
 import {
@@ -22,6 +21,10 @@ import {
 import { TestResult } from "@/testResult";
 import { TobikuraConfig } from "@/config/tobikuraConfig";
 import { FileSpace } from "@/fileSpace";
+import { TestCaseStartInfo } from "@/jest/reporter/testCase";
+import { omitDirPath } from "@/util/file";
+import { hasValue } from "@/util/type";
+import { TestCase } from "@/testCase";
 
 const TOBIKURA_ROOT_DIR = path.resolve(__dirname, "../../");
 
@@ -30,14 +33,15 @@ export class JestReporter implements Reporter {
   private readonly maxWorkers: number;
   private readonly output: string;
   private readonly fileSpace: FileSpace;
-  private readonly filename: string;
   private readonly serverPort: number;
   private readonly serverStopAfter: number;
   private readonly config: TobikuraConfig;
 
   private lastError: Error | undefined;
 
-  private currentTests: Map<string, Circus.TestCaseStartInfo> = new Map();
+  private currentTests: Map<string, TestCaseStartInfo> = new Map();
+  private knownTestCount = 0;
+  private collectedTestCaseElements: Map<string, TestCase[]> = new Map();
 
   constructor(
     globalConfig: Config.GlobalConfig,
@@ -72,8 +76,6 @@ export class JestReporter implements Reporter {
     this.fileSpace = new FileSpace(tmpdir);
     this.fileSpace.ensureDirectoryExistence();
 
-    this.filename = crypto.randomUUID() + ".json";
-
     this.config = new TobikuraConfig(
       new PropagationTestConfig(propagationTest),
     );
@@ -104,6 +106,7 @@ export class JestReporter implements Reporter {
       capturedSpans,
       capturedLogs,
       this.config,
+      this.collectedTestCaseElements,
     );
     const reportFile = new ReportFile(
       this.output,
@@ -147,65 +150,36 @@ export class JestReporter implements Reporter {
     test: Test,
     testCaseStartInfo: Circus.TestCaseStartInfo,
   ) {
-    // TODO: no need to log? isn't memory enough?
-    await this.logStarted({
-      type: "testStarted",
-      file: test.path,
-      timeMillis: testCaseStartInfo.startedAt || Date.now(),
-      testFullName: testCaseStartInfo.fullName,
-    });
-    this.currentTests.set(test.path, testCaseStartInfo);
+    const startInfo = new TestCaseStartInfo(
+      this.knownTestCount.toString(),
+      omitDirPath(test.path, this.jestRootDir),
+      testCaseStartInfo.fullName,
+      testCaseStartInfo.startedAt ?? Date.now(),
+    );
+    this.knownTestCount++;
+    this.currentTests.set(startInfo.file, startInfo);
   }
 
   async onTestCaseResult(test: Test, testCaseResult: TestCaseResult) {
-    const startInfo = this.currentTests.get(test.path);
+    const testPath = omitDirPath(test.path, this.jestRootDir);
+    const testCase = this.currentTests.get(testPath);
+    if (!testCase) return;
 
-    let finishedAt: number;
-    if (startInfo?.startedAt && testCaseResult.duration) {
-      finishedAt = startInfo.startedAt + testCaseResult.duration;
-    } else {
+    if (!hasValue(testCaseResult)) {
       Logger.warn(
-        "Unexpected situation. Traces may not appear correctly. no startInfo?.startedAt or testCaseResult.duration",
+        "Unexpected situation. Traces may not appear correctly. no testCaseResult.duration",
       );
-      finishedAt = Date.now();
     }
 
-    // TODO: no need to log? isn't memory enough?
-    await this.logFinished({
-      type: "testFinished",
-      file: test.path,
-      timeMillis: finishedAt,
-      status: testCaseResult.status,
-      failureDetails: testCaseResult.failureDetails.map((v) =>
-        JSON.stringify(v),
-      ),
-      failureMessages: testCaseResult.failureMessages,
-      duration: testCaseResult.duration || undefined,
-    });
-  }
+    const element = testCase.toTestCaseElement(
+      testCaseResult.status,
+      testCaseResult.duration ?? 0,
+      testCaseResult.failureDetails.map((v) => JSON.stringify(v)),
+      testCaseResult.failureMessages,
+    );
 
-  private async logStarted(value: TestStartedLog) {
-    await this.logText(JSON.stringify(value));
-  }
-
-  private async logFinished(value: TestFinishedLog) {
-    await this.logText(JSON.stringify(value));
-  }
-
-  private async logText(text: string) {
-    await new Promise((resolve, reject) => {
-      fs.appendFile(this.logFilePath, text + "\n", (err) => {
-        if (err) {
-          reject(err);
-          return;
-        }
-
-        resolve(undefined);
-      });
-    });
-  }
-
-  private get logFilePath() {
-    return path.join(this.fileSpace.testLogDir, this.filename);
+    const collected = this.collectedTestCaseElements.get(element.file) || [];
+    collected.push(element);
+    this.collectedTestCaseElements.set(element.file, collected);
   }
 }

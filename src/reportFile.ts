@@ -90,7 +90,8 @@ export class ReportFile {
   }
 
   private createTobikuraParam(testResult: TestResult): TobikuraParam {
-    const testInfos = testResult.testCaseResults.map((result) => {
+    const results = [...testResult.testCaseResults.values()].flat();
+    const testInfos = results.map((result) => {
       let traceSpans: TobikuraSpan[] = [];
       let traceLogs: ITobikuraLogRecord[] = [];
 
