@@ -37,6 +37,7 @@ export class JestReporter implements Reporter {
   private readonly serverStopAfter: number;
   private readonly config: TobikuraConfig;
 
+  private server?: Server;
   private lastError: Error | undefined;
 
   private currentTests: Map<string, TestCaseStartInfo> = new Map();
@@ -89,7 +90,7 @@ export class JestReporter implements Reporter {
       busFiles.push(this.fileSpace.eventBusFilePath((i + 1).toString()));
     }
 
-    globalThis.__SERVER__ = await Server.start(this.serverPort, busFiles);
+    this.server = await Server.start(this.serverPort, busFiles);
   }
 
   readonly getLastError = () => {
@@ -97,8 +98,13 @@ export class JestReporter implements Reporter {
   };
 
   async onRunComplete(_contexts: Set<TestContext>, _results: AggregatedResult) {
-    const { capturedSpans, capturedLogs } =
-      await globalThis.__SERVER__.stopAfter(this.serverStopAfter);
+    if (!this.server) {
+      throw new Error("Tobikura: server is not started");
+    }
+
+    const { capturedSpans, capturedLogs } = await this.server.stopAfter(
+      this.serverStopAfter,
+    );
 
     const testResult = await TestResult.collect(
       this.jestRootDir,

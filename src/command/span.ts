@@ -11,7 +11,7 @@ export async function waitForSpan(
   filter: SpanFilterOption,
   options?: WaitOption,
 ): Promise<Span> {
-  const bus = globalThis.__BUS__;
+  const bus = globalThis.__TOBIKURA_BUS__;
   if (!bus) throw new Error("No bus for tobikura. not using reporter?");
 
   const traceId = (res as any)[traceIdPropertyName];
