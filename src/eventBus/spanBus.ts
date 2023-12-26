@@ -1,6 +1,13 @@
 import { FileBus } from "@/eventBus/infra/fileBus";
 import { TobikuraSpan } from "@/type/tobikuraSpan";
 import { jsonSpan } from "@/type/jsonSpan";
+import { Comparable } from "@/comparision/comparable";
+import {
+  restoreComparables,
+  restoreStringComparable,
+} from "@/comparision/restore";
+import { Eq } from "@/comparision/eq";
+import { Reg } from "@/comparision/reg";
 
 const WANT_SPAN_EVENT_NAME = "wantSpan";
 const RECEIVE_SPAN_EVENT_NAME = "receiveSpan";
@@ -22,15 +29,13 @@ type ReceiveSpanEmitEvent = Omit<ReceiveSpanEvent, "span"> & {
   span: jsonSpan | TobikuraSpan;
 };
 
-export type SpanFilterAttributeOption = {
-  [key: string]: string | boolean | number;
-};
-
 export type SpanFilterOption = {
-  name?: string;
-  attributes?: SpanFilterAttributeOption;
-  resource?: {
-    attributes?: SpanFilterAttributeOption;
+  name?: Eq | Reg;
+  // Use Record instead of Map because JSON.stringify doesn't serialize Map.
+  //  e.g. JSON.stringify(new Map([["a",1]])) returns {} insteadof {"a":1}
+  attributes: Record<string, Comparable>;
+  resource: {
+    attributes: Record<string, Comparable>;
   };
 };
 
@@ -39,8 +44,26 @@ export class SpanBus {
 
   listenWantSpanEvent(callback: (event: WantSpanEvent) => void) {
     this.bus.on(WANT_SPAN_EVENT_NAME, async (data) => {
-      callback(data as WantSpanEvent);
+      callback(this.restoreWantSpanEvent(data));
     });
+  }
+
+  private restoreWantSpanEvent(data: any): WantSpanEvent {
+    return {
+      traceId: data.traceId,
+      filter: this.restoreSpanFilterOption(data.filter),
+      wantId: data.wantId,
+    };
+  }
+
+  private restoreSpanFilterOption(data: any): SpanFilterOption {
+    return {
+      name: restoreStringComparable(data.name),
+      attributes: restoreComparables(data.attributes),
+      resource: {
+        attributes: restoreComparables(data.resource?.attributes),
+      },
+    };
   }
 
   async requestWantSpan(

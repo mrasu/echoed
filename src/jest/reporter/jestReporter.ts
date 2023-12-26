@@ -14,10 +14,6 @@ import { Circus } from "@jest/types";
 import { setTmpDirToEnv } from "@/env";
 import { Logger } from "@/logger";
 import { AnsiGreen, AnsiRed, AnsiReset } from "@/ansi";
-import {
-  PropagationTestConfig,
-  PropagationTestConfigType,
-} from "@/config/propagationTestConfig";
 import { TestResult } from "@/testResult";
 import { TobikuraConfig } from "@/config/tobikuraConfig";
 import { FileSpace } from "@/fileSpace";
@@ -25,8 +21,19 @@ import { TestCaseStartInfo } from "@/jest/reporter/testCase";
 import { omitDirPath } from "@/util/file";
 import { hasValue } from "@/util/type";
 import { TestCase } from "@/testCase";
+import { convertPropagationTestConfig } from "@/jest/reporter/bridge/config";
 
 const TOBIKURA_ROOT_DIR = path.resolve(__dirname, "../../");
+
+export type PropagationTestConfig = {
+  enabled?: boolean;
+  ignore?: {
+    attributes?: Record<string, string | boolean | number>;
+    resource?: {
+      attributes?: Record<string, string | boolean | number>;
+    };
+  };
+};
 
 export class JestReporter implements Reporter {
   private readonly jestRootDir: string;
@@ -57,7 +64,7 @@ export class JestReporter implements Reporter {
       serverPort?: number;
       serverStopAfter?: number;
       debug?: boolean;
-      propagationTest?: PropagationTestConfigType;
+      propagationTest?: PropagationTestConfig;
     },
   ) {
     if (!output) {
@@ -78,7 +85,7 @@ export class JestReporter implements Reporter {
     this.fileSpace.ensureDirectoryExistence();
 
     this.config = new TobikuraConfig(
-      new PropagationTestConfig(propagationTest),
+      convertPropagationTestConfig(propagationTest),
     );
   }
 

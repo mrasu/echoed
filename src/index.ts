@@ -1,3 +1,1 @@
-import { waitForSpan } from "@/command/span";
-
-export { waitForSpan };
+export * from "@/command/index";

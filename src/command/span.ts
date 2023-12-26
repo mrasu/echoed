@@ -1,9 +1,21 @@
-import { SpanBus, SpanFilterOption } from "@/eventBus/spanBus";
+import { SpanBus } from "@/eventBus/spanBus";
 import { traceIdPropertyName } from "@/traceLoggingFetch";
 import { Span } from "@/type/span";
+import { Compare } from "@/command/compare";
+import { convertSpanFilterOption } from "@/command/bridge/compare";
 
 export type WaitOption = {
   timeoutMs?: number;
+};
+
+export type AttributeValueOption = string | boolean | number | RegExp | Compare;
+
+export type SpanFilterOption = {
+  name?: string | RegExp;
+  attributes?: Record<string, AttributeValueOption>;
+  resource?: {
+    attributes?: Record<string, AttributeValueOption>;
+  };
 };
 
 export async function waitForSpan(
@@ -24,7 +36,7 @@ export async function waitForSpan(
   const spanBus = new SpanBus(bus);
   const span = await spanBus.requestWantSpan(
     traceId,
-    filter,
+    convertSpanFilterOption(filter),
     options?.timeoutMs || 10000,
   );
 

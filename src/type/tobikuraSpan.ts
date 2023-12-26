@@ -1,7 +1,7 @@
 import { opentelemetry } from "@/generated/otelpbj";
 import { isUserAgentInternalProgram } from "@/util/ua";
 import { PropagationTestConfig } from "@/config/propagationTestConfig";
-import { matchAttributeValue } from "@/util/span";
+import { Comparable } from "@/comparision/comparable";
 
 const USER_AGENT_ATTRIBUTE_KEYS = new Set(["user-agent", "http.user_agent"]);
 
@@ -35,7 +35,7 @@ export class TobikuraSpan extends opentelemetry.proto.trace.v1.Span {
   }
 
   shouldIgnoreFromPropagationTest(config: PropagationTestConfig): boolean {
-    const ignoreAttributes = config.ignoreConfig?.attributes || {};
+    const ignoreAttributes = config.ignoreConfig.attributes;
     if (isIgnoredAttribute(this.attributes, ignoreAttributes)) {
       return true;
     }
@@ -53,17 +53,17 @@ export class TobikuraSpan extends opentelemetry.proto.trace.v1.Span {
 
 function isIgnoredAttribute(
   attributes: opentelemetry.proto.common.v1.IKeyValue[],
-  ignoreTargetAttributes: Record<string, string | boolean | number>,
+  ignoreTargets: Map<string, Comparable>,
 ): boolean {
   for (const attr of attributes) {
     const key = attr.key;
     if (!key) continue;
 
-    const ignoreValue = ignoreTargetAttributes[key];
-    if (ignoreValue === null || ignoreValue === undefined) continue;
+    const ignoreComparable = ignoreTargets.get(key);
+    if (!ignoreComparable) continue;
 
     const val = attr.value;
-    if (matchAttributeValue(val, ignoreValue)) {
+    if (ignoreComparable.matchIAnyValue(val)) {
       return true;
     }
 

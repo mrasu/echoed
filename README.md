@@ -67,3 +67,55 @@ Choose one of the following methods to install Tobikura based on your testing ne
           exporters: [otlphttp/local]
     ```
 
+# How to Use
+
+## Make Observable
+
+To get HTML report visualizing API traces, no modifications to your Jest code are required.
+
+```ts
+describe("Awesome test", () => {
+  it("should pass", async () => {
+    const response = await fetch(`http://localhost:8080/api/cart`);
+    expect(response.status).toBe(200);
+
+    const body = await response.json();
+    expect(body.items.length).toBe(0);
+  });
+});
+```
+The code above produce an HTML report illustrating a trace for the requested endpoint (`http://localhost:8080/api/cart`).
+
+## Test OpenTelemetry's Spans
+
+In addition to the HTML output, Tobikura offers a convenient method for testing OpenTelemetry's spans.
+With `waitForSpan` function, you can get a span matching your needs.
+
+```ts
+describe("Awesome test", () => {
+  it("should creates OpenTelemetry's span", async () => {
+    const response = await fetch(`http://localhost:8080/api/products`);
+    expect(response.status).toBe(200);
+
+    const span = await waitForSpan(response, {
+      name: "oteldemo.ProductCatalogService/ListProducts",
+      resource: {
+        attributes: {
+          "service.name": "productcatalogservice",
+        },
+      },
+      attributes: {
+        "app.products.count": gte(5),
+        "rpc.system": /grpc/,
+      }
+    })
+    const productsCount = span.attributes.find(attr => attr.key === "app.products.count")
+    expect(productsCount?.value?.intValue).toBe(10)
+  });
+});
+```
+The code above waits for a span that satisfies the following conditions and then compares it using the `expect` statement
+* `name` is `oteldemo.ProductCatalogService/ListProducts`
+* `service.name` in resource is `productcatalogservice`
+* `app.products.count` attribute is greater than or equal to `5`
+* `rpc.system` attribute matches `/grpc/`

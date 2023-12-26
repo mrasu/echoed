@@ -1,13 +1,8 @@
-import {
-  SpanBus,
-  SpanFilterAttributeOption,
-  SpanFilterOption,
-  WantSpanEvent,
-} from "@/eventBus/spanBus";
+import { SpanBus, SpanFilterOption, WantSpanEvent } from "@/eventBus/spanBus";
 import { TobikuraSpan } from "@/type/tobikuraSpan";
 import { toBase64 } from "@/util/byte";
 import { opentelemetry } from "@/generated/otelpbj";
-import { matchAttributeValue } from "@/util/span";
+import { Comparable } from "@/comparision/comparable";
 
 export class WantSpanRequest {
   public readonly bus: SpanBus;
@@ -44,7 +39,7 @@ export class WantSpanRequest {
     if (this.traceId !== toBase64(span.traceId)) return false;
 
     if (this.filter.name) {
-      if (this.filter.name !== span.name) return false;
+      if (!this.filter.name.matchString(span.name)) return false;
     }
 
     if (this.filter.attributes) {
@@ -71,19 +66,20 @@ export class WantSpanRequest {
 
   private matchesAttributes(
     attributes: opentelemetry.proto.common.v1.IKeyValue[],
-    filterAttributes: SpanFilterAttributeOption,
+    comparables: Record<string, Comparable>,
   ): boolean {
     const matchedKeys = new Set<string>();
     for (const attr of attributes) {
       if (!attr.key) continue;
 
-      const filterValue = filterAttributes[attr.key];
-      if (!filterValue) continue;
+      const comparable = comparables[attr.key];
+      if (!comparable) continue;
+      if (!attr.value) continue;
 
-      if (!matchAttributeValue(attr.value, filterValue)) continue;
+      if (!comparable.matchIAnyValue(attr.value)) continue;
       matchedKeys.add(attr.key);
     }
 
-    return matchedKeys.size === Object.keys(filterAttributes).length;
+    return matchedKeys.size === Object.keys(comparables).length;
   }
 }
