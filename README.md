@@ -1,4 +1,4 @@
-# Tobikura: Observable Integration Testing using OpenTelemetry on top of Jest.
+# Observable Integration Testing using OpenTelemetry on top of Jest.
 
 Tobikura empowers Integration testing, aka API testing, by providing visualizations of API traces and logs through OpenTelemetry.
 
@@ -129,3 +129,38 @@ The code above waits for a span that satisfies the following specified condition
 * `service.name` in resource is `productcatalogservice`
 * `app.products.count` attribute is greater than or equal to `5`
 * `rpc.system` attribute matches `/grpc/`
+
+## Test SQL
+
+You can use the `waitForSpan` function to test executed SQL too.
+
+```ts
+describe("Awesome test", () => {
+  it("should create an OpenTelemetry span", async () => {
+    const response = await fetch(`http://localhost:8080/api/products`, {
+      method: "POST",
+      body: JSON.stringify({
+          name: "Awesome Product",
+          price: 100,
+      }),
+    });
+    expect(response.status).toBe(200);
+
+    const span = await waitForSpan(response, {
+      name: "oteldemo.ProductCatalogService/CreateProducts",
+      resource: {
+        attributes: {
+          "service.name": "productcatalogservice",
+        },
+      },
+      attributes: {
+        "db.system": "postgresql",
+        "db.statement": /INSERT .+/,
+      }
+    });
+    
+    const query = span.attributes.find(attr => attr.key === "db.statement");
+    expect(query?.value?.stringValue).toBe("INSERT INTO products (name, price) VALUES ('Awesome Product', 100)");
+  });
+});
+```
