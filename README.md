@@ -1,45 +1,53 @@
-Observable API testing library using OpenTelemetry for Jest.
+# Tobikura: Observable Integration Testing using OpenTelemetry on top of Jest.
 
-# Tobikura
+Tobikura empowers Integration testing, aka API testing, by providing visualizations of API traces and logs through OpenTelemetry.
 
-Tobikura empowers API testing by visualizing API traces and logs from OpenTelemetry.
+# Features
+Tobikura enhances your testing experience with the following features:
+
+* **Effortless Test Troubleshooting**: Quickly identify issues in failed tests by visualizing OpenTelemetry's traces and logs.
+* **Test Propagation Leak**: Identify spans that don't propagate OpenTelemetry's context to their children.
+* **Validate Spans**: Test spans to validate SQL queries changing DB or requests going outside.
+* **CI-Friendly**: Works seamlessly in CI environments without relying on external services.
+* **IDE Debugging Support**: Debug your tests effortlessly in your preferred IDE, leveraging Jest's built-in debugging capabilities.
+* **Code Compatibility**: No need to modify your existing Jest tests. Use your preferred JavaScript/TypeScript.
+* **Parallel Execution**: Speed up test runs by executing tests in parallel with Jest.
 
 # Screenshots
 
-Tobikura generates an HTML report for Jest results.  
-See below for screenshots of the report:
+Tobikura generates HTML that visualizes OpenTelemetry traces for each request in Jest tests.  
+Explore the screenshots below to see how it looks:
 
-* Executed Tests List  
+* List of executed tests  
     ![Screenshot of Tobikura's test list](./docs/img/readme-test-list.png)
-* Test result page  
+* Detail result  
     ![Screenshot of Tobikura's test results](./docs/img/readme-test-detail.png)
-* Trace of the Test  
+* Trace and logs of the Test  
     ![Screenshot of Tobikura's log detail](./docs/img/readme-trace-detail-trace.png)
-* Logs for the Trace of the Test  
     ![Screenshot of Tobikura's log detail](./docs/img/readme-trace-detail-log.png)
 
 
 # Installation
 
-Choose one of the following methods to install Tobikura based on your testing needs:
+Tobikura offers two installation methods, allowing you to choose the one that suits your needs:
 
-## 1. Setup with example tests
+## 1. Create a New Directory with Example Tests
 
 1. Initialize a new directory using npx:
-    ```
+    ```bash
     mkdir my_test_directory && cd my_test_directory
     npx tobikura@latest
     ```
-2. Review the example tests in the generated `README.md`:
-    ```
+2. Review the example tests and run them by following instructions in the generated `README.md`:
+    ```bash
     cat README.md
     ```
 3. Once you're familiar, remove the `example` directory and begin crafting your own tests:
-    ```
+    ```bash
     npm run test
     ```
 
-## 2. Integrate with existing tests
+## 2. Integrate with Existing Tests
 
 1. Modify `jest.config.js` to use Tobikura
     ```js
@@ -52,7 +60,7 @@ Choose one of the following methods to install Tobikura based on your testing ne
       ],
     };
     ```
-2. Update your OpenTelemetry endpoint to use Tobikura:
+2. Update your OpenTelemetry endpoint to connect to Tobikura.  
     If you are using the OpenTelemetry Collector, modify its settings as shown below:
     ```yml
     exporters:
@@ -69,9 +77,10 @@ Choose one of the following methods to install Tobikura based on your testing ne
 
 # How to Use
 
-## Make Observable
+## Make Tests Observable
 
-To get HTML report visualizing API traces, no modifications to your Jest code are required.
+To generate an HTML report visualizing API traces, no additional code is needed.  
+Simply write your Jest tests as usual.
 
 ```ts
 describe("Awesome test", () => {
@@ -84,16 +93,16 @@ describe("Awesome test", () => {
   });
 });
 ```
-The code above produce an HTML report illustrating a trace for the requested endpoint (`http://localhost:8080/api/cart`).
+The code above produces an HTML report illustrating a trace for the requested endpoint (`http://localhost:8080/api/cart`).
 
 ## Test OpenTelemetry's Spans
 
-In addition to the HTML output, Tobikura offers a convenient method for testing OpenTelemetry's spans.
-With `waitForSpan` function, you can get a span matching your needs.
+In addition to the HTML output, Tobikura offers a convenient method for testing OpenTelemetry spans.  
+Use the `waitForSpan` function to obtain a span that matches your criteria.
 
 ```ts
 describe("Awesome test", () => {
-  it("should creates OpenTelemetry's span", async () => {
+  it("should create an OpenTelemetry span", async () => {
     const response = await fetch(`http://localhost:8080/api/products`);
     expect(response.status).toBe(200);
 
@@ -108,13 +117,14 @@ describe("Awesome test", () => {
         "app.products.count": gte(5),
         "rpc.system": /grpc/,
       }
-    })
-    const productsCount = span.attributes.find(attr => attr.key === "app.products.count")
-    expect(productsCount?.value?.intValue).toBe(10)
+    });
+    
+    const productsCount = span.attributes.find(attr => attr.key === "app.products.count");
+    expect(productsCount?.value?.intValue).toBe(10);
   });
 });
 ```
-The code above waits for a span that satisfies the following conditions and then compares it using the `expect` statement
+The code above waits for a span that satisfies the following specified conditions and then compares it using the `expect` statement:
 * `name` is `oteldemo.ProductCatalogService/ListProducts`
 * `service.name` in resource is `productcatalogservice`
 * `app.products.count` attribute is greater than or equal to `5`
