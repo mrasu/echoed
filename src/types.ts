@@ -1,4 +1,4 @@
-import opentelemetry from "@/generated/otelpbj";
+import { opentelemetry } from "@/generated/otelpbj";
 
 export type Log = FetchStartedLog | FetchFinishedLog;
 
@@ -23,5 +23,4 @@ export type FetchFinishedLog = {
   };
 };
 
-export type ITobikuraLogRecord =
-  opentelemetry.opentelemetry.proto.logs.v1.ILogRecord;
+export type ITobikuraLogRecord = opentelemetry.proto.logs.v1.ILogRecord;

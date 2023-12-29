@@ -1,4 +1,3 @@
-import { FileBus } from "@/eventBus/infra/fileBus";
 import { TobikuraSpan } from "@/type/tobikuraSpan";
 import { jsonSpan } from "@/type/jsonSpan";
 import { Comparable } from "@/comparision/comparable";
@@ -8,6 +7,7 @@ import {
 } from "@/comparision/restore";
 import { Eq } from "@/comparision/eq";
 import { Reg } from "@/comparision/reg";
+import { IEventBus } from "@/eventBus/infra/iEventBus";
 
 const WANT_SPAN_EVENT_NAME = "wantSpan";
 const RECEIVE_SPAN_EVENT_NAME = "receiveSpan";
@@ -40,7 +40,7 @@ export type SpanFilterOption = {
 };
 
 export class SpanBus {
-  constructor(private readonly bus: FileBus) {}
+  constructor(private readonly bus: IEventBus) {}
 
   listenWantSpanEvent(callback: (event: WantSpanEvent) => void) {
     this.bus.on(WANT_SPAN_EVENT_NAME, async (data) => {

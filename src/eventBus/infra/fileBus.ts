@@ -2,10 +2,9 @@ import fs from "fs";
 import { appendFileLine, createEmptyFile } from "@/util/file";
 import { Logger } from "@/logger";
 import { FileWatcher } from "@/eventBus/infra/watcher";
+import { IEventBus, WatchCallback } from "@/eventBus/infra/iEventBus";
 
-type WatchCallback = (data: any) => void;
-
-export class FileBus {
+export class FileBus implements IEventBus {
   private readonly file: string;
   private watcher?: FileWatcher;
 

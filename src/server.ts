@@ -41,15 +41,15 @@ export class Server {
   private async startBus(busFiles: string[]): Promise<FileBus[]> {
     const buses: FileBus[] = busFiles.map((file) => new FileBus(file));
 
-    buses.forEach((bus) => {
-      bus.open();
+    for (const bus of buses) {
+      await bus.open();
 
       const spanBus = new SpanBus(bus);
       spanBus.listenWantSpanEvent(async (data) => {
         const request = new WantSpanRequest(spanBus, data);
         await this.handleWantSpanRequest(request);
       });
-    });
+    }
 
     return buses;
   }

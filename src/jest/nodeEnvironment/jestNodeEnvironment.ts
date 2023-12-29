@@ -3,19 +3,17 @@ import type {
   JestEnvironmentConfig,
   EnvironmentContext,
 } from "@jest/environment";
-import { patchFetch, restoreFetch } from "@/fetchPatch";
 import { getTmpDirFromEnv } from "@/env";
 import { Logger } from "@/logger";
-import { openBus, closeBus } from "@/openBus";
-import { FileSpace } from "@/fileSpace";
+import { Environment } from "@/jest/nodeEnvironment/environment";
 
 export class JestNodeEnvironment extends NodeEnvironment {
-  testPath: string;
+  env: Environment;
 
   constructor(config: JestEnvironmentConfig, context: EnvironmentContext) {
     super(config, context);
 
-    this.testPath = context.testPath;
+    this.env = new Environment(context.testPath);
   }
 
   async setup() {
@@ -28,21 +26,13 @@ export class JestNodeEnvironment extends NodeEnvironment {
       );
     }
 
-    if (tmpDir) {
-      const fileSpace = new FileSpace(tmpDir);
-      patchFetch(fileSpace.testLogDir, this.testPath, this.global);
+    const workerID = process.env["JEST_WORKER_ID"];
 
-      const workerID = process.env["JEST_WORKER_ID"];
-      if (workerID) {
-        const busFilePath = fileSpace.eventBusFilePath(workerID);
-        await openBus(busFilePath, this.global);
-      }
-    }
+    await this.env.setup(this.global, tmpDir, workerID!);
   }
 
   async teardown() {
-    closeBus(this.global);
-    restoreFetch(this.global);
+    await this.env.teardown(this.global);
 
     await super.teardown();
   }

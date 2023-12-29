@@ -1,7 +1,7 @@
 import { PropagationTestConfig as InternalPropagationTestConfig } from "@/config/propagationTestConfig";
-import { PropagationTestConfig } from "@/jest/reporter/jestReporter";
 import { Comparable } from "@/comparision/comparable";
 import { Eq } from "@/comparision/eq";
+import { PropagationTestConfig } from "@/jest/reporter/reporter";
 
 export function convertPropagationTestConfig(
   t?: PropagationTestConfig,

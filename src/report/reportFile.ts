@@ -5,6 +5,7 @@ import { ITobikuraLogRecord } from "@/types";
 import { TestResult } from "@/testResult";
 import { TestCaseResult } from "@/testCaseResult";
 import { TobikuraConfig } from "@/config/tobikuraConfig";
+import { IReportFile } from "@/report/iReportFile";
 
 type TobikuraParam = {
   config: ReportConfig;
@@ -56,7 +57,7 @@ type Trace = {
 
 const REPORT_HTML_TEMPLATE_PATH_FROM_ROOT_DIR = "reporter/dist/index.html";
 
-export class ReportFile {
+export class ReportFile implements IReportFile {
   constructor(
     private outputFilePath: string,
     private tobikuraRootDir: string,

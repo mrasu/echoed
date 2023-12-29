@@ -37,7 +37,7 @@ export async function waitForSpan(
   const span = await spanBus.requestWantSpan(
     traceId,
     convertSpanFilterOption(filter),
-    options?.timeoutMs || 10000,
+    options?.timeoutMs ?? 10000,
   );
 
   return new Span(span);
