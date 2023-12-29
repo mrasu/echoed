@@ -21,7 +21,7 @@ export abstract class Comparable {
   toJSON(): any {
     return {
       kind: this.kind,
-      ...this.toJsonObj,
+      ...this.toJsonObj(),
     };
   }
 
