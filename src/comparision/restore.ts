@@ -8,7 +8,7 @@ import { Reg } from "@/comparision/reg";
 import { Kind, toKind } from "@/comparision/kind";
 
 export function restoreComparables(
-  obj: any | undefined,
+  obj: Record<string, any> | undefined,
 ): Record<string, Comparable> {
   if (!obj) return {};
 
