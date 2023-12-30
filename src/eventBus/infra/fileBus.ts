@@ -1,7 +1,7 @@
 import fs from "fs";
 import { appendFileLine, createEmptyFile } from "@/util/file";
 import { Logger } from "@/logger";
-import { FileWatcher } from "@/eventBus/infra/watcher";
+import { FileWatcher } from "@/eventBus/infra/fileWatcher";
 import { IEventBus, WatchCallback } from "@/eventBus/infra/iEventBus";
 
 export class FileBus implements IEventBus {

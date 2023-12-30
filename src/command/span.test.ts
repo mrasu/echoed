@@ -1,4 +1,3 @@
-import { IEventBus, WatchCallback } from "@/eventBus/infra/iEventBus";
 import { waitForSpan } from "@/command/span";
 import { traceIdPropertyName } from "@/traceLoggingFetch";
 import { Eq } from "@/comparision/eq";
@@ -8,36 +7,20 @@ import { Gte } from "@/comparision/gte";
 import { Lte } from "@/comparision/lte";
 import { Lt } from "@/comparision/lt";
 import { Gt } from "@/comparision/gt";
-
-class DummyBus implements IEventBus {
-  emittedData: [string, any][] = [];
-
-  async open() {}
-  close() {}
-  on(eventName: string, callback: WatchCallback) {}
-  async onOnce<T, U>(
-    eventName: string,
-    timeoutMs: number,
-    fn: (data: T) => U | undefined,
-  ): Promise<U> {
-    const ret = {
-      traceId: Uint8Array.from([1, 2, 3]),
-      spanId: Uint8Array.from([11, 12, 13]),
-      parentSpanId: Uint8Array.from([21, 22, 23]),
-      attributes: [],
-    };
-
-    return ret as U;
-  }
-  async emit(eventName: string, data: any) {
-    this.emittedData.push([eventName, data]);
-  }
-}
+import { DummyBus } from "@/testUtil/eventBus/dummyBus";
 
 describe("waitForSpan", () => {
+  const span = {
+    traceId: Uint8Array.from([1, 2, 3]),
+    spanId: Uint8Array.from([11, 12, 13]),
+    parentSpanId: Uint8Array.from([21, 22, 23]),
+    attributes: [],
+  };
+
   let bus: DummyBus;
   beforeEach(() => {
     bus = new DummyBus();
+    bus.immediateReturnObject = span;
     globalThis.__TOBIKURA_BUS__ = bus;
   });
 

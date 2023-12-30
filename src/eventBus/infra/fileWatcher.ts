@@ -59,7 +59,7 @@ export class FileWatcher {
 
     const stream = fs.createReadStream(this.file, {
       start: previousPosition,
-      end: stat.size,
+      end: stat.size - 1,
       encoding: "utf-8",
     });
 
