@@ -59,9 +59,8 @@ const REPORT_HTML_TEMPLATE_PATH_FROM_ROOT_DIR = "reporter/dist/index.html";
 
 export class ReportFile implements IReportFile {
   constructor(
-    private outputFilePath: string,
-    private tobikuraRootDir: string,
     private config: TobikuraConfig,
+    private tobikuraRootDir: string,
   ) {}
 
   async generate(testResult: TestResult): Promise<string> {
@@ -82,12 +81,13 @@ export class ReportFile implements IReportFile {
     `,
     );
 
-    await fs.promises.mkdir(path.dirname(this.outputFilePath), {
+    const outputPath = this.config.output;
+    await fs.promises.mkdir(path.dirname(outputPath), {
       recursive: true,
     });
-    await fs.promises.writeFile(this.outputFilePath, fileContent, "utf-8");
+    await fs.promises.writeFile(outputPath, fileContent, "utf-8");
 
-    return this.outputFilePath;
+    return outputPath;
   }
 
   private createTobikuraParam(testResult: TestResult): TobikuraParam {

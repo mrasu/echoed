@@ -11,6 +11,8 @@ import {
   DEFAULT_TEST_FULL_NAME,
 } from "@/testUtil/jest/testCaseStartInfo";
 import { buildTestCaseResult } from "@/testUtil/jest/testCaseResult";
+import { TobikuraConfig } from "@/config/tobikuraConfig";
+import { PropagationTestConfig } from "@/config/propagationTestConfig";
 
 class DummyReportFile implements IReportFile {
   testResult: TestResult | undefined;
@@ -38,10 +40,22 @@ describe("Reporter", () => {
   });
 
   const buildReporter = () => {
-    return new Reporter(buildGlobalConfig(), {
-      output: "result/report.html",
-      serverStopAfter: 0,
-    });
+    const config = new TobikuraConfig(
+      "result/report.html",
+      8080,
+      0,
+      false,
+      new PropagationTestConfig({
+        enabled: true,
+        ignore: {
+          attributes: new Map(),
+          resource: {
+            attributes: new Map(),
+          },
+        },
+      }),
+    );
+    return new Reporter(buildGlobalConfig(), config);
   };
 
   const startReporter = async () => {

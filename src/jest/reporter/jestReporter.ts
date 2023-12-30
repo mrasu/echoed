@@ -8,24 +8,23 @@ import {
 } from "@jest/reporters";
 import { Test, TestCaseResult, TestContext } from "@jest/test-result";
 import { Circus } from "@jest/types";
-import { PropagationTestConfig, Reporter } from "@/jest/reporter/reporter";
+import { Reporter } from "@/jest/reporter/reporter";
+import { TobikuraConfig } from "@/config/tobikuraConfig";
+import { loadTobikuraConfig } from "@/jest/reporter/bridge/config";
 
 const TOBIKURA_ROOT_DIR = path.resolve(__dirname, "../../");
+const TOBIKURA_CONFIG_FILE_NAME = ".tobikura.yml";
 
 export class JestReporter implements IJestReporter {
-  private reporter: Reporter;
+  private readonly reporter: Reporter;
+  private readonly config: TobikuraConfig;
 
-  constructor(
-    globalConfig: Config.GlobalConfig,
-    option: {
-      output?: string;
-      serverPort?: number;
-      serverStopAfter?: number;
-      debug?: boolean;
-      propagationTest?: PropagationTestConfig;
-    },
-  ) {
-    this.reporter = new Reporter(globalConfig, option);
+  constructor(globalConfig: Config.GlobalConfig, option: {}) {
+    const filepath = path.join(process.cwd(), TOBIKURA_CONFIG_FILE_NAME);
+    const config = loadTobikuraConfig(filepath);
+
+    this.config = config;
+    this.reporter = new Reporter(globalConfig, this.config);
   }
 
   async onRunStart(results: AggregatedResult, options: ReporterOnStartOptions) {
@@ -37,11 +36,7 @@ export class JestReporter implements IJestReporter {
   };
 
   async onRunComplete(contexts: Set<TestContext>, results: AggregatedResult) {
-    const reportFile = new ReportFile(
-      this.reporter.output,
-      TOBIKURA_ROOT_DIR,
-      this.reporter.config,
-    );
+    const reportFile = new ReportFile(this.config, TOBIKURA_ROOT_DIR);
     await this.reporter.onRunComplete(contexts, results, reportFile);
   }
 

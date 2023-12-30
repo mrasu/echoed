@@ -19,7 +19,6 @@ import { TestCaseStartInfo } from "@/jest/reporter/testCase";
 import { omitDirPath } from "@/util/file";
 import { hasValue } from "@/util/type";
 import { TestCase } from "@/testCase";
-import { convertPropagationTestConfig } from "@/jest/reporter/bridge/config";
 import { IReportFile } from "@/report/iReportFile";
 
 export type PropagationTestConfig = {
@@ -35,11 +34,8 @@ export type PropagationTestConfig = {
 export class Reporter {
   private readonly jestRootDir: string;
   private readonly maxWorkers: number;
-  readonly output: string;
   private readonly fileSpace: FileSpace;
-  private readonly serverPort: number;
-  private readonly serverStopAfter: number;
-  readonly config: TobikuraConfig;
+  private readonly config: TobikuraConfig;
 
   private server?: Server;
   private lastError: Error | undefined;
@@ -48,32 +44,11 @@ export class Reporter {
   private knownTestCount = 0;
   collectedTestCaseElements: Map<string, TestCase[]> = new Map();
 
-  constructor(
-    globalConfig: Config.GlobalConfig,
-    {
-      output,
-      serverPort = 3000,
-      serverStopAfter = 20,
-      debug = false,
-      propagationTest,
-    }: {
-      output?: string;
-      serverPort?: number;
-      serverStopAfter?: number;
-      debug?: boolean;
-      propagationTest?: PropagationTestConfig;
-    },
-  ) {
-    if (!output) {
-      throw new Error("Tobikura: invalid report option. `output` is required");
-    }
+  constructor(globalConfig: Config.GlobalConfig, config: TobikuraConfig) {
     this.jestRootDir = globalConfig.rootDir;
     this.maxWorkers = globalConfig.maxWorkers;
 
-    this.output = output;
-    this.serverPort = serverPort;
-    this.serverStopAfter = serverStopAfter;
-    Logger.setShowDebug(debug);
+    Logger.setShowDebug(config.debug);
 
     const tmpdir = fs.mkdtempSync(path.join(os.tmpdir(), "tobikura-"));
     setTmpDirToEnv(tmpdir);
@@ -81,9 +56,7 @@ export class Reporter {
     this.fileSpace = new FileSpace(tmpdir);
     this.fileSpace.ensureDirectoryExistence();
 
-    this.config = new TobikuraConfig(
-      convertPropagationTestConfig(propagationTest),
-    );
+    this.config = config;
   }
 
   async onRunStart(results: AggregatedResult, options: ReporterOnStartOptions) {
@@ -94,7 +67,7 @@ export class Reporter {
       busFiles.push(this.fileSpace.eventBusFilePath((i + 1).toString()));
     }
 
-    this.server = await Server.start(this.serverPort, busFiles);
+    this.server = await Server.start(this.config.serverPort, busFiles);
   }
 
   readonly getLastError = () => {
@@ -111,7 +84,7 @@ export class Reporter {
     }
 
     const { capturedSpans, capturedLogs } = await this.server.stopAfter(
-      this.serverStopAfter,
+      this.config.serverStopAfter,
     );
 
     const testResult = await TestResult.collect(
@@ -124,16 +97,16 @@ export class Reporter {
     );
     const outputPath = await reportFile.generate(testResult);
 
-    Logger.log(
-      `Report file is generated at ${AnsiGreen}${outputPath}${AnsiReset}`,
-    );
-
     if (this.config.propagationTestConfig.enabled) {
       const passed = this.logPropagationTestResult(testResult);
       if (!passed) {
         this.lastError = new Error("Propagation leak found");
       }
     }
+
+    Logger.log(
+      `Report file is generated at ${AnsiGreen}${outputPath}${AnsiReset}`,
+    );
   }
 
   private logPropagationTestResult(testResult: TestResult): boolean {

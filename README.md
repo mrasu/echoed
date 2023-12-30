@@ -49,18 +49,26 @@ Tobikura offers two installation methods, allowing you to choose the one that su
 
 ## 2. Integrate with Existing Tests
 
-1. Modify `jest.config.js` to use Tobikura
+1. Update Jest Configuration for Tobikura  
+    Modify your `jest.config.js` file to include Tobikura in `testEnvironment` and `reporters`:
     ```js
     module.exports = {
       // ... other configurations
       testEnvironment: "tobikura/jest/nodeEnvironment",
       reporters: [
         "default",
-        ["tobikura/jest/reporter", { output: "results/report.html" }],
+        "tobikura/jest/reporter"
       ],
     };
     ```
-2. Update your OpenTelemetry endpoint to connect to Tobikura.  
+2. Create `.tobikura.yml`.  
+    To integrate Tobikura, create a configuration file named `.tobikura.yml`.  
+    The minimal required option is `output`. Refer to the [Configuration](#Configuration) section for detail.  
+    For example:
+    ```yml
+    output: "report/result.html"
+    ```
+3. Update your OpenTelemetry endpoint to connect to Tobikura.  
     If you are using the OpenTelemetry Collector, modify its settings as shown below:
     ```yml
     exporters:
@@ -164,3 +172,8 @@ describe("Awesome test", () => {
   });
 });
 ```
+
+# Configuration
+
+Tobikura can be configured at `.tobikura.yml` in the root of your project.  
+Explore available options [here](./src/config/tobikuraConfigFileSchema.ts).
