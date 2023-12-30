@@ -3,6 +3,7 @@ import { Eq } from "@/comparision/eq";
 import { Reg } from "@/comparision/reg";
 import { DummyBus } from "@/testUtil/eventBus/dummyBus";
 import { jsonSpan } from "@/type/jsonSpan";
+import { Span } from "@/type/span";
 
 describe("SpanBus", () => {
   const defaultFilter: SpanFilterOption = {
@@ -17,10 +18,19 @@ describe("SpanBus", () => {
     },
   };
 
+  const span = {
+    traceId: Uint8Array.from([1, 2, 3]),
+    spanId: Uint8Array.from([11, 12, 13]),
+    parentSpanId: Uint8Array.from([21, 22, 23]),
+    attributes: [],
+  };
+
   describe("listenWantSpanEvent", () => {
     let bus: SpanBus;
     beforeEach(() => {
-      bus = new SpanBus(new DummyBus());
+      const dummyBus = new DummyBus();
+      dummyBus.immediateReturnObject = span;
+      bus = new SpanBus(dummyBus);
     });
 
     it("should call callback when event is emitted", async () => {
@@ -55,14 +65,14 @@ describe("SpanBus", () => {
       bus = new SpanBus(dummyBus);
     });
 
-    it("should return ", async () => {
+    it("should return Span", async () => {
       const returnedSpan = await bus.requestWantSpan(
         "trace-id",
         defaultFilter,
         0,
       );
 
-      expect(returnedSpan).toStrictEqual(span);
+      expect(returnedSpan).toStrictEqual(new Span(span));
     });
   });
 });

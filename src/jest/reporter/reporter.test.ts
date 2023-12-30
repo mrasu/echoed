@@ -42,7 +42,7 @@ describe("Reporter", () => {
   const buildReporter = () => {
     const config = new TobikuraConfig(
       "result/report.html",
-      8080,
+      13333,
       0,
       false,
       new PropagationTestConfig({

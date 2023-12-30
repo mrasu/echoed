@@ -1,6 +1,6 @@
 import { SpanBus } from "@/eventBus/spanBus";
 import { traceIdPropertyName } from "@/traceLoggingFetch";
-import { Span } from "@/type/span";
+import { Span } from "@/command/spanType";
 import { Compare } from "@/command/compare";
 import { convertSpanFilterOption } from "@/command/bridge/compare";
 
@@ -40,5 +40,5 @@ export async function waitForSpan(
     options?.timeoutMs ?? 10000,
   );
 
-  return new Span(span);
+  return span;
 }

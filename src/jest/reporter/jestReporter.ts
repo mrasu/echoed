@@ -10,7 +10,6 @@ import { Test, TestCaseResult, TestContext } from "@jest/test-result";
 import { Circus } from "@jest/types";
 import { Reporter } from "@/jest/reporter/reporter";
 import { TobikuraConfig } from "@/config/tobikuraConfig";
-import { loadTobikuraConfig } from "@/jest/reporter/bridge/config";
 
 const TOBIKURA_ROOT_DIR = path.resolve(__dirname, "../../");
 const TOBIKURA_CONFIG_FILE_NAME = ".tobikura.yml";
@@ -21,7 +20,7 @@ export class JestReporter implements IJestReporter {
 
   constructor(globalConfig: Config.GlobalConfig, option: {}) {
     const filepath = path.join(process.cwd(), TOBIKURA_CONFIG_FILE_NAME);
-    const config = loadTobikuraConfig(filepath);
+    const config = TobikuraConfig.load(filepath);
 
     this.config = config;
     this.reporter = new Reporter(globalConfig, this.config);

@@ -8,6 +8,7 @@ import {
 import { Eq } from "@/comparision/eq";
 import { Reg } from "@/comparision/reg";
 import { IEventBus } from "@/eventBus/infra/iEventBus";
+import { Span } from "@/type/span";
 
 const WANT_SPAN_EVENT_NAME = "wantSpan";
 const RECEIVE_SPAN_EVENT_NAME = "receiveSpan";
@@ -70,7 +71,7 @@ export class SpanBus {
     traceId: string,
     filter: SpanFilterOption,
     waitTimeoutMs: number,
-  ): Promise<jsonSpan> {
+  ): Promise<Span> {
     const wantId = crypto.randomUUID();
     await this.emitWantSpanEvent({
       traceId,
@@ -89,7 +90,7 @@ export class SpanBus {
       },
     );
 
-    return span;
+    return new Span(span);
   }
 
   private async emitWantSpanEvent(event: WantSpanEvent) {

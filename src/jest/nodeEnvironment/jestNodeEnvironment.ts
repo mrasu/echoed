@@ -8,7 +8,7 @@ import { Logger } from "@/logger";
 import { Environment } from "@/jest/nodeEnvironment/environment";
 
 export class JestNodeEnvironment extends NodeEnvironment {
-  env: Environment;
+  private env: Environment;
 
   constructor(config: JestEnvironmentConfig, context: EnvironmentContext) {
     super(config, context);
