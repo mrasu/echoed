@@ -161,8 +161,8 @@ describe("Reporter", () => {
         buildTestCaseStartInfo({ startedAt }),
       );
 
-      expect(reporter.currentTests.size).toBe(1);
-      expect(reporter.currentTests.get(DEFAULT_TEST_PATH)).toMatchObject(
+      expect(reporter.currentTestQueues.size).toBe(1);
+      expect(reporter.currentTestQueues.get(DEFAULT_TEST_PATH)).toMatchObject(
         buildTestStartInfoObject("0", DEFAULT_TEST_PATH, startedAt),
       );
       expect(reporter.collectedTestCaseElements.size).toBe(0);
@@ -183,15 +183,15 @@ describe("Reporter", () => {
           buildTestCaseStartInfo({ startedAt }),
         );
 
-        expect(reporter.currentTests.size).toBe(2);
+        expect(reporter.currentTestQueues.size).toBe(2);
         expect(
-          reporter.currentTests.get("/path/to/dummy1.test.js"),
+          reporter.currentTestQueues.get("/path/to/dummy1.test.js"),
         ).toMatchObject(
           buildTestStartInfoObject("0", "/path/to/dummy1.test.js", startedAt),
         );
 
         expect(
-          reporter.currentTests.get("/path/to/dummy2.test.js"),
+          reporter.currentTestQueues.get("/path/to/dummy2.test.js"),
         ).toMatchObject(
           buildTestStartInfoObject("1", "/path/to/dummy2.test.js", startedAt),
         );
@@ -213,32 +213,31 @@ describe("Reporter", () => {
           buildTestCaseStartInfo({ startedAt }),
         );
 
-        expect(reporter.currentTests.size).toBe(1);
-        expect(reporter.currentTests.get(DEFAULT_TEST_PATH)).toMatchObject(
+        expect(reporter.currentTestQueues.size).toBe(1);
+        expect(reporter.currentTestQueues.get(DEFAULT_TEST_PATH)).toMatchObject(
           buildTestStartInfoObject("1", DEFAULT_TEST_PATH, startedAt),
         );
       });
     });
   });
 
-  describe("onTestCaseResult", () => {
-    const buildTestCaseObject = (
-      testId: string,
-      file: string,
-      startedAt: number,
-    ): {} => {
-      return {
-        testId: testId,
-        file: file,
-        name: DEFAULT_TEST_FULL_NAME,
-        startTimeMillis: startedAt,
-        status: "passed",
-        duration: 123,
-        failureDetails: [],
-        failureMessages: [],
-      };
+  const buildTestCaseObject = (
+    testId: string,
+    file: string,
+    startedAt: number,
+  ): {} => {
+    return {
+      testId: testId,
+      file: file,
+      name: DEFAULT_TEST_FULL_NAME,
+      startTimeMillis: startedAt,
+      status: "passed",
+      duration: 123,
+      failureDetails: [],
+      failureMessages: [],
     };
-
+  };
+  describe("onTestCaseResult", () => {
     it("should record the result of test", async () => {
       const reporter = buildReporter();
 
@@ -279,54 +278,78 @@ describe("Reporter", () => {
           buildTestCaseObject("1", DEFAULT_TEST_PATH, startedAt + 222),
         ]);
       });
+    });
+  });
 
-      describe("when running tests parallel", () => {
-        it("should record all result of tests", async () => {
-          const reporter = buildReporter();
+  describe("onTestCaseStart and onTestCaseResult", () => {
+    describe("when running tests parallel", () => {
+      it("should record all result of tests", async () => {
+        const reporter = buildReporter();
 
-          const startedAt = new Date().getTime();
-          await reporter.onTestCaseStart(
-            buildTest({ path: "/path/to/dummy1.test.js" }),
-            buildTestCaseStartInfo({ startedAt }),
-          );
-          await reporter.onTestCaseStart(
-            buildTest({ path: "/path/to/dummy2.test.js" }),
-            buildTestCaseStartInfo({ startedAt }),
-          );
-          await reporter.onTestCaseResult(
-            buildTest({ path: "/path/to/dummy1.test.js" }),
-            buildTestCaseResult(),
-          );
-          await reporter.onTestCaseStart(
-            buildTest({ path: "/path/to/dummy1.test.js" }),
-            buildTestCaseStartInfo({ startedAt: startedAt + 222 }),
-          );
-          await reporter.onTestCaseResult(
-            buildTest({ path: "/path/to/dummy1.test.js" }),
-            buildTestCaseResult(),
-          );
-          await reporter.onTestCaseResult(
-            buildTest({ path: "/path/to/dummy2.test.js" }),
-            buildTestCaseResult(),
-          );
+        const startedAt = new Date().getTime();
+        await reporter.onTestCaseStart(
+          buildTest({ path: "/path/to/dummy1.test.js" }),
+          buildTestCaseStartInfo({ startedAt }),
+        );
+        await reporter.onTestCaseStart(
+          buildTest({ path: "/path/to/dummy2.test.js" }),
+          buildTestCaseStartInfo({ startedAt }),
+        );
+        await reporter.onTestCaseResult(
+          buildTest({ path: "/path/to/dummy1.test.js" }),
+          buildTestCaseResult(),
+        );
+        await reporter.onTestCaseStart(
+          buildTest({ path: "/path/to/dummy1.test.js" }),
+          buildTestCaseStartInfo({ startedAt: startedAt + 222 }),
+        );
+        await reporter.onTestCaseResult(
+          buildTest({ path: "/path/to/dummy1.test.js" }),
+          buildTestCaseResult(),
+        );
+        await reporter.onTestCaseResult(
+          buildTest({ path: "/path/to/dummy2.test.js" }),
+          buildTestCaseResult(),
+        );
 
-          expect(reporter.collectedTestCaseElements.size).toBe(2);
-          expect(
-            reporter.collectedTestCaseElements.get("/path/to/dummy1.test.js"),
-          ).toMatchObject([
-            buildTestCaseObject("0", "/path/to/dummy1.test.js", startedAt),
-            buildTestCaseObject(
-              "2",
-              "/path/to/dummy1.test.js",
-              startedAt + 222,
-            ),
-          ]);
-          expect(
-            reporter.collectedTestCaseElements.get("/path/to/dummy2.test.js"),
-          ).toMatchObject([
-            buildTestCaseObject("1", "/path/to/dummy2.test.js", startedAt),
-          ]);
-        });
+        expect(reporter.collectedTestCaseElements.size).toBe(2);
+        expect(
+          reporter.collectedTestCaseElements.get("/path/to/dummy1.test.js"),
+        ).toMatchObject([
+          buildTestCaseObject("0", "/path/to/dummy1.test.js", startedAt),
+          buildTestCaseObject("2", "/path/to/dummy1.test.js", startedAt + 222),
+        ]);
+        expect(
+          reporter.collectedTestCaseElements.get("/path/to/dummy2.test.js"),
+        ).toMatchObject([
+          buildTestCaseObject("1", "/path/to/dummy2.test.js", startedAt),
+        ]);
+      });
+    });
+
+    describe("when calling start before calling result", () => {
+      it("should record all result correctly", async () => {
+        const reporter = buildReporter();
+
+        const startedAt = new Date().getTime();
+        await reporter.onTestCaseStart(
+          buildTest(),
+          buildTestCaseStartInfo({ startedAt }),
+        );
+        await reporter.onTestCaseStart(
+          buildTest(),
+          buildTestCaseStartInfo({ startedAt: startedAt + 222 }),
+        );
+        await reporter.onTestCaseResult(buildTest(), buildTestCaseResult());
+        await reporter.onTestCaseResult(buildTest(), buildTestCaseResult());
+
+        expect(reporter.collectedTestCaseElements.size).toBe(1);
+        expect(
+          reporter.collectedTestCaseElements.get(DEFAULT_TEST_PATH),
+        ).toMatchObject([
+          buildTestCaseObject("0", DEFAULT_TEST_PATH, startedAt),
+          buildTestCaseObject("1", DEFAULT_TEST_PATH, startedAt + 222),
+        ]);
       });
     });
   });

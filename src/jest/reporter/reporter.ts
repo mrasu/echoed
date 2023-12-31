@@ -20,6 +20,7 @@ import { omitDirPath } from "@/util/file";
 import { hasValue } from "@/util/type";
 import { TestCase } from "@/testCase";
 import { IReportFile } from "@/report/iReportFile";
+import { Mutex } from "async-mutex";
 
 export type PropagationTestConfig = {
   enabled?: boolean;
@@ -32,6 +33,8 @@ export type PropagationTestConfig = {
 };
 
 export class Reporter {
+  private mutex = new Mutex();
+
   private readonly jestRootDir: string;
   private readonly maxWorkers: number;
   private readonly fileSpace: FileSpace;
@@ -40,7 +43,21 @@ export class Reporter {
   private server?: Server;
   private lastError: Error | undefined;
 
-  currentTests: Map<string, TestCaseStartInfo> = new Map();
+  // currentTestQueue is a queue of started test.
+  //
+  // Because Jest (jest-circus) doesn't wait for "finish" event processing,
+  //   it's possible that "start" event for the next test is dispatched before the "finish" event of previous test is dispatched.
+  // So we cannot guarantee that the last started test is the test that finished in onTestCaseResult.
+  // However, because Jest waits for "start" event processing, we can guarantee that the order of "start" events is correct.
+  // And because it waits for "start", we can guarantee that the order of "finish" events is correct too.
+  // So by using queue, we can know the finished test in onTestCaseResult.
+  //
+  // If we represent it graphically, the order of events can be the following patterns:
+  // * start(test1) -> finish(test1) -> start(test2) -> finish(test2)
+  // * start(test1) -> start(test2) -> finish(test1) -> finish(test2)
+  // Note: start(test1) and start(test2) won't be queued in the opposite order as Jest waits for "start".
+  currentTestQueues: Map<string, TestCaseStartInfo[]> = new Map();
+
   private knownTestCount = 0;
   collectedTestCaseElements: Map<string, TestCase[]> = new Map();
 
@@ -139,12 +156,26 @@ export class Reporter {
       testCaseStartInfo.startedAt ?? Date.now(),
     );
     this.knownTestCount++;
-    this.currentTests.set(startInfo.file, startInfo);
+
+    await this.mutex.runExclusive(() => {
+      const startInfos = this.currentTestQueues.get(startInfo.file) ?? [];
+      startInfos.push(startInfo);
+      this.currentTestQueues.set(startInfo.file, startInfos);
+    });
   }
 
   async onTestCaseResult(test: Test, testCaseResult: TestCaseResult) {
-    const testPath = omitDirPath(test.path, this.jestRootDir);
-    const testCase = this.currentTests.get(testPath);
+    const testCase = await this.mutex.runExclusive(
+      (): TestCaseStartInfo | undefined => {
+        const testPath = omitDirPath(test.path, this.jestRootDir);
+        const testCases = this.currentTestQueues.get(testPath);
+        if (!testCases) return;
+        const testCase = testCases.shift();
+        if (!testCase) return;
+        this.currentTestQueues.set(testPath, testCases);
+        return testCase;
+      },
+    );
     if (!testCase) return;
 
     if (!hasValue(testCaseResult)) {
