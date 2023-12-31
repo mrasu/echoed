@@ -1,13 +1,13 @@
 import fs from "fs";
 import path from "path";
-import { TobikuraSpan } from "@/type/tobikuraSpan";
-import { ITobikuraLogRecord } from "@/types";
+import { OtelSpan } from "@/type/otelSpan";
+import { IOtelLogRecord } from "@/types";
 import { TestResult } from "@/testResult";
 import { TestCaseResult } from "@/testCaseResult";
-import { TobikuraConfig } from "@/config/tobikuraConfig";
+import { Config } from "@/config/config";
 import { IReportFile } from "@/report/iReportFile";
 
-type TobikuraParam = {
+type EchoedParam = {
   config: ReportConfig;
   testInfos: TestInfo[];
   propagationFailedTraces: Trace[];
@@ -28,7 +28,7 @@ type TestInfo = {
   failureDetails?: string[];
   failureMessages?: string[];
   duration?: number;
-  spans: TobikuraSpan[];
+  spans: OtelSpan[];
   logRecords: any[];
 };
 
@@ -51,7 +51,7 @@ type FetchResponse = {
 
 type Trace = {
   traceId: string;
-  spans: TobikuraSpan[];
+  spans: OtelSpan[];
   logRecords: any[];
 };
 
@@ -59,24 +59,24 @@ const REPORT_HTML_TEMPLATE_PATH_FROM_ROOT_DIR = "reporter/dist/index.html";
 
 export class ReportFile implements IReportFile {
   constructor(
-    private config: TobikuraConfig,
-    private tobikuraRootDir: string,
+    private config: Config,
+    private echoedRootDir: string,
   ) {}
 
   async generate(testResult: TestResult): Promise<string> {
     const reportHtmlPath = path.resolve(
-      this.tobikuraRootDir,
+      this.echoedRootDir,
       REPORT_HTML_TEMPLATE_PATH_FROM_ROOT_DIR,
     );
     const htmlContent = await fs.promises.readFile(reportHtmlPath, "utf-8");
 
-    const tobikuraParam = this.createTobikuraParam(testResult);
+    const echoedParam = this.createEchoedParam(testResult);
 
     const fileContent = htmlContent.replace(
       /<!-- -z- replace:dummy start -z- -->.+<!-- -z- replace:dummy end -z- -->/s,
       `
     <script>
-    window.__tobikura_param__ = ${JSON.stringify(tobikuraParam)}
+    window.__echoed_param__ = ${JSON.stringify(echoedParam)}
     </script>
     `,
     );
@@ -90,11 +90,11 @@ export class ReportFile implements IReportFile {
     return outputPath;
   }
 
-  private createTobikuraParam(testResult: TestResult): TobikuraParam {
+  private createEchoedParam(testResult: TestResult): EchoedParam {
     const results = [...testResult.testCaseResults.values()].flat();
     const testInfos = results.map((result) => {
-      let traceSpans: TobikuraSpan[] = [];
-      let traceLogs: ITobikuraLogRecord[] = [];
+      let traceSpans: OtelSpan[] = [];
+      let traceLogs: IOtelLogRecord[] = [];
 
       for (const traceId of result.orderedTraceIds) {
         traceSpans = traceSpans.concat(testResult.capturedSpans[traceId] || []);

@@ -1,4 +1,4 @@
-export type TobikuraConfigFileSchema = {
+export type ConfigFileSchema = {
   /**
    * [Required] Output directory path
    */

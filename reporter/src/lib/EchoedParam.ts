@@ -1,7 +1,7 @@
 import { Buffer } from "buffer";
 import type {
   ILongable,
-  ITobikuraParam,
+  IEchoedParam,
   ISpan,
   IKeyValue,
   IEvent,
@@ -19,13 +19,13 @@ import type {
   IFetchResponse,
   ITrace,
   IConfig,
-} from "../types/tobikura_param";
+} from "../types/echoed_param";
 import Long from "long";
 
 const Million = 1000 * 1000;
 
-export class TobikuraParam {
-  static convert(param: ITobikuraParam): TobikuraParam {
+export class EchoedParam {
+  static convert(param: IEchoedParam): EchoedParam {
     const config = new Config(param.config);
 
     const testInfos = param.testInfos.map((testInfo) => new TestInfo(testInfo));
@@ -33,7 +33,7 @@ export class TobikuraParam {
       (trace) => new Trace(trace),
     );
 
-    return new TobikuraParam(config, testInfos, propagationFailedTraces);
+    return new EchoedParam(config, testInfos, propagationFailedTraces);
   }
 
   constructor(

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { link } from "svelte-spa-router";
   import { Text } from "@smui/list";
-  import type { Trace } from "../../lib/TobikuraParam";
+  import type { Trace } from "../../lib/EchoedParam";
   import { TestNameForPropagation } from "../../consts/testNames";
   import Description from "./Description.svelte";
   import TraceList from "./TraceList.svelte";

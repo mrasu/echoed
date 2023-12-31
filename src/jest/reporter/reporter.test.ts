@@ -11,7 +11,7 @@ import {
   DEFAULT_TEST_FULL_NAME,
 } from "@/testUtil/jest/testCaseStartInfo";
 import { buildTestCaseResult } from "@/testUtil/jest/testCaseResult";
-import { TobikuraConfig } from "@/config/tobikuraConfig";
+import { Config } from "@/config/config";
 import { PropagationTestConfig } from "@/config/propagationTestConfig";
 
 class DummyReportFile implements IReportFile {
@@ -40,7 +40,7 @@ describe("Reporter", () => {
   });
 
   const buildReporter = () => {
-    const config = new TobikuraConfig(
+    const config = new Config(
       "result/report.html",
       13333,
       0,

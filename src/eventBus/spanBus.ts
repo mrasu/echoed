@@ -1,4 +1,4 @@
-import { TobikuraSpan } from "@/type/tobikuraSpan";
+import { OtelSpan } from "@/type/otelSpan";
 import { jsonSpan } from "@/type/jsonSpan";
 import { Comparable } from "@/comparision/comparable";
 import {
@@ -25,9 +25,9 @@ type ReceiveSpanEvent = {
   span: jsonSpan;
 };
 
-// Span of ReceiveSpanEvent can be TobikuraSpan because TobikuraSpan becomes ISpan after JSON.parse(JSON.stringify)
+// Span of ReceiveSpanEvent can be OtelSpan because OtelSpan becomes ISpan after JSON.parse(JSON.stringify)
 type ReceiveSpanEmitEvent = Omit<ReceiveSpanEvent, "span"> & {
-  span: jsonSpan | TobikuraSpan;
+  span: jsonSpan | OtelSpan;
 };
 
 export type SpanFilterOption = {
@@ -97,11 +97,7 @@ export class SpanBus {
     await this.bus.emit(WANT_SPAN_EVENT_NAME, event);
   }
 
-  async emitReceiveSpanEvent(
-    wantId: string,
-    traceId: string,
-    span: TobikuraSpan,
-  ) {
+  async emitReceiveSpanEvent(wantId: string, traceId: string, span: OtelSpan) {
     const event: ReceiveSpanEmitEvent = {
       wantId,
       traceId,

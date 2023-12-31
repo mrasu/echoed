@@ -23,13 +23,13 @@ export async function waitForSpan(
   filter: SpanFilterOption,
   options?: WaitOption,
 ): Promise<Span> {
-  const bus = globalThis.__TOBIKURA_BUS__;
-  if (!bus) throw new Error("No bus for tobikura. not using reporter?");
+  const bus = globalThis.__ECHOED_BUS__;
+  if (!bus) throw new Error("No bus for Echoed. not using reporter?");
 
   const traceId = (res as any)[traceIdPropertyName];
   if (!traceId) {
     throw new Error(
-      "Not having tobikura's property in Response. Not the response of fetch?",
+      "Not having Echoed's property in Response. Not the response of fetch?",
     );
   }
 

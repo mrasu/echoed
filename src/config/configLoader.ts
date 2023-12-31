@@ -1,35 +1,35 @@
-import { TobikuraConfig } from "@/config/tobikuraConfig";
+import { Config } from "@/config/config";
 import { statSync } from "@/util/file";
 import yaml from "js-yaml";
 import fs from "fs";
 import { PropagationTestConfig } from "@/config/propagationTestConfig";
 import { Comparable } from "@/comparision/comparable";
 import { Eq } from "@/comparision/eq";
-import { TobikuraConfigFileSchema } from "@/config/tobikuraConfigFileSchema";
+import { ConfigFileSchema } from "@/config/configFileSchema";
 
 type YamlValue = string | boolean | number | null;
 
-export class TobikuraConfigLoader {
+export class ConfigLoader {
   constructor(private filepath: string) {}
 
-  loadFromFile(): TobikuraConfig {
+  loadFromFile(): Config {
     const stat = statSync(this.filepath);
     if (!stat) {
-      throw new Error(`Tobikura: config file not found: ${this.filepath}`);
+      throw new Error(`Echoed: config file not found: ${this.filepath}`);
     }
     if (!stat.isFile()) {
-      throw new Error(`Tobikura: config file is not a file: ${this.filepath}`);
+      throw new Error(`Echoed: config file is not a file: ${this.filepath}`);
     }
 
     const fileContent = yaml.load(
       fs.readFileSync(this.filepath, "utf-8"),
-    ) as TobikuraConfigFileSchema;
+    ) as ConfigFileSchema;
 
     if (fileContent.output === "") {
-      throw new Error("Tobikura: invalid report option. `output` is required");
+      throw new Error("Echoed: invalid report option. `output` is required");
     }
 
-    return new TobikuraConfig(
+    return new Config(
       fileContent.output,
       fileContent.serverPort ?? 3000,
       fileContent.serverStopAfter ?? 20,
@@ -39,7 +39,7 @@ export class TobikuraConfigLoader {
   }
 
   private convertPropagationTestConfig(
-    t?: TobikuraConfigFileSchema["propagationTest"],
+    t?: ConfigFileSchema["propagationTest"],
   ): PropagationTestConfig {
     const enabled = t?.enabled ?? true;
     const ignore = {

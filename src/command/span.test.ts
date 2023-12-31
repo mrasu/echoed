@@ -21,11 +21,11 @@ describe("waitForSpan", () => {
   beforeEach(() => {
     bus = new DummyBus();
     bus.immediateReturnObject = span;
-    globalThis.__TOBIKURA_BUS__ = bus;
+    globalThis.__ECHOED_BUS__ = bus;
   });
 
   afterEach(() => {
-    delete globalThis.__TOBIKURA_BUS__;
+    delete globalThis.__ECHOED_BUS__;
   });
 
   const buildResponse = (traceId: string) => {

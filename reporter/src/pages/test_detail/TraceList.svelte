@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Span, TestInfo } from "../../lib/TobikuraParam";
+  import { Span, TestInfo } from "../../lib/EchoedParam";
   import List, { Item, Separator, Text } from "@smui/list";
   import { push } from "svelte-spa-router";
   import Paper, { Title, Content } from "@smui/paper";

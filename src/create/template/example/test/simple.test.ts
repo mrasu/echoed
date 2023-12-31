@@ -1,5 +1,5 @@
 import { defaultSession } from "../util/session";
-import { waitForSpan } from "tobikura";
+import { waitForSpan } from "echoed";
 
 describe("Simple test", () => {
   it("should pass", async () => {
@@ -32,9 +32,11 @@ describe("Simple test", () => {
       },
       attributes: {
         "rpc.method": "ListProducts",
-      }
-    })
-    const rpcSystem = span.attributes.find(attr => attr.key === "app.products.count")
-    expect(rpcSystem?.value?.intValue).toBe(20)
+      },
+    });
+    const rpcSystem = span.attributes.find(
+      (attr) => attr.key === "app.products.count",
+    );
+    expect(rpcSystem?.value?.intValue).toBe(20);
   });
 });

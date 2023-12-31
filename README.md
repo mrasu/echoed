@@ -1,9 +1,9 @@
 # Observable Integration Testing using OpenTelemetry on top of Jest.
 
-Tobikura empowers Integration testing, aka API testing, by providing visualizations of API traces and logs through OpenTelemetry.
+Echoed empowers Integration testing, aka API testing, by providing visualizations of API traces and logs through OpenTelemetry.
 
 # Features
-Tobikura enhances your testing experience with the following features:
+Echoed enhances your testing experience with the following features:
 
 * **Effortless Test Troubleshooting**: Quickly identify issues in failed tests by visualizing OpenTelemetry's traces and logs.
 * **Test Propagation Leak**: Identify spans that don't propagate OpenTelemetry's context to their children.
@@ -15,28 +15,28 @@ Tobikura enhances your testing experience with the following features:
 
 # Screenshots
 
-Tobikura generates HTML that visualizes OpenTelemetry traces for each request in Jest tests.  
+Echoed generates HTML that visualizes OpenTelemetry traces for each request in Jest tests.  
 Explore the screenshots below to see how it looks:
 
 * List of executed tests  
-    ![Screenshot of Tobikura's test list](./docs/img/readme-test-list.png)
+    ![Screenshot of Echoed's test list](./docs/img/readme-test-list.png)
 * Detail result  
-    ![Screenshot of Tobikura's test results](./docs/img/readme-test-detail.png)
+    ![Screenshot of Echoed's test results](./docs/img/readme-test-detail.png)
 * Trace and logs of the Test  
-    ![Screenshot of Tobikura's log detail](./docs/img/readme-trace-detail-trace.png)
-    ![Screenshot of Tobikura's log detail](./docs/img/readme-trace-detail-log.png)
+    ![Screenshot of Echoed's log detail](./docs/img/readme-trace-detail-trace.png)
+    ![Screenshot of Echoed's log detail](./docs/img/readme-trace-detail-log.png)
 
 
 # Installation
 
-Tobikura offers two installation methods, allowing you to choose the one that suits your needs:
+Echoed offers two installation methods, allowing you to choose the one that suits your needs:
 
 ## 1. Create a New Directory with Example Tests
 
 1. Initialize a new directory using npx:
     ```bash
     mkdir my_test_directory && cd my_test_directory
-    npx tobikura@latest
+    npx echoed@latest
     ```
 2. Review the example tests and run them by following instructions in the generated `README.md`:
     ```bash
@@ -49,31 +49,31 @@ Tobikura offers two installation methods, allowing you to choose the one that su
 
 ## 2. Integrate with Existing Tests
 
-1. Update Jest Configuration for Tobikura  
-    Modify your `jest.config.js` file to include Tobikura in `testEnvironment` and `reporters`:
+1. Update Jest Configuration for Echoed  
+    Modify your `jest.config.js` file to include Echoed in `testEnvironment` and `reporters`:
     ```js
     module.exports = {
       // ... other configurations
-      testEnvironment: "tobikura/jest/nodeEnvironment",
+      testEnvironment: "echoed/jest/nodeEnvironment",
       reporters: [
         "default",
-        "tobikura/jest/reporter"
+        "echoed/jest/reporter"
       ],
     };
     ```
-2. Create `.tobikura.yml`.  
-    To integrate Tobikura, create a configuration file named `.tobikura.yml`.  
+2. Create `.echoed.yml`.  
+    To integrate Echoed, create a configuration file named `.echoed.yml`.  
     The minimal required option is `output`. Refer to the [Configuration](#Configuration) section for detail.  
     For example:
     ```yml
     output: "report/result.html"
     ```
-3. Update your OpenTelemetry endpoint to connect to Tobikura.  
+3. Update your OpenTelemetry endpoint to connect to Echoed.  
     If you are using the OpenTelemetry Collector, modify its settings as shown below:
     ```yml
     exporters:
       otlphttp/local:
-        endpoint: http://host.docker.internal:3000 # Default port of Tobikura's server
+        endpoint: http://host.docker.internal:3000 # Default port of Echoed's server
     
     service:
       pipelines:
@@ -105,7 +105,7 @@ The code above produces an HTML report illustrating a trace for the requested en
 
 ## Test OpenTelemetry's Spans
 
-In addition to the HTML output, Tobikura offers a convenient method for testing OpenTelemetry spans.  
+In addition to the HTML output, Echoed offers a convenient method for testing OpenTelemetry spans.  
 Use the `waitForSpan` function to obtain a span that matches your criteria.
 
 ```ts
@@ -175,5 +175,5 @@ describe("Awesome test", () => {
 
 # Configuration
 
-Tobikura can be configured at `.tobikura.yml` in the root of your project.  
-Explore available options [here](./src/config/tobikuraConfigFileSchema.ts).
+Echoed can be configured at `.echoed.yml` in the root of your project.  
+Explore available options [here](./src/config/configFileSchema.ts).

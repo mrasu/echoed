@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { TestInfo } from "../../lib/TobikuraParam";
+  import { TestInfo } from "../../lib/EchoedParam";
   import { Text } from "@smui/list";
   import { push } from "svelte-spa-router";
   import SucceededIcon from "../../components/status_icons/SucceededIcon.svelte";

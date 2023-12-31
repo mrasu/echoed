@@ -1,7 +1,7 @@
-import type { ITobikuraParam } from "./tobikura_param";
+import type { IEchoedParam } from "./echoed_param";
 
 declare global {
   interface Window {
-    __tobikura_param__: ITobikuraParam;
+    __echoed_param__: IEchoedParam;
   }
 }

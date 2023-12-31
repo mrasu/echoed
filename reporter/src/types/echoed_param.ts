@@ -1,4 +1,4 @@
-export type ITobikuraParam = {
+export type IEchoedParam = {
   config: IConfig;
   testInfos: ITestInfo[];
   propagationFailedTraces: ITrace[];

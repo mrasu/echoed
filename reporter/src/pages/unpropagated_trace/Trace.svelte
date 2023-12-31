@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Span, type Trace } from "../../lib/TobikuraParam";
+  import { Span, type Trace } from "../../lib/EchoedParam";
   import Paper, { Content as PaperContent, Title } from "@smui/paper";
   import Accordion, { Panel, Header, Content } from "@smui-extra/accordion";
   import { link } from "svelte-spa-router";
@@ -43,7 +43,7 @@
           The Span(id={rootSpan?.spanId || "unknown"}) serves as the root of the
           trace; however, there is a possibility that this span is continuing
           from another trace.<br />
-          If the span is root, configure Tobikura's setting to ignore it.
+          If the span is root, configure Echoed's setting to ignore it.
         </Text>
       </div>
     </div>

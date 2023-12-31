@@ -22,7 +22,7 @@ export class JestNodeEnvironment extends NodeEnvironment {
     const tmpDir = getTmpDirFromEnv();
     if (!tmpDir) {
       Logger.warn(
-        "No trace inspection and output due to invalid setting for Tobikura. Reporter is not set?",
+        "No trace inspection and output due to invalid setting for Echoed. Reporter is not set?",
       );
     }
 

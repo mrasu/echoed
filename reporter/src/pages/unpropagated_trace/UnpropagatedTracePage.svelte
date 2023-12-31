@@ -1,11 +1,11 @@
 <script lang="ts">
-  import { TobikuraParam } from "../..//lib/TobikuraParam";
+  import { EchoedParam } from "../../lib/EchoedParam";
   import Trace from "./Trace.svelte";
 
   export let params: { traceId: string };
 
-  const tobikuraParam = TobikuraParam.convert(window.__tobikura_param__);
-  const trace = tobikuraParam.pickPropagationFailedTrace(params.traceId);
+  const echoedParam = EchoedParam.convert(window.__echoed_param__);
+  const trace = echoedParam.pickPropagationFailedTrace(params.traceId);
 </script>
 
 {#if trace}

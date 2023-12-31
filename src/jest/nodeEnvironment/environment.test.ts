@@ -15,7 +15,7 @@ describe("Environment", () => {
   beforeEach(async () => {
     defers = [];
 
-    tmpdir = await fs.promises.mkdtemp(path.join(os.tmpdir(), "tobikura-"));
+    tmpdir = await fs.promises.mkdtemp(path.join(os.tmpdir(), "echoed-"));
     const fileSpace = new FileSpace(tmpdir);
     fileSpace.ensureDirectoryExistence();
     await fs.promises.writeFile(
@@ -57,7 +57,7 @@ describe("Environment", () => {
     const nodeEnvironment = buildNodeEnvironment();
     const global = nodeEnvironment.global;
 
-    expect(global.__TOBIKURA_BUS__).not.toBeDefined();
+    expect(global.__ECHOED_BUS__).not.toBeDefined();
 
     const environment = new Environment("/path/to/example.test.js");
     await environment.setup(global, tmpdir, WORKER_ID);
@@ -65,11 +65,11 @@ describe("Environment", () => {
       await environment.teardown(global);
     });
 
-    expect(global.__TOBIKURA_BUS__).toBeDefined();
+    expect(global.__ECHOED_BUS__).toBeDefined();
 
     await environment.teardown(global);
     defers = [];
 
-    expect(global.__TOBIKURA_BUS__).not.toBeDefined();
+    expect(global.__ECHOED_BUS__).not.toBeDefined();
   });
 });

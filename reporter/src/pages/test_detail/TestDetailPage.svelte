@@ -1,11 +1,11 @@
 <script lang="ts">
   import TestDetail from "./TestDetail.svelte";
-  import { TobikuraParam } from "../..//lib/TobikuraParam";
+  import { EchoedParam } from "../../lib/EchoedParam";
 
   export let params: { testId: string };
 
-  const tobikuraParam = TobikuraParam.convert(window.__tobikura_param__);
-  const testInfo = tobikuraParam.pickTest(params.testId);
+  const echoedParam = EchoedParam.convert(window.__echoed_param__);
+  const testInfo = echoedParam.pickTest(params.testId);
 </script>
 
 {#if testInfo}

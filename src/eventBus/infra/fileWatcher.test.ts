@@ -8,7 +8,7 @@ describe("FileWatcher", () => {
   let file: string;
   let watcher: FileWatcher;
   beforeEach(() => {
-    const tmpdir = fs.mkdtempSync(path.join(os.tmpdir(), "tobikura-"));
+    const tmpdir = fs.mkdtempSync(path.join(os.tmpdir(), "echoed-"));
     file = path.join(tmpdir, "eventBus.jsonl");
 
     watcher = new FileWatcher(file);

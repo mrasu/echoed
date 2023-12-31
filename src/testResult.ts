@@ -1,17 +1,17 @@
 import fs from "fs";
 import path from "path";
 
-import { TobikuraSpan } from "@/type/tobikuraSpan";
+import { OtelSpan } from "@/type/otelSpan";
 import {
   FetchFinishedLog,
   FetchStartedLog,
-  ITobikuraLogRecord,
+  IOtelLogRecord,
   Log,
 } from "@/types";
 import { TestCaseResult } from "@/testCaseResult";
 import { Logger } from "@/logger";
 import { PropagationTestConfig } from "@/config/propagationTestConfig";
-import { TobikuraConfig } from "@/config/tobikuraConfig";
+import { Config } from "@/config/config";
 import { FetchInfo } from "@/fetchInfo";
 import { opentelemetry } from "@/generated/otelpbj";
 import { TestCase } from "@/testCase";
@@ -24,7 +24,7 @@ const PropagationRequiredKinds = new Set([
   SpanKind.SPAN_KIND_CONSUMER,
 ]);
 
-function isPropagationRequiredSpan(span: TobikuraSpan): boolean {
+function isPropagationRequiredSpan(span: OtelSpan): boolean {
   if (span.kind) {
     if (!PropagationRequiredKinds.has(span.kind)) {
       return false;
@@ -38,8 +38,8 @@ function isPropagationRequiredSpan(span: TobikuraSpan): boolean {
 
 function extractPropagationFailedSpans(
   propagationTestConfig: PropagationTestConfig,
-  allSpans: Record<string, TobikuraSpan[]>,
-): Record<string, TobikuraSpan[]> {
+  allSpans: Record<string, OtelSpan[]>,
+): Record<string, OtelSpan[]> {
   const propagationFailedTraceIds: Set<string> = new Set();
 
   for (const [traceId, spanList] of Object.entries(allSpans)) {
@@ -54,7 +54,7 @@ function extractPropagationFailedSpans(
     }
   }
 
-  const propagationFailedSpans: Record<string, TobikuraSpan[]> = {};
+  const propagationFailedSpans: Record<string, OtelSpan[]> = {};
 
   for (const [traceId, spanList] of Object.entries(allSpans)) {
     if (propagationFailedTraceIds.has(traceId)) {
@@ -67,16 +67,16 @@ function extractPropagationFailedSpans(
 
 export class TestResult {
   public testCaseResults: Map<string, TestCaseResult[]>;
-  public capturedSpans: Record<string, TobikuraSpan[]>;
-  public propagationFailedSpans: Record<string, TobikuraSpan[]>;
-  public capturedLogs: Record<string, ITobikuraLogRecord[]>;
+  public capturedSpans: Record<string, OtelSpan[]>;
+  public propagationFailedSpans: Record<string, OtelSpan[]>;
+  public capturedLogs: Record<string, IOtelLogRecord[]>;
 
   static async collect(
     testRootDir: string,
     tmpLogDir: string,
-    capturedSpans: Record<string, TobikuraSpan[]>,
-    capturedLogs: Record<string, ITobikuraLogRecord[]>,
-    config: TobikuraConfig,
+    capturedSpans: Record<string, OtelSpan[]>,
+    capturedLogs: Record<string, IOtelLogRecord[]>,
+    config: Config,
     testCases: Map<string, TestCase[]>,
   ): Promise<TestResult> {
     const collector = new TestCaseLogCollector(testRootDir, tmpLogDir);
@@ -87,9 +87,9 @@ export class TestResult {
 
   constructor(
     testCaseResults: Map<string, TestCaseResult[]>,
-    capturedSpans: Record<string, TobikuraSpan[]>,
-    capturedLogs: Record<string, ITobikuraLogRecord[]>,
-    config: TobikuraConfig,
+    capturedSpans: Record<string, OtelSpan[]>,
+    capturedLogs: Record<string, IOtelLogRecord[]>,
+    config: Config,
   ) {
     this.testCaseResults = testCaseResults;
     this.capturedLogs = capturedLogs;
@@ -102,8 +102,8 @@ export class TestResult {
     this.propagationFailedSpans = propagationFailedSpans;
   }
 
-  get propagationFailedRootSpans(): TobikuraSpan[] {
-    const rootSpans: TobikuraSpan[] = [];
+  get propagationFailedRootSpans(): OtelSpan[] {
+    const rootSpans: OtelSpan[] = [];
     for (const [_, spans] of Object.entries(this.propagationFailedSpans)) {
       for (const span of spans) {
         if (!span.isRoot) continue;

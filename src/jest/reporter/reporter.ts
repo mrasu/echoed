@@ -2,7 +2,7 @@ import path from "path";
 import fs from "fs";
 import {
   AggregatedResult,
-  Config,
+  Config as JestReporterConfig,
   ReporterOnStartOptions,
 } from "@jest/reporters";
 import { Server } from "@/server";
@@ -13,7 +13,7 @@ import { setTmpDirToEnv } from "@/env";
 import { Logger } from "@/logger";
 import { AnsiGreen, AnsiRed, AnsiReset } from "@/ansi";
 import { TestResult } from "@/testResult";
-import { TobikuraConfig } from "@/config/tobikuraConfig";
+import { Config } from "@/config/config";
 import { FileSpace } from "@/fileSpace";
 import { TestCaseStartInfo } from "@/jest/reporter/testCase";
 import { omitDirPath } from "@/util/file";
@@ -35,7 +35,7 @@ export class Reporter {
   private readonly jestRootDir: string;
   private readonly maxWorkers: number;
   private readonly fileSpace: FileSpace;
-  private readonly config: TobikuraConfig;
+  private readonly config: Config;
 
   private server?: Server;
   private lastError: Error | undefined;
@@ -44,13 +44,13 @@ export class Reporter {
   private knownTestCount = 0;
   collectedTestCaseElements: Map<string, TestCase[]> = new Map();
 
-  constructor(globalConfig: Config.GlobalConfig, config: TobikuraConfig) {
+  constructor(globalConfig: JestReporterConfig.GlobalConfig, config: Config) {
     this.jestRootDir = globalConfig.rootDir;
     this.maxWorkers = globalConfig.maxWorkers;
 
     Logger.setShowDebug(config.debug);
 
-    const tmpdir = fs.mkdtempSync(path.join(os.tmpdir(), "tobikura-"));
+    const tmpdir = fs.mkdtempSync(path.join(os.tmpdir(), "echoed-"));
     setTmpDirToEnv(tmpdir);
 
     this.fileSpace = new FileSpace(tmpdir);
@@ -80,7 +80,7 @@ export class Reporter {
     reportFile: IReportFile,
   ) {
     if (!this.server) {
-      throw new Error("Tobikura: server is not started");
+      throw new Error("Echoed: server is not started");
     }
 
     const { capturedSpans, capturedLogs } = await this.server.stopAfter(

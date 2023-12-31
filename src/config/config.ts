@@ -1,9 +1,9 @@
 import { PropagationTestConfig } from "@/config/propagationTestConfig";
-import { TobikuraConfigLoader } from "@/config/tobikuraConfigLoader";
+import { ConfigLoader } from "@/config/configLoader";
 
-export class TobikuraConfig {
-  static load(filepath: string): TobikuraConfig {
-    return new TobikuraConfigLoader(filepath).loadFromFile();
+export class Config {
+  static load(filepath: string): Config {
+    return new ConfigLoader(filepath).loadFromFile();
   }
 
   constructor(

@@ -7,7 +7,7 @@ import { sleep } from "@/util/async";
 describe("FileBus", () => {
   let file: string;
   beforeEach(() => {
-    const tmpdir = fs.mkdtempSync(path.join(os.tmpdir(), "tobikura-"));
+    const tmpdir = fs.mkdtempSync(path.join(os.tmpdir(), "echoed-"));
     file = path.join(tmpdir, "eventBus.jsonl");
   });
 

@@ -1,7 +1,7 @@
 export function setTmpDirToEnv(tmpDir: string): void {
-  process.env.__TOBIKURA_TMPDIR__ = tmpDir;
+  process.env.__ECHOED_TMPDIR__ = tmpDir;
 }
 
 export function getTmpDirFromEnv(): string | undefined {
-  return process.env.__TOBIKURA_TMPDIR__;
+  return process.env.__ECHOED_TMPDIR__;
 }

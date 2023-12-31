@@ -1,12 +1,12 @@
-# Tobikura with Jest
+# Echoed with Jest
 
-This template provides a minimal setup to get Tobikura working with Jest.
-The setup also created example tests to demonstrate Tobikura's behavior.
+This template provides a minimal setup to get Echoed working with Jest.
+The setup also creates example tests to demonstrate Echoed's behavior.
 
 Feel free to remove the `example` directory once you've familiarized yourself and start crafting your own tests.
 
 # How to Run Example Tests
-Follow these steps to run the example tests and observe Tobikura in action:
+Follow these steps to run the example tests and observe Echoed in action:
 
 1. **Setup:** Set up the necessary dependencies.
     ```sh
@@ -23,7 +23,7 @@ Follow these steps to run the example tests and observe Tobikura in action:
     npm run test
     ```
 5. **Wait:** Allow the tests to run and complete.
-6. **View Results:** Open `dist/reporter.html` to view test results.
+6. **View Results:** Open `report/result.html` to view test results.
 7. **Stop Server:** After testing, stop the server in the `example` directory.
     ```sh
     cd example

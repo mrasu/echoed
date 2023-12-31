@@ -1,6 +1,6 @@
 <script lang="ts">
-  import type { Span, Fetch, TestInfo } from "../../lib/TobikuraParam";
-  import { LogRecord } from "../../lib/TobikuraParam";
+  import type { Span, Fetch, TestInfo } from "../../lib/EchoedParam";
+  import { LogRecord } from "../../lib/EchoedParam";
   import DataTable, { Body, Row, Cell } from "@smui/data-table";
   import Paper, { Title, Content as PaperContent } from "@smui/paper";
   import Accordion, { Panel, Header, Content } from "@smui-extra/accordion";

@@ -1,6 +1,6 @@
 import { AnsiGray, AnsiReset } from "@/ansi";
 
-const tag = "[Tobikura]";
+const tag = "[Echoed]";
 const tagSpace = " ".repeat(tag.length);
 
 export class Logger {

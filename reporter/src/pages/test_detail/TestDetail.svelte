@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { TestInfo } from "../../lib/TobikuraParam";
+  import { TestInfo } from "../../lib/EchoedParam";
   import { link } from "svelte-spa-router";
   import TraceList from "./TraceList.svelte";
   import { Text } from "@smui/list";

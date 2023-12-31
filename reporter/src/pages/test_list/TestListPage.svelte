@@ -1,19 +1,19 @@
 <script lang="ts">
-  import { TobikuraParam } from "../../lib/TobikuraParam";
+  import { EchoedParam } from "../../lib/EchoedParam";
   import List, { Separator, Group, Subheader, Text } from "@smui/list";
   import Paper, { Title, Content } from "@smui/paper";
   import TestListInSameFile from "./TestListInSameFile.svelte";
   import OtherTestsList from "./OtherTestsList.svelte";
 
-  const tobikuraParam = TobikuraParam.convert(window.__tobikura_param__);
-  const testInfosByFile = tobikuraParam.testInfosByFile();
+  const echoedParam = EchoedParam.convert(window.__echoed_param__);
+  const testInfosByFile = echoedParam.testInfosByFile();
 
   const orderedFileName = [...testInfosByFile.keys()].sort((a, b) =>
     a < b ? -1 : 1,
   );
 
-  const propagationTestEnabled = tobikuraParam.config.propagationTestEnabled;
-  const hasPropagationFailedTrace = tobikuraParam.hasPropagationFailedTrace();
+  const propagationTestEnabled = echoedParam.config.propagationTestEnabled;
+  const hasPropagationFailedTrace = echoedParam.hasPropagationFailedTrace();
 
   const showOtherTests = propagationTestEnabled;
 </script>

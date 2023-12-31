@@ -1,5 +1,5 @@
 import { SpanBus, SpanFilterOption, WantSpanEvent } from "@/eventBus/spanBus";
-import { TobikuraSpan } from "@/type/tobikuraSpan";
+import { OtelSpan } from "@/type/otelSpan";
 import { toBase64 } from "@/util/byte";
 import { opentelemetry } from "@/generated/otelpbj";
 import { Comparable } from "@/comparision/comparable";
@@ -13,13 +13,13 @@ export class WantSpanRequest {
     this.event = event;
   }
 
-  async respondIfMatch(span: TobikuraSpan) {
+  async respondIfMatch(span: OtelSpan) {
     if (!this.matches(span)) return;
 
     await this.respond(span);
   }
 
-  private async respond(span: TobikuraSpan) {
+  private async respond(span: OtelSpan) {
     await this.bus.emitReceiveSpanEvent(this.wantId, this.traceId, span);
   }
 
@@ -35,7 +35,7 @@ export class WantSpanRequest {
     return this.event.filter;
   }
 
-  private matches(span: TobikuraSpan): boolean {
+  private matches(span: OtelSpan): boolean {
     if (this.traceId !== toBase64(span.traceId)) return false;
 
     if (this.filter.name) {

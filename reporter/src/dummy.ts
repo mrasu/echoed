@@ -4,7 +4,7 @@ import type {
   IFetch,
   ILogRecord,
   ITrace,
-} from "./types/tobikura_param";
+} from "./types/echoed_param";
 
 // prettier-ignore
 const spans: ISpan[] = [
@@ -144,7 +144,7 @@ const propagationFailedTraces: ITrace[] = [
   }
 ];
 
-window.__tobikura_param__ = {
+window.__echoed_param__ = {
   config: {
     propagationTestEnabled: true,
   },

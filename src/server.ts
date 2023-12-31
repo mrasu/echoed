@@ -4,8 +4,8 @@ import opentelemetry from "@/generated/otelpbj";
 import http from "http";
 import { sleep } from "@/util/async";
 import { toBase64 } from "@/util/byte";
-import { ITobikuraLogRecord } from "@/types";
-import { TobikuraSpan } from "@/type/tobikuraSpan";
+import { IOtelLogRecord } from "@/types";
+import { OtelSpan } from "@/type/otelSpan";
 import { Logger } from "@/logger";
 import { FileBus } from "@/eventBus/infra/fileBus";
 import { Mutex } from "async-mutex";
@@ -21,8 +21,8 @@ export class Server {
 
   private buses?: FileBus[];
   private httpServer?: http.Server;
-  private capturedSpans: Record<string, TobikuraSpan[]> = {};
-  private capturedLogs: Record<string, ITobikuraLogRecord[]> = {};
+  private capturedSpans: Record<string, OtelSpan[]> = {};
+  private capturedLogs: Record<string, IOtelLogRecord[]> = {};
 
   static async start(port: number, busFiles: string[]) {
     const server = new Server();
@@ -57,7 +57,7 @@ export class Server {
   private async handleWantSpanRequest(request: WantSpanRequest) {
     const traceId = request.traceId;
 
-    let spans: TobikuraSpan[] | undefined = [];
+    let spans: OtelSpan[] | undefined = [];
     await this.mutex.runExclusive(async () => {
       spans = this.capturedSpans[traceId];
 
@@ -108,8 +108,8 @@ export class Server {
             resourceSpan.resource as opentelemetry.opentelemetry.proto.resource.v1.Resource;
           const scope =
             scopeSpan.scope as opentelemetry.opentelemetry.proto.common.v1.InstrumentationScope;
-          const tobikuraSpan = new TobikuraSpan(span, resource, scope);
-          this.captureSpan(tobikuraSpan);
+          const otelSpan = new OtelSpan(span, resource, scope);
+          this.captureSpan(otelSpan);
         });
       });
     });
@@ -126,7 +126,7 @@ export class Server {
     });
   }
 
-  private async captureSpan(span: TobikuraSpan) {
+  private async captureSpan(span: OtelSpan) {
     this.debugLogSpan(span);
 
     let traceId = toBase64(span.traceId);
@@ -142,7 +142,7 @@ export class Server {
     });
   }
 
-  private captureLog(log: ITobikuraLogRecord) {
+  private captureLog(log: IOtelLogRecord) {
     this.debugLogLogRecord(log);
 
     let traceId = toBase64(log.traceId);
@@ -150,11 +150,11 @@ export class Server {
     this.capturedLogs[traceId].push(log);
   }
 
-  private debugLogSpan(span: TobikuraSpan) {
+  private debugLogSpan(span: OtelSpan) {
     Logger.debug("Trace", "JSON", JSON.stringify(span));
   }
 
-  private debugLogLogRecord(log: ITobikuraLogRecord) {
+  private debugLogLogRecord(log: IOtelLogRecord) {
     Logger.debug("Log", "JSON", JSON.stringify(log));
   }
 

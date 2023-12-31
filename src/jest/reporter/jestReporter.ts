@@ -2,25 +2,25 @@ import path from "path";
 import { ReportFile } from "@/report/reportFile";
 import {
   AggregatedResult,
-  Config,
+  Config as JestReporterConfig,
   Reporter as IJestReporter,
   ReporterOnStartOptions,
 } from "@jest/reporters";
 import { Test, TestCaseResult, TestContext } from "@jest/test-result";
 import { Circus } from "@jest/types";
 import { Reporter } from "@/jest/reporter/reporter";
-import { TobikuraConfig } from "@/config/tobikuraConfig";
+import { Config } from "@/config/config";
 
-const TOBIKURA_ROOT_DIR = path.resolve(__dirname, "../../");
-const TOBIKURA_CONFIG_FILE_NAME = ".tobikura.yml";
+const ECHOED_ROOT_DIR = path.resolve(__dirname, "../../");
+const ECHOED_CONFIG_FILE_NAME = ".echoed.yml";
 
 export class JestReporter implements IJestReporter {
   private readonly reporter: Reporter;
-  private readonly config: TobikuraConfig;
+  private readonly config: Config;
 
-  constructor(globalConfig: Config.GlobalConfig, option: {}) {
-    const filepath = path.join(process.cwd(), TOBIKURA_CONFIG_FILE_NAME);
-    const config = TobikuraConfig.load(filepath);
+  constructor(globalConfig: JestReporterConfig.GlobalConfig, option: {}) {
+    const filepath = path.join(process.cwd(), ECHOED_CONFIG_FILE_NAME);
+    const config = Config.load(filepath);
 
     this.config = config;
     this.reporter = new Reporter(globalConfig, this.config);
@@ -35,7 +35,7 @@ export class JestReporter implements IJestReporter {
   };
 
   async onRunComplete(contexts: Set<TestContext>, results: AggregatedResult) {
-    const reportFile = new ReportFile(this.config, TOBIKURA_ROOT_DIR);
+    const reportFile = new ReportFile(this.config, ECHOED_ROOT_DIR);
     await this.reporter.onRunComplete(contexts, results, reportFile);
   }
 

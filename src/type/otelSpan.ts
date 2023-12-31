@@ -5,7 +5,7 @@ import { Comparable } from "@/comparision/comparable";
 
 const USER_AGENT_ATTRIBUTE_KEYS = new Set(["user-agent", "http.user_agent"]);
 
-export class TobikuraSpan extends opentelemetry.proto.trace.v1.Span {
+export class OtelSpan extends opentelemetry.proto.trace.v1.Span {
   public resource?: opentelemetry.proto.resource.v1.Resource | null;
   public scope?: opentelemetry.proto.common.v1.InstrumentationScope | null;
 

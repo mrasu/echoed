@@ -23,4 +23,4 @@ export type FetchFinishedLog = {
   };
 };
 
-export type ITobikuraLogRecord = opentelemetry.proto.logs.v1.ILogRecord;
+export type IOtelLogRecord = opentelemetry.proto.logs.v1.ILogRecord;
