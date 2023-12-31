@@ -9,16 +9,12 @@
 
   export let testInfos: TestInfo[];
 
-  $: orderedTestInfos = testInfos.sort((a, b) =>
-    a.startDate > b.startDate ? 1 : -1,
-  );
-
   const moveToTest = (testInfo: TestInfo) => {
     push(`/test/${testInfo.testId}`);
   };
 </script>
 
-{#each orderedTestInfos as testInfo}
+{#each testInfos as testInfo}
   <ListItem on:click={() => moveToTest(testInfo)}>
     <div style="margin-right: 10px; display: flex">
       {#if testInfo.status === "passed"}
