@@ -21,9 +21,7 @@ export class JestNodeEnvironment extends NodeEnvironment {
 
     const tmpDir = getTmpDirFromEnv();
     if (!tmpDir) {
-      Logger.warn(
-        "No trace inspection and output due to invalid setting for Echoed. Reporter is not set?",
-      );
+      throw new Error("No directory for Echoed's log. not using reporter?");
     }
 
     const workerID = process.env["JEST_WORKER_ID"];

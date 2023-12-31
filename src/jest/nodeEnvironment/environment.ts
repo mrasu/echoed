@@ -6,20 +6,11 @@ import { FileLogger } from "@/fileLog/fileLogger";
 import crypto from "crypto";
 import path from "path";
 import { IFileLogger } from "@/fileLog/iFileLogger";
-import { NoopLogger } from "@/fileLog/noopLogger";
 
 export class Environment {
   constructor(public testPath: string) {}
 
-  async setup(
-    global: Global.Global,
-    tmpDir: string | undefined,
-    workerID: string,
-  ) {
-    if (!tmpDir) {
-      return;
-    }
-
+  async setup(global: Global.Global, tmpDir: string, workerID: string) {
     const fileSpace = new FileSpace(tmpDir);
     this.patchFetch(fileSpace.testLogDir, global);
 
@@ -32,20 +23,16 @@ export class Environment {
     restoreFetch(global);
   }
 
-  private patchFetch(tmpDir: string | undefined, global: Global.Global) {
+  private patchFetch(tmpDir: string, global: Global.Global) {
     const logger = this.createLogger(tmpDir);
 
     patchFetch(logger, this.testPath, global);
   }
 
-  private createLogger(tmpDir: string | undefined): IFileLogger {
-    if (tmpDir) {
-      const filename = crypto.randomUUID() + ".json";
-      const filepath = path.join(tmpDir, filename);
+  private createLogger(tmpDir: string): IFileLogger {
+    const filename = crypto.randomUUID() + ".json";
+    const filepath = path.join(tmpDir, filename);
 
-      return new FileLogger(filepath);
-    } else {
-      return new NoopLogger();
-    }
+    return new FileLogger(filepath);
   }
 }
