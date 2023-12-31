@@ -162,9 +162,9 @@ describe("Reporter", () => {
       );
 
       expect(reporter.currentTestQueues.size).toBe(1);
-      expect(reporter.currentTestQueues.get(DEFAULT_TEST_PATH)).toMatchObject(
+      expect(reporter.currentTestQueues.get(DEFAULT_TEST_PATH)).toMatchObject([
         buildTestStartInfoObject("0", DEFAULT_TEST_PATH, startedAt),
-      );
+      ]);
       expect(reporter.collectedTestCaseElements.size).toBe(0);
     });
 
@@ -186,20 +186,20 @@ describe("Reporter", () => {
         expect(reporter.currentTestQueues.size).toBe(2);
         expect(
           reporter.currentTestQueues.get("/path/to/dummy1.test.js"),
-        ).toMatchObject(
+        ).toMatchObject([
           buildTestStartInfoObject("0", "/path/to/dummy1.test.js", startedAt),
-        );
+        ]);
 
         expect(
           reporter.currentTestQueues.get("/path/to/dummy2.test.js"),
-        ).toMatchObject(
+        ).toMatchObject([
           buildTestStartInfoObject("1", "/path/to/dummy2.test.js", startedAt),
-        );
+        ]);
       });
     });
 
     describe("when test started multiple times", () => {
-      it("should hold the latest test", async () => {
+      it("should hold multiple test", async () => {
         const reporter = buildReporter();
 
         const startedAt = new Date().getTime();
@@ -210,12 +210,15 @@ describe("Reporter", () => {
 
         await reporter.onTestCaseStart(
           buildTest(),
-          buildTestCaseStartInfo({ startedAt }),
+          buildTestCaseStartInfo({ startedAt: startedAt + 222 }),
         );
 
         expect(reporter.currentTestQueues.size).toBe(1);
         expect(reporter.currentTestQueues.get(DEFAULT_TEST_PATH)).toMatchObject(
-          buildTestStartInfoObject("1", DEFAULT_TEST_PATH, startedAt),
+          [
+            buildTestStartInfoObject("0", DEFAULT_TEST_PATH, startedAt),
+            buildTestStartInfoObject("1", DEFAULT_TEST_PATH, startedAt + 222),
+          ],
         );
       });
     });
