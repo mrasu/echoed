@@ -6,30 +6,30 @@ Echoed empowers Integration testing, aka API testing, by providing visualization
 Echoed enhances your testing experience with the following features:
 
 * **Effortless Test Troubleshooting**: Quickly identify issues in failed tests by visualizing OpenTelemetry's traces and logs.
-* **Test Propagation Leak**: Identify spans that don't propagate OpenTelemetry's context to their children.
-* **Validate Spans**: Test spans to validate SQL queries changing DB or requests going outside.
-* **CI-Friendly**: Works seamlessly in CI environments without relying on external services.
-* **IDE Debugging Support**: Debug your tests effortlessly in your preferred IDE, leveraging Jest's built-in debugging capabilities.
-* **Code Compatibility**: No need to modify your existing Jest tests. Use your preferred JavaScript/TypeScript.
-* **Parallel Execution**: Speed up test runs by executing tests in parallel with Jest.
+* **Detect Propagation Leaks**: Uncover spans that don't propagate OpenTelemetry's context to their children.
+* **Validate Spans**: Validate span's fields, such as SQL or requests going outside.
+* **CI-Friendly**: Integrates with CI without relying on external services.
+* **IDE Debugging**: Debug your tests in your preferred IDE, leveraging Jest's built-in debugging capabilities.
+* **Code Compatibility**: No need to modify your existing Jest tests.
+* **Parallel Execution**: Boost by executing tests in parallel with Jest.
 
 # Screenshots
 
-Echoed generates HTML that visualizes OpenTelemetry traces for each request in Jest tests.  
+Echoed generates HTML that visualizes OpenTelemetry traces for each request in tests.  
 Explore the screenshots below to see how it looks:
 
+* Trace and logs of the Test  
+    ![Screenshot of Echoed's log detail](./docs/img/readme-trace-detail-trace.png)
+    ![Screenshot of Echoed's log detail](./docs/img/readme-trace-detail-log.png)
 * List of executed tests  
     ![Screenshot of Echoed's test list](./docs/img/readme-test-list.png)
 * Detail result  
     ![Screenshot of Echoed's test results](./docs/img/readme-test-detail.png)
-* Trace and logs of the Test  
-    ![Screenshot of Echoed's log detail](./docs/img/readme-trace-detail-trace.png)
-    ![Screenshot of Echoed's log detail](./docs/img/readme-trace-detail-log.png)
 
 
 # Installation
 
-Echoed offers two installation methods, allowing you to choose the one that suits your needs:
+Echoed offers two installation methods, choose one that suits your needs:
 
 ## 1. Create a New Directory with Example Tests
 
@@ -49,8 +49,8 @@ Echoed offers two installation methods, allowing you to choose the one that suit
 
 ## 2. Integrate with Existing Tests
 
-1. Update Jest Configuration for Echoed  
-    Modify your `jest.config.js` file to include Echoed in `testEnvironment` and `reporters`:
+1. Update Jest configuration for Echoed  
+    Modify your `jest.config.js` to include Echoed in `testEnvironment` and `reporters`:
     ```js
     module.exports = {
       // ... other configurations
@@ -63,17 +63,18 @@ Echoed offers two installation methods, allowing you to choose the one that suit
     ```
 2. Create `.echoed.yml`.  
     To integrate Echoed, create a configuration file named `.echoed.yml`.  
-    The minimal required option is `output`. Refer to the [Configuration](#Configuration) section for detail.  
+    The minimal required option is `output`, specifying where to write the result. Refer to the [Configuration](#Configuration) section for other options.  
+    
     For example:
     ```yml
     output: "report/result.html"
     ```
-3. Update your OpenTelemetry endpoint to connect to Echoed.  
+3. Update your OpenTelemetry endpoint to send data to Echoed.  
     If you are using the OpenTelemetry Collector, modify its settings as shown below:
     ```yml
     exporters:
       otlphttp/local:
-        endpoint: http://host.docker.internal:3000 # Default port of Echoed's server
+        endpoint: http://host.docker.internal:3000 # Default port of Echoed is 3000
     
     service:
       pipelines:
@@ -105,12 +106,12 @@ The code above produces an HTML report illustrating a trace for the requested en
 
 ## Test OpenTelemetry's Spans
 
-In addition to the HTML output, Echoed offers a convenient method for testing OpenTelemetry spans.  
-Use the `waitForSpan` function to obtain a span that matches your criteria.
+In addition to the HTML output, Echoed offers a method for testing OpenTelemetry spans.  
+Use the `waitForSpan` function to obtain a span that matches your needs.
 
 ```ts
 describe("Awesome test", () => {
-  it("should create an OpenTelemetry span", async () => {
+  it("should create an OpenTelemetry gRPC span", async () => {
     const response = await fetch(`http://localhost:8080/api/products`);
     expect(response.status).toBe(200);
 
@@ -163,7 +164,7 @@ describe("Awesome test", () => {
       },
       attributes: {
         "db.system": "postgresql",
-        "db.statement": /INSERT .+/,
+        "db.statement": /INSERT INTO products +/,
       }
     });
     
