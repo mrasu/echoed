@@ -21,6 +21,9 @@ import { hasValue } from "@/util/type";
 import { TestCase } from "@/testCase";
 import { IReportFile } from "@/report/iReportFile";
 import { Mutex } from "async-mutex";
+import { OpenApiCoverageCollector } from "@/coverage/openApi/openApiCoverageCollector";
+import { CoverageCollector } from "@/coverage/coverageCollector";
+import SwaggerParser from "@apidevtools/swagger-parser";
 
 export type PropagationTestConfig = {
   enabled?: boolean;
@@ -39,6 +42,7 @@ export class Reporter {
   private readonly maxWorkers: number;
   private readonly fileSpace: FileSpace;
   private readonly config: Config;
+  private readonly coverageCollector: CoverageCollector;
 
   private server?: Server;
   private lastError: Error | undefined;
@@ -74,9 +78,12 @@ export class Reporter {
     this.fileSpace.ensureDirectoryExistence();
 
     this.config = config;
+    this.coverageCollector = new CoverageCollector();
   }
 
   async onRunStart(results: AggregatedResult, options: ReporterOnStartOptions) {
+    await this.loadOpenAPISpecs();
+
     Logger.log("Starting server...");
 
     const busFiles: string[] = [];
@@ -85,6 +92,18 @@ export class Reporter {
     }
 
     this.server = await Server.start(this.config.serverPort, busFiles);
+  }
+
+  private async loadOpenAPISpecs() {
+    for (const service of this.config.serviceConfigs) {
+      if (!service.openapi) continue;
+      const document = await SwaggerParser.parse(service.openapi.filePath);
+      this.coverageCollector.add(
+        service.name,
+        service.namespace,
+        await OpenApiCoverageCollector.buildFromDocument(document),
+      );
+    }
   }
 
   readonly getLastError = () => {
@@ -103,6 +122,7 @@ export class Reporter {
     const { capturedSpans, capturedLogs } = await this.server.stopAfter(
       this.config.serverStopAfter,
     );
+    this.coverageCollector.markVisited(Object.values(capturedSpans).flat());
 
     const testResult = await TestResult.collect(
       this.jestRootDir,
@@ -112,7 +132,9 @@ export class Reporter {
       this.config,
       this.collectedTestCaseElements,
     );
-    const outputPath = await reportFile.generate(testResult);
+    const coverageResult = this.coverageCollector.getCoverage();
+
+    const outputPath = await reportFile.generate(testResult, coverageResult);
 
     if (this.config.propagationTestConfig.enabled) {
       const passed = this.logPropagationTestResult(testResult);

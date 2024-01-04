@@ -1,0 +1,80 @@
+openapi: 3.0.3
+info:
+  title: Frontend API
+  description: APIs for frontend.
+  version: 0.0.1
+servers:
+  - url: 'http://localhost:8080/api'
+    description: Local server
+paths:
+  /products:
+    get:
+      summary: Get products
+      responses:
+        '200':
+          description: A JSON array of products
+  /products/{productId}:
+    get:
+      summary: Get a product by ID
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A JSON object of a product
+  /cart:
+    get:
+      summary: Get products in cart
+      responses:
+        '200':
+          description: A JSON array of products in cart
+    post:
+      summary: Add a product to cart
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: A JSON array of products in cart
+    delete:
+      summary: Delete all items in cart
+      responses:
+        '204':
+          description: Empty response
+  /checkout:
+    post:
+      summary: Place an order
+      responses:
+        '200':
+          description: A JSON object of order
+  /currency:
+    get:
+      summary: Get supported currencies
+      responses:
+        '200':
+          description: A JSON array of currencies
+  /data:
+    get:
+      summary: Get list of ads
+      responses:
+        '200':
+          description: A JSON array of ads
+  /recommendations:
+    get:
+      summary: Get list of recommendations
+      responses:
+        '200':
+          description: A JSON array of recommended products
+  /shipping:
+    get:
+      summary: Get shipping cost
+      responses:
+        '200':
+          description: A JSON object of cost
+

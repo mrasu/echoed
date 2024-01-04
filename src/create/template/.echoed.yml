@@ -1,5 +1,12 @@
 output: "report/result.html"
-
+services:
+  - name: frontend
+    openapi: "./example/opentelemetry-demo/src/frontend/schema.yaml"
+  - name: cartservice
+    namespace: foo
+    openapi:
+      filePath: "./example/opentelemetry-demo/src/frontend/schema.yaml"
+      basePath: "/api"
 # Example configuration to ignore spans from propagation test.
 # propagationTest:
 #   ignore:

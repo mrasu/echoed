@@ -2,4 +2,4 @@
   import { Icon } from "@smui/icon-button";
 </script>
 
-<Icon style="color: #388e3c" class="material-icons">done</Icon>
+<Icon style="color: var(--color-green)" class="material-icons">done</Icon>

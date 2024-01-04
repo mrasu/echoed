@@ -3,7 +3,7 @@ import { ConfigLoader } from "@/config/configLoader";
 
 export class Config {
   static load(filepath: string): Config {
-    return new ConfigLoader(filepath).loadFromFile();
+    return new ConfigLoader().loadFromFile(filepath);
   }
 
   constructor(
@@ -12,5 +12,17 @@ export class Config {
     public readonly serverStopAfter: number,
     public readonly debug: boolean,
     public readonly propagationTestConfig: PropagationTestConfig,
+    public readonly serviceConfigs: ServiceConfig[],
   ) {}
 }
+
+export type ServiceConfig = {
+  name: string;
+  namespace?: string;
+  openapi?: OpenApiConfig;
+};
+
+export type OpenApiConfig = {
+  filePath: string;
+  basePath?: string;
+};

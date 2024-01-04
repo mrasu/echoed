@@ -19,7 +19,7 @@
 </script>
 
 <Paper>
-  <Title>Tests</Title>
+  <Title>All Tests</Title>
   <Content>
     {#each orderedFileName as fileName}
       <Group>

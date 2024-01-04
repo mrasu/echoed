@@ -4,6 +4,8 @@ import TestDetailPage from "./pages/test_detail/TestDetailPage.svelte";
 import TestListPage from "./pages/test_list/TestListPage.svelte";
 import PropagationTestDetailPage from "./pages/propagation_test_detail/PropagationTestDetailPage.svelte";
 import UnpropagatedTracePage from "./pages/unpropagated_trace/UnpropagatedTracePage.svelte";
+import CoveragePage from "./pages/coverage/CoveragePage.svelte";
+import ServiceCoveragePage from "./pages/service_coverage/ServiceCoveragePage.svelte";
 
 export const routes = {
   "/": TestListPage,
@@ -11,5 +13,7 @@ export const routes = {
   "/test/:testId/trace/:traceId": TracePage,
   "/propagation_test": PropagationTestDetailPage,
   "/propagation_test/unpropagated/:traceId": UnpropagatedTracePage,
+  "/coverage": CoveragePage,
+  "/coverage/:serviceName": ServiceCoveragePage,
   "*": NotFound,
 };

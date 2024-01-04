@@ -4,6 +4,7 @@ import type {
   IFetch,
   ILogRecord,
   ITrace,
+  ICoverageInfo,
 } from "./types/echoed_param";
 
 // prettier-ignore
@@ -144,10 +145,58 @@ const propagationFailedTraces: ITrace[] = [
   }
 ];
 
+// prettier-ignore
+const coverageInfos: ICoverageInfo[] = [
+  {
+    serviceName: "frontend",
+    http: {
+      operationCoverages: [
+        { path: "/cart", method: "delete", passed: true },
+        { path: "/cart", method: "put", passed: true },
+        { path: "/cart", method: "post", passed: false },
+        { path: "/cart", method: "get", passed: false },
+        { path: "/products/{productId}", method: "get", passed: false },
+        { path: "/products/{productId}", method: "post", passed: true },
+        { path: "/products", method: "get", passed: true },
+        { path: "/checkout", method: "post", passed: true },
+      ]
+    }
+  },
+  {
+    serviceName: "alpha-service",
+    http: {
+      operationCoverages: [
+        { path: "/cart", method: "delete", passed: true },
+        { path: "/cart", method: "put", passed: true },
+      ]
+    }
+  },
+  {
+    serviceName: "alpha-z-service",
+    http: {
+      operationCoverages: [
+        { path: "/cart", method: "get", passed: true},
+        { path: "/cart", method: "delete", passed: false},
+        { path: "/cart", method: "put", passed: false},
+      ],
+    }
+  },
+  {
+    serviceName: "super long service name aaaaa aaaaa aaaaa aaaaa aaaaa aaaaa aaaaa aaaaa aaaaa aaaaa aaaaa aaaaa 1111",
+    http: {
+      operationCoverages: [
+        { path: "/cart", method: "delete", passed: false },
+        { path: "/cart", method: "put", passed: false },
+      ],
+    }
+  }
+];
+
 window.__echoed_param__ = {
   config: {
     propagationTestEnabled: true,
   },
   testInfos: testInfos,
   propagationFailedTraces: propagationFailedTraces,
+  coverageInfos: coverageInfos,
 };

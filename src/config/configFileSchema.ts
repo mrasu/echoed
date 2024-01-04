@@ -55,4 +55,15 @@ export type ConfigFileSchema = {
       };
     };
   };
+
+  services?: {
+    name: string;
+    namespace?: string;
+    openapi?:
+      | string
+      | {
+          filePath: string;
+          basePath?: string;
+        };
+  }[];
 };

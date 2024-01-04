@@ -19,6 +19,9 @@ import type {
   IFetchResponse,
   ITrace,
   IConfig,
+  ICoverageInfo,
+  IHttpCoverage,
+  IHttpOperationCoverage,
 } from "../types/echoed_param";
 import Long from "long";
 
@@ -33,13 +36,21 @@ export class EchoedParam {
       (trace) => new Trace(trace),
     );
 
-    return new EchoedParam(config, testInfos, propagationFailedTraces);
+    const coverageInfos = param.coverageInfos.map((i) => new CoverageInfo(i));
+
+    return new EchoedParam(
+      config,
+      testInfos,
+      propagationFailedTraces,
+      coverageInfos,
+    );
   }
 
   constructor(
     public config: Config,
     public testInfos: TestInfo[],
     public propagationFailedTraces: Trace[],
+    public coverageInfos: CoverageInfo[],
   ) {}
 
   pickTest(testId: string): TestInfo | undefined {
@@ -50,6 +61,10 @@ export class EchoedParam {
     return this.propagationFailedTraces.find(
       (trace) => trace.traceId === traceId,
     );
+  }
+
+  pickCoverageInfo(serviceName: string): CoverageInfo | undefined {
+    return this.coverageInfos.find((info) => info.serviceName === serviceName);
   }
 
   testInfosByFile(): Map<string, TestInfo[]> {
@@ -440,6 +455,80 @@ export class KeyValueList {
 
   constructor(value: IKeyValueList) {
     this.values = value.values?.map((v: IKeyValue) => new KeyValue(v));
+  }
+}
+
+export class CoverageInfo {
+  serviceName: string;
+  http: HttpCoverage;
+
+  constructor(coverage: ICoverageInfo) {
+    this.serviceName = coverage.serviceName;
+    this.http = new HttpCoverage(coverage.http);
+  }
+
+  get coverageRatio(): number {
+    return this.http.coverageRatio;
+  }
+
+  get coveragePercent(): string {
+    return this.http.coveragePercent;
+  }
+
+  get passedCount(): number {
+    return this.http.passedCount;
+  }
+
+  get pathCoverageLength(): number {
+    return this.http.operationCoverages.length;
+  }
+}
+
+export class HttpCoverage {
+  operationCoverages: HttpOperationCoverage[];
+
+  passedCount: number;
+
+  constructor(coverage: IHttpCoverage) {
+    this.operationCoverages = coverage.operationCoverages.map(
+      (c) => new HttpOperationCoverage(c),
+    );
+
+    this.passedCount = this.operationCoverages.filter((c) => c.passed).length;
+  }
+
+  get coverageRatio(): number {
+    return this.passedCount / this.operationCoverages.length;
+  }
+
+  get coveragePercent(): string {
+    return this.coverageRatio.toLocaleString("en", {
+      style: "percent",
+      minimumFractionDigits: 1,
+    });
+  }
+}
+
+export const HttpMethods = [
+  "get",
+  "post",
+  "put",
+  "delete",
+  "options",
+  "head",
+  "patch",
+] as const;
+export type HttpMethod = (typeof HttpMethods)[number];
+
+export class HttpOperationCoverage {
+  path: string;
+  method: HttpMethod;
+  passed: boolean;
+
+  constructor(pathCoverage: IHttpOperationCoverage) {
+    this.path = pathCoverage.path;
+    this.method = pathCoverage.method;
+    this.passed = pathCoverage.passed;
   }
 }
 

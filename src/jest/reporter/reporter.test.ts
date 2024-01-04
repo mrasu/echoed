@@ -13,10 +13,14 @@ import {
 import { buildTestCaseResult } from "@/testUtil/jest/testCaseResult";
 import { Config } from "@/config/config";
 import { PropagationTestConfig } from "@/config/propagationTestConfig";
+import { CoverageResult } from "@/coverage/coverageResult";
 
 class DummyReportFile implements IReportFile {
   testResult: TestResult | undefined;
-  async generate(testResult: TestResult): Promise<string> {
+  async generate(
+    testResult: TestResult,
+    coverageResult: CoverageResult,
+  ): Promise<string> {
     this.testResult = testResult;
 
     return "";
@@ -54,6 +58,7 @@ describe("Reporter", () => {
           },
         },
       }),
+      [],
     );
     return new Reporter(buildGlobalConfig(), config);
   };

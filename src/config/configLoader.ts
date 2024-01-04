@@ -1,4 +1,4 @@
-import { Config } from "@/config/config";
+import { Config, OpenApiConfig, ServiceConfig } from "@/config/config";
 import { statSync } from "@/util/file";
 import yaml from "js-yaml";
 import fs from "fs";
@@ -10,31 +10,36 @@ import { ConfigFileSchema } from "@/config/configFileSchema";
 type YamlValue = string | boolean | number | null;
 
 export class ConfigLoader {
-  constructor(private filepath: string) {}
+  constructor() {}
 
-  loadFromFile(): Config {
-    const stat = statSync(this.filepath);
+  loadFromFile(filepath: string): Config {
+    const stat = statSync(filepath);
     if (!stat) {
-      throw new Error(`Echoed: config file not found: ${this.filepath}`);
+      throw new Error(`Echoed: config file not found: ${filepath}`);
     }
     if (!stat.isFile()) {
-      throw new Error(`Echoed: config file is not a file: ${this.filepath}`);
+      throw new Error(`Echoed: config file is not a file: ${filepath}`);
     }
 
     const fileContent = yaml.load(
-      fs.readFileSync(this.filepath, "utf-8"),
+      fs.readFileSync(filepath, "utf-8"),
     ) as ConfigFileSchema;
 
-    if (fileContent.output === "") {
+    return this.loadFromObject(fileContent);
+  }
+
+  loadFromObject(schemaObject: ConfigFileSchema): Config {
+    if (schemaObject.output === "") {
       throw new Error("Echoed: invalid report option. `output` is required");
     }
 
     return new Config(
-      fileContent.output,
-      fileContent.serverPort ?? 3000,
-      fileContent.serverStopAfter ?? 20,
-      fileContent.debug ?? false,
-      this.convertPropagationTestConfig(fileContent.propagationTest),
+      schemaObject.output,
+      schemaObject.serverPort ?? 3000,
+      schemaObject.serverStopAfter ?? 20,
+      schemaObject.debug ?? false,
+      this.convertPropagationTestConfig(schemaObject.propagationTest),
+      this.convertServiceConfigs(schemaObject.services),
     );
   }
 
@@ -66,5 +71,38 @@ export class ConfigLoader {
       ret.set(key, new Eq(val));
     }
     return ret;
+  }
+
+  private convertServiceConfigs(
+    services: ConfigFileSchema["services"] | undefined,
+  ): ServiceConfig[] {
+    if (!services) return [];
+
+    return services.map((service) => {
+      return {
+        name: service.name,
+        namespace: service.namespace,
+        openapi: this.convertOpenApiConfig(service.openapi),
+      };
+    });
+  }
+
+  private convertOpenApiConfig(
+    config:
+      | Exclude<ConfigFileSchema["services"], undefined>[number]["openapi"]
+      | undefined,
+  ): OpenApiConfig | undefined {
+    if (!config) return;
+
+    if (typeof config === "string") {
+      return {
+        filePath: config,
+      };
+    }
+
+    return {
+      filePath: config.filePath,
+      basePath: config.basePath,
+    };
   }
 }

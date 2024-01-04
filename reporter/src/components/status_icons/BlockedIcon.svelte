@@ -2,4 +2,4 @@
   import { Icon } from "@smui/icon-button";
 </script>
 
-<Icon style="color: #afb42b" class="material-icons">block</Icon>
+<Icon style="color: var(--color-yellow)" class="material-icons">block</Icon>

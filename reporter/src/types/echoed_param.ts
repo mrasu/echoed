@@ -1,6 +1,9 @@
+import type { HttpMethod } from "../lib/EchoedParam";
+
 export type IEchoedParam = {
   config: IConfig;
   testInfos: ITestInfo[];
+  coverageInfos: ICoverageInfo[];
   propagationFailedTraces: ITrace[];
 };
 
@@ -124,6 +127,22 @@ export type IInstrumentationScope = {
   version?: string | null;
   attributes?: IKeyValue[] | null;
   droppedAttributesCount?: number | null;
+};
+
+export type ICoverageInfo = {
+  serviceName: string;
+  serviceNamespace?: string | null;
+  http: IHttpCoverage;
+};
+
+export type IHttpCoverage = {
+  operationCoverages: IHttpOperationCoverage[];
+};
+
+export type IHttpOperationCoverage = {
+  path: string;
+  method: HttpMethod;
+  passed: boolean;
 };
 
 export type ITrace = {
