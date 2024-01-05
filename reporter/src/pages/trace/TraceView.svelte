@@ -4,11 +4,11 @@
   import DataTable, { Body, Row, Cell } from "@smui/data-table";
   import Paper, { Title, Content as PaperContent } from "@smui/paper";
   import Accordion, { Panel, Header, Content } from "@smui-extra/accordion";
-  import { link } from "svelte-spa-router";
   import { Text } from "@smui/list";
   import TraceTree from "../../components/trace/TraceTree.svelte";
   import SpanDetail from "../../components/trace/SpanDetail.svelte";
   import LogAccordion from "../../components/trace/LogAccordion.svelte";
+  import Breadcrumb from "../../components/breadcrumb/Breadcrumb.svelte";
 
   export let traceId: string;
   export let testInfo: TestInfo;
@@ -23,18 +23,16 @@
   };
 </script>
 
-<div style="margin-bottom: 20px">
-  <Text><a href="/" use:link>Tests</a></Text>
-  <Text>/</Text>
-  <Text>
-    <a href={`/test/${testInfo.testId}`} use:link>
-      <Text>&quot{testInfo.name}&quot</Text>
-      <Text>at {testInfo.file}</Text>
-    </a>
-  </Text>
-  <Text>/</Text>
-  <Text>{traceId}</Text>
-</div>
+<Breadcrumb
+  crumbs={[
+    "Test",
+    {
+      href: `/test/${testInfo.testId}`,
+      text: `"${testInfo.name}" as ${testInfo.file}`,
+    },
+    traceId,
+  ]}
+/>
 
 <Paper>
   <Title>TraceId: {traceId}</Title>

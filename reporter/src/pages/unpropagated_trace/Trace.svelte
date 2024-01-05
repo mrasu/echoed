@@ -2,12 +2,12 @@
   import { Span, type Trace } from "../../lib/EchoedParam";
   import Paper, { Content as PaperContent, Title } from "@smui/paper";
   import Accordion, { Panel, Header, Content } from "@smui-extra/accordion";
-  import { link } from "svelte-spa-router";
   import { Text } from "@smui/list";
   import TraceTree from "../../components/trace/TraceTree.svelte";
   import { TestNameForPropagation } from "../../consts/testNames";
   import SpanDetail from "../../components/trace/SpanDetail.svelte";
   import LogAccordion from "../../components/trace/LogAccordion.svelte";
+  import Breadcrumb from "../../components/breadcrumb/Breadcrumb.svelte";
 
   export let trace: Trace;
 
@@ -19,17 +19,16 @@
   let focusingSpan: Span | undefined = rootSpan;
 </script>
 
-<div style="margin-bottom: 20px">
-  <Text><a href="/" use:link>Tests</a></Text>
-  <Text>/</Text>
-  <Text>
-    <a href={`/propagation_test`} use:link>
-      <Text>&quot{TestNameForPropagation}&quot</Text>
-    </a>
-  </Text>
-  <Text>/</Text>
-  <Text>{trace.traceId}</Text>
-</div>
+<Breadcrumb
+  crumbs={[
+    "Test",
+    {
+      href: `/propagation_test`,
+      text: `"${TestNameForPropagation}"`,
+    },
+    trace.traceId,
+  ]}
+/>
 
 <Paper>
   <Title>Trace context propagation lacks</Title>

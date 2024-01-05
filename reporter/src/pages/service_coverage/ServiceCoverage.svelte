@@ -1,21 +1,15 @@
 <script lang="ts">
-  import { link } from "svelte-spa-router";
   import { Text } from "@smui/list";
   import { CoverageInfo } from "../../lib/EchoedParam";
   import Paper, { Content, Title } from "@smui/paper";
   import HttpCoverageTable from "./HttpCoverageTable.svelte";
   import RpcCoverageTable from "./RpcCoverageTable.svelte";
+  import Breadcrumb from "../../components/breadcrumb/Breadcrumb.svelte";
 
   export let coverageInfo: CoverageInfo;
 </script>
 
-<div style="margin-bottom: 20px">
-  <Text><a href="/coverage" use:link>Coverage</a></Text>
-  <Text>/</Text>
-  <Text>
-    {coverageInfo.serviceName}
-  </Text>
-</div>
+<Breadcrumb crumbs={["Coverage", coverageInfo.serviceName]} />
 
 <Paper>
   <Title>

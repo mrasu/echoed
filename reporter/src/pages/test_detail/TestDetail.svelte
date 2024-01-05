@@ -1,21 +1,13 @@
 <script lang="ts">
   import { TestInfo } from "../../lib/EchoedParam";
-  import { link } from "svelte-spa-router";
   import TraceList from "./TraceList.svelte";
-  import { Text } from "@smui/list";
   import TestDescription from "./TestDescription.svelte";
+  import Breadcrumb from "../../components/breadcrumb/Breadcrumb.svelte";
 
   export let testInfo: TestInfo;
 </script>
 
-<div style="margin-bottom: 20px">
-  <Text><a href="/" use:link>Tests</a></Text>
-  <Text>/</Text>
-  <Text>
-    <Text>&quot{testInfo.name}&quot</Text>
-    <Text>at {testInfo.file}</Text>
-  </Text>
-</div>
+<Breadcrumb crumbs={["Test", `"${testInfo.name}" as ${testInfo.file}`]} />
 
 <div class="description">
   <TestDescription {testInfo}></TestDescription>
