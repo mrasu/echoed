@@ -21,6 +21,10 @@
           <Cell>{span.serviceName}</Cell>
         </Row>
         <Row>
+          <Cell>ServiceNamespace</Cell>
+          <Cell>{span.serviceNamespace ?? "-"}</Cell>
+        </Row>
+        <Row>
           <Cell>TraceId</Cell>
           <Cell>{span.traceId}</Cell>
         </Row>

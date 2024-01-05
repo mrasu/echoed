@@ -69,7 +69,9 @@
 
   const colorSelector = new MemorizedColorSelector();
   const createLabel = (node: Node): ILabelNode2 => {
-    const backgroundColor = colorSelector.pickFor(node.node.serviceName);
+    const backgroundColor = colorSelector.pickFor(
+      `${node.node.serviceNamespace}/${node.node.serviceName}`,
+    );
 
     if (!node.children) {
       return {

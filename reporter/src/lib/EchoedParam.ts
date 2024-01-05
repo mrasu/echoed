@@ -236,6 +236,13 @@ export class Span {
     return service?.value?.stringValue;
   }
 
+  get serviceNamespace(): string | undefined {
+    const service = this.resource?.attributes?.find(
+      (kv) => kv.key === "service.namespace",
+    );
+    return service?.value?.stringValue;
+  }
+
   get startTime(): Date {
     return new Date(this.startTimeMillis);
   }
