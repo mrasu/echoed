@@ -1,3 +1,4 @@
+import protobuf from "protobufjs";
 import path from "path";
 import fs from "fs";
 import {
@@ -13,7 +14,7 @@ import { setTmpDirToEnv } from "@/env";
 import { Logger } from "@/logger";
 import { AnsiGreen, AnsiRed, AnsiReset } from "@/ansi";
 import { TestResult } from "@/testResult";
-import { Config } from "@/config/config";
+import { Config, ServiceConfig } from "@/config/config";
 import { FileSpace } from "@/fileSpace";
 import { TestCaseStartInfo } from "@/jest/reporter/testCase";
 import { omitDirPath } from "@/util/file";
@@ -24,6 +25,8 @@ import { Mutex } from "async-mutex";
 import { OpenApiCoverageCollector } from "@/coverage/openApi/openApiCoverageCollector";
 import { CoverageCollector } from "@/coverage/coverageCollector";
 import SwaggerParser from "@apidevtools/swagger-parser";
+import { IServiceCoverageCollector } from "@/coverage/iServiceCoverageCollector";
+import { ProtoCoverageCollector } from "@/coverage/proto/protoCoverageCollector";
 
 export type PropagationTestConfig = {
   enabled?: boolean;
@@ -82,7 +85,7 @@ export class Reporter {
   }
 
   async onRunStart(results: AggregatedResult, options: ReporterOnStartOptions) {
-    await this.loadOpenAPISpecs();
+    await this.prepareCoverageCollector();
 
     Logger.log("Starting server...");
 
@@ -94,15 +97,30 @@ export class Reporter {
     this.server = await Server.start(this.config.serverPort, busFiles);
   }
 
-  private async loadOpenAPISpecs() {
+  private async prepareCoverageCollector() {
     for (const service of this.config.serviceConfigs) {
-      if (!service.openapi) continue;
+      const collector = await this.buildCoverageCollector(service);
+      if (!collector) continue;
+
+      this.coverageCollector.add(service.name, service.namespace, collector);
+    }
+  }
+
+  private async buildCoverageCollector(
+    service: ServiceConfig,
+  ): Promise<IServiceCoverageCollector | undefined> {
+    if (service.openapi) {
       const document = await SwaggerParser.parse(service.openapi.filePath);
-      this.coverageCollector.add(
-        service.name,
-        service.namespace,
-        await OpenApiCoverageCollector.buildFromDocument(document),
+      return await OpenApiCoverageCollector.buildFromDocument(document);
+    } else if (service.proto) {
+      const root = await protobuf.load(service.proto.filePath);
+      return await ProtoCoverageCollector.buildFromRoot(
+        root,
+        service.proto.filePath,
+        service.proto.services ? new Set(service.proto.services) : undefined,
       );
+    } else {
+      return undefined;
     }
   }
 

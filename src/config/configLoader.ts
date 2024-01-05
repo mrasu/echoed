@@ -1,4 +1,9 @@
-import { Config, OpenApiConfig, ServiceConfig } from "@/config/config";
+import {
+  Config,
+  OpenApiConfig,
+  ProtoConfig,
+  ServiceConfig,
+} from "@/config/config";
 import { statSync } from "@/util/file";
 import yaml from "js-yaml";
 import fs from "fs";
@@ -6,26 +11,61 @@ import { PropagationTestConfig } from "@/config/propagationTestConfig";
 import { Comparable } from "@/comparision/comparable";
 import { Eq } from "@/comparision/eq";
 import { ConfigFileSchema } from "@/config/configFileSchema";
+import { override } from "@/util/object";
+import { Logger } from "@/logger";
 
 type YamlValue = string | boolean | number | null;
+
+// value of `overrides` in create/template/.echoed.yml
+const EXAMPLE_TEMPLATE_OVERRIDDEN_CONFIG_PATH = "./example/.echoed.yml";
 
 export class ConfigLoader {
   constructor() {}
 
   loadFromFile(filepath: string): Config {
+    const schemaObject = this.readFileRecursively(filepath, false);
+
+    return this.loadFromObject(schemaObject);
+  }
+
+  private readFileRecursively(
+    filepath: string,
+    overridden: boolean,
+  ): ConfigFileSchema {
+    const overriddenTxt = overridden ? "overridden " : "";
+
     const stat = statSync(filepath);
     if (!stat) {
-      throw new Error(`Echoed: config file not found: ${filepath}`);
-    }
-    if (!stat.isFile()) {
-      throw new Error(`Echoed: config file is not a file: ${filepath}`);
+      if (overridden && filepath === EXAMPLE_TEMPLATE_OVERRIDDEN_CONFIG_PATH) {
+        Logger.warn(`config file not found: ${filepath}`);
+        Logger.warn(
+          "When you delete `example` directory, modify `./.echoed.yml` to remove `overrides` section.",
+        );
+      }
+
+      throw new Error(
+        `Echoed: ${overriddenTxt}config file not found: ${filepath}`,
+      );
     }
 
-    const fileContent = yaml.load(
+    if (!stat.isFile()) {
+      throw new Error(
+        `Echoed: ${overriddenTxt}config file is not a file: ${filepath}`,
+      );
+    }
+
+    let schemaObject = yaml.load(
       fs.readFileSync(filepath, "utf-8"),
     ) as ConfigFileSchema;
 
-    return this.loadFromObject(fileContent);
+    if (schemaObject.overrides) {
+      for (const filepath of schemaObject.overrides) {
+        const overridden = this.readFileRecursively(filepath, true);
+        schemaObject = override(schemaObject, overridden);
+      }
+    }
+
+    return schemaObject;
   }
 
   loadFromObject(schemaObject: ConfigFileSchema): Config {
@@ -83,6 +123,7 @@ export class ConfigLoader {
         name: service.name,
         namespace: service.namespace,
         openapi: this.convertOpenApiConfig(service.openapi),
+        proto: this.convertProtoConfig(service.proto),
       };
     });
   }
@@ -103,6 +144,25 @@ export class ConfigLoader {
     return {
       filePath: config.filePath,
       basePath: config.basePath,
+    };
+  }
+
+  private convertProtoConfig(
+    config:
+      | Exclude<ConfigFileSchema["services"], undefined>[number]["proto"]
+      | undefined,
+  ): ProtoConfig | undefined {
+    if (!config) return;
+
+    if (typeof config === "string") {
+      return {
+        filePath: config,
+      };
+    }
+
+    return {
+      filePath: config.filePath,
+      services: config.services,
     };
   }
 }

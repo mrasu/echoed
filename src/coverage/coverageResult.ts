@@ -7,7 +7,8 @@ export class CoverageResult {
 export type Coverage = {
   serviceName: string;
   serviceNamespace: string | undefined;
-  http: HttpCoverage;
+  httpCoverage?: HttpCoverage;
+  rpcCoverage?: RpcCoverage;
 };
 
 export type HttpCoverage = {
@@ -17,5 +18,15 @@ export type HttpCoverage = {
 export type HttpOperationCoverage = {
   path: string;
   method: Method;
+  passed: boolean;
+};
+
+export type RpcCoverage = {
+  methodCoverages: RpcMethodCoverage[];
+};
+
+export type RpcMethodCoverage = {
+  service: string;
+  method: string;
   passed: boolean;
 };

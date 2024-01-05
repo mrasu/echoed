@@ -14,7 +14,9 @@
   const SORT_KEYS = ["serviceName", "coverageRatio"] as const;
   type SortKey = (typeof SORT_KEYS)[number];
   let sort: SortKey = "serviceName";
-  let sortDirection: Lowercase<keyof typeof SortValue> = "ascending";
+
+  type SortValues = Lowercase<keyof typeof SortValue>;
+  let sortDirection: SortValues = "ascending";
 
   const COVERAGE_WARN_THRESHOLD = 0.6;
   const COVERAGE_SUCCESS_THRESHOLD = 0.8;
@@ -25,12 +27,46 @@
     push(`/coverage/${coverageInfo.serviceName}`);
   };
 
+  const calculateCoverageInfoSortLesserValue = (
+    sortKey: SortKey,
+    direction: SortValues,
+    cov1: CoverageInfo,
+    cov2: CoverageInfo,
+  ) => {
+    const value = calculateCoverageInfoSortLesserValueBySortKey(
+      sortKey,
+      cov1,
+      cov2,
+    );
+
+    if (direction === "ascending") {
+      return value;
+    } else {
+      return value * -1;
+    }
+  };
+
+  const calculateCoverageInfoSortLesserValueBySortKey = (
+    sortKey: SortKey,
+    cov1: CoverageInfo,
+    cov2: CoverageInfo,
+  ) => {
+    if (sortKey === "serviceName") {
+      return cov1.compareSortByServiceName(cov2);
+    } else {
+      if (cov1[sortKey] === cov2[sortKey]) {
+        return 0;
+      }
+      return cov1[sortKey] < cov2[sortKey] ? -1 : 1;
+    }
+  };
+
   let orderedCoverageInfos = [...coverageInfos].sort((a, b) => {
-    return a.serviceName.localeCompare(b.serviceName) < 0 ? -1 : 1;
+    return calculateCoverageInfoSortLesserValue(sort, sortDirection, a, b);
   });
 
   const getCoverageColor = (coverageInfo: CoverageInfo): string => {
-    const coverageRatio = coverageInfo.http.coverageRatio;
+    const coverageRatio = coverageInfo.coverageRatio;
 
     if (COVERAGE_SUCCESS_THRESHOLD < coverageRatio) {
       return "green";
@@ -43,32 +79,8 @@
 
   const handleSort = () => {
     orderedCoverageInfos = [...coverageInfos].sort((a, b) => {
-      const val = calculateCoverageInfoSortLesserValue(sort, a, b);
-
-      if (sortDirection === "ascending") {
-        return val;
-      } else {
-        return val * -1;
-      }
+      return calculateCoverageInfoSortLesserValue(sort, sortDirection, a, b);
     });
-  };
-
-  const calculateCoverageInfoSortLesserValue = (
-    sortKey: SortKey,
-    cov1: CoverageInfo,
-    cov2: CoverageInfo,
-  ) => {
-    if (sortKey === "serviceName") {
-      if (cov1.serviceName === cov2.serviceName) {
-        return 0;
-      }
-      return cov1.serviceName < cov2.serviceName ? -1 : 1;
-    } else {
-      if (cov1[sortKey] === cov2[sortKey]) {
-        return 0;
-      }
-      return cov1[sortKey] < cov2[sortKey] ? -1 : 1;
-    }
   };
 </script>
 
@@ -101,7 +113,7 @@
           <Cell>
             <div style="display: table; table-layout: fixed; width: 100%">
               <Text style="display: table-cell; font-size: 1rem">
-                {coverageInfo.serviceName}
+                {coverageInfo.fullServiceName}
               </Text>
             </div>
           </Cell>

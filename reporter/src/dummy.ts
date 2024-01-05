@@ -149,7 +149,8 @@ const propagationFailedTraces: ITrace[] = [
 const coverageInfos: ICoverageInfo[] = [
   {
     serviceName: "frontend",
-    http: {
+    serviceNamespace: "opentelemetry-demo",
+    httpCoverage: {
       operationCoverages: [
         { path: "/cart", method: "delete", passed: true },
         { path: "/cart", method: "put", passed: true },
@@ -164,7 +165,7 @@ const coverageInfos: ICoverageInfo[] = [
   },
   {
     serviceName: "alpha-service",
-    http: {
+    httpCoverage: {
       operationCoverages: [
         { path: "/cart", method: "delete", passed: true },
         { path: "/cart", method: "put", passed: true },
@@ -173,7 +174,7 @@ const coverageInfos: ICoverageInfo[] = [
   },
   {
     serviceName: "alpha-z-service",
-    http: {
+    httpCoverage: {
       operationCoverages: [
         { path: "/cart", method: "get", passed: true},
         { path: "/cart", method: "delete", passed: false},
@@ -182,14 +183,27 @@ const coverageInfos: ICoverageInfo[] = [
     }
   },
   {
+    serviceName: "cartservice",
+    serviceNamespace: "opentelemetry-demo",
+    rpcCoverage: {
+      methodCoverages: [
+        { service: "oteldemo.CartService", method: "AddItem", passed: true },
+        { service: "oteldemo.CartService", method: "GetCart", passed: true },
+        { service: "oteldemo.CartService", method: "EmptyCart", passed: false },
+        { service: "oteldemo.RecommendationService", method: "ListRecommendations", passed: false },
+        { service: "oteldemo.RecommendationService", method: "AddRecommendations", passed: false }
+      ]
+    }
+  },
+  {
     serviceName: "super long service name aaaaa aaaaa aaaaa aaaaa aaaaa aaaaa aaaaa aaaaa aaaaa aaaaa aaaaa aaaaa 1111",
-    http: {
+    httpCoverage: {
       operationCoverages: [
         { path: "/cart", method: "delete", passed: false },
         { path: "/cart", method: "put", passed: false },
       ],
     }
-  }
+  },
 ];
 
 window.__echoed_param__ = {

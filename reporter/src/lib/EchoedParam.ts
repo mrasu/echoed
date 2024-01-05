@@ -22,6 +22,8 @@ import type {
   ICoverageInfo,
   IHttpCoverage,
   IHttpOperationCoverage,
+  IRpcCoverage,
+  IRpcMethodCoverage,
 } from "../types/echoed_param";
 import Long from "long";
 
@@ -460,27 +462,74 @@ export class KeyValueList {
 
 export class CoverageInfo {
   serviceName: string;
-  http: HttpCoverage;
+  serviceNamespace?: string;
+  httpCoverage?: HttpCoverage;
+  rpcCoverage?: RpcCoverage;
 
   constructor(coverage: ICoverageInfo) {
     this.serviceName = coverage.serviceName;
-    this.http = new HttpCoverage(coverage.http);
+    this.serviceNamespace = coverage.serviceNamespace ?? undefined;
+    this.httpCoverage = coverage.httpCoverage
+      ? new HttpCoverage(coverage.httpCoverage)
+      : undefined;
+    this.rpcCoverage = coverage.rpcCoverage
+      ? new RpcCoverage(coverage.rpcCoverage)
+      : undefined;
+  }
+
+  get fullServiceName(): string {
+    if (this.serviceNamespace) {
+      return `${this.serviceNamespace}/${this.serviceName}`;
+    } else {
+      return this.serviceName;
+    }
   }
 
   get coverageRatio(): number {
-    return this.http.coverageRatio;
+    if (this.httpCoverage) return this.httpCoverage.coverageRatio;
+    if (this.rpcCoverage) return this.rpcCoverage.coverageRatio;
+
+    return 0;
   }
 
   get coveragePercent(): string {
-    return this.http.coveragePercent;
+    return this.coverageRatio.toLocaleString("en", {
+      style: "percent",
+      minimumFractionDigits: 1,
+    });
   }
 
   get passedCount(): number {
-    return this.http.passedCount;
+    if (this.httpCoverage) return this.httpCoverage.passedCount;
+    if (this.rpcCoverage) return this.rpcCoverage.passedCount;
+
+    return 0;
   }
 
   get pathCoverageLength(): number {
-    return this.http.operationCoverages.length;
+    if (this.httpCoverage) return this.httpCoverage.operationCoverages.length;
+    if (this.rpcCoverage) return this.rpcCoverage.methodCoverages.length;
+
+    return 0;
+  }
+
+  compareSortByServiceName(other: CoverageInfo): number {
+    if (this.serviceNamespace || other.serviceNamespace) {
+      if (!this.serviceNamespace) {
+        return -1;
+      }
+      if (!other.serviceNamespace) {
+        return 1;
+      }
+      if (this.serviceNamespace !== other.serviceNamespace) {
+        return this.serviceNamespace < other.serviceNamespace ? -1 : 1;
+      }
+    }
+
+    if (this.serviceName === other.serviceName) {
+      return 0;
+    }
+    return this.serviceName < other.serviceName ? -1 : 1;
   }
 }
 
@@ -499,13 +548,6 @@ export class HttpCoverage {
 
   get coverageRatio(): number {
     return this.passedCount / this.operationCoverages.length;
-  }
-
-  get coveragePercent(): string {
-    return this.coverageRatio.toLocaleString("en", {
-      style: "percent",
-      minimumFractionDigits: 1,
-    });
   }
 }
 
@@ -527,6 +569,47 @@ export class HttpOperationCoverage {
 
   constructor(pathCoverage: IHttpOperationCoverage) {
     this.path = pathCoverage.path;
+    this.method = pathCoverage.method;
+    this.passed = pathCoverage.passed;
+  }
+}
+
+export class RpcCoverage {
+  methodCoverages: RpcMethodCoverage[];
+
+  passedCount: number;
+
+  constructor(coverage: IRpcCoverage) {
+    this.methodCoverages = coverage.methodCoverages.map(
+      (c) => new RpcMethodCoverage(c),
+    );
+
+    this.passedCount = this.methodCoverages.filter((c) => c.passed).length;
+  }
+
+  get coverageRatio(): number {
+    return this.passedCount / this.methodCoverages.length;
+  }
+
+  get methodCoveragesGroupedByService(): Map<string, RpcMethodCoverage[]> {
+    const map = new Map<string, RpcMethodCoverage[]>();
+    this.methodCoverages.forEach((coverage) => {
+      const coverages = map.get(coverage.service) || [];
+      coverages.push(coverage);
+      map.set(coverage.service, coverages);
+    });
+
+    return map;
+  }
+}
+
+export class RpcMethodCoverage {
+  service: string;
+  method: string;
+  passed: boolean;
+
+  constructor(pathCoverage: IRpcMethodCoverage) {
+    this.service = pathCoverage.service;
     this.method = pathCoverage.method;
     this.passed = pathCoverage.passed;
   }

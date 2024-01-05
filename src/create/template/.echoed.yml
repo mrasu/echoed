@@ -1,14 +1,4 @@
 output: "report/result.html"
-services:
-  - name: frontend
-    openapi: "./example/opentelemetry-demo/src/frontend/schema.yaml"
-  - name: cartservice
-    namespace: foo
-    openapi:
-      filePath: "./example/opentelemetry-demo/src/frontend/schema.yaml"
-      basePath: "/api"
-# Example configuration to ignore spans from propagation test.
-# propagationTest:
-#   ignore:
-#     attributes:
-#       user_agent: OtelColHttpCheck/0.1
+
+# Remove the following line after removing `example` directory
+override: ["./example/.echoed.yml"]

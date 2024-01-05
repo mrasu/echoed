@@ -6,7 +6,11 @@ import { TestResult } from "@/testResult";
 import { TestCaseResult } from "@/testCaseResult";
 import { Config } from "@/config/config";
 import { IReportFile } from "@/report/iReportFile";
-import { CoverageResult } from "@/coverage/coverageResult";
+import {
+  CoverageResult,
+  HttpCoverage as HttpCoverageResult,
+  RpcCoverage as RpcCoverageResult,
+} from "@/coverage/coverageResult";
 
 type EchoedParam = {
   config: ReportConfig;
@@ -54,7 +58,8 @@ type FetchResponse = {
 type CoverageInfo = {
   serviceName: string;
   serviceNamespace: string | undefined;
-  http: HttpCoverage;
+  httpCoverage?: HttpCoverage;
+  rpcCoverage?: RpcCoverage;
 };
 
 type HttpCoverage = {
@@ -63,6 +68,16 @@ type HttpCoverage = {
 
 type HttpOperationCoverage = {
   path: string;
+  method: string;
+  passed: boolean;
+};
+
+type RpcCoverage = {
+  methodCoverages: RpcMethodCoverage[];
+};
+
+type RpcMethodCoverage = {
+  service: string;
   method: string;
   passed: boolean;
 };
@@ -186,23 +201,52 @@ export class ReportFile implements IReportFile {
   private buildCoverageInfos(coverageResult: CoverageResult): CoverageInfo[] {
     const coverageInfos: CoverageInfo[] = [];
     for (const coverage of coverageResult.coverages) {
-      const pathCoverages = coverage.http.operationCoverages.map((cov) => {
-        return {
-          path: cov.path,
-          method: cov.method,
-          passed: cov.passed,
-        };
-      });
-
       const coverageInfo: CoverageInfo = {
         serviceName: coverage.serviceName,
         serviceNamespace: coverage.serviceNamespace,
-        http: { operationCoverages: pathCoverages },
+        httpCoverage: this.buildHttpCoverage(coverage.httpCoverage),
+        rpcCoverage: this.buildRpcCoverage(coverage.rpcCoverage),
       };
       coverageInfos.push(coverageInfo);
     }
 
     return coverageInfos;
+  }
+
+  private buildHttpCoverage(
+    httpCoverage: HttpCoverageResult | undefined,
+  ): HttpCoverage | undefined {
+    if (!httpCoverage) return undefined;
+
+    const coverages = httpCoverage.operationCoverages.map((cov) => {
+      return {
+        path: cov.path,
+        method: cov.method,
+        passed: cov.passed,
+      };
+    });
+
+    return {
+      operationCoverages: coverages,
+    };
+  }
+
+  private buildRpcCoverage(
+    rpcCoverage: RpcCoverageResult | undefined,
+  ): RpcCoverage | undefined {
+    if (!rpcCoverage) return undefined;
+
+    const coverages = rpcCoverage.methodCoverages.map((cov) => {
+      return {
+        service: cov.service,
+        method: cov.method,
+        passed: cov.passed,
+      };
+    });
+
+    return {
+      methodCoverages: coverages,
+    };
   }
 
   private buildReportConfig(): ReportConfig {

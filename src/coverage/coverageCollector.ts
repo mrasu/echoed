@@ -56,7 +56,8 @@ export class CoverageCollector {
       coverages.push({
         serviceName,
         serviceNamespace,
-        http: collectorCoverage.httpCoverage,
+        httpCoverage: collectorCoverage.httpCoverage,
+        rpcCoverage: collectorCoverage.rpcCoverage,
       });
     }
 

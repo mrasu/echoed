@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+package myPackage;
+
+service CartService {
+    rpc AddItem(AddItemRequest) returns (Empty) {}
+    rpc GetCart(GetCartRequest) returns (Cart) {}
+}
+
+message CartItem {
+    string product_id = 1;
+    int32  quantity = 2;
+}
+
+message AddItemRequest {
+    string user_id = 1;
+    CartItem item = 2;
+}
+
+message GetCartRequest {
+    string user_id = 1;
+}
+
+message Cart {
+    string user_id = 1;
+    repeated CartItem items = 2;
+}
+
+message Empty {}
+
+service RecommendationService {
+  rpc ListRecommendations(ListRecommendationsRequest) returns (ListRecommendationsResponse){}
+}
+
+message ListRecommendationsRequest {
+    string user_id = 1;
+    repeated string product_ids = 2;
+}
+
+message ListRecommendationsResponse {
+    repeated string product_ids = 1;
+}
+
+service CurrencyService {
+    rpc GetSupportedCurrencies(Empty) returns (GetSupportedCurrenciesResponse) {}
+    rpc Convert(CurrencyConversionRequest) returns (Money) {}
+}
+
+message Money {
+    string currency_code = 1;
+}
+
+message GetSupportedCurrenciesResponse {
+    repeated string currency_codes = 1;
+}
+
+message CurrencyConversionRequest {
+    Money from = 1;
+    string to_code = 2;
+}

@@ -20,9 +20,15 @@ export type ServiceConfig = {
   name: string;
   namespace?: string;
   openapi?: OpenApiConfig;
+  proto?: ProtoConfig;
 };
 
 export type OpenApiConfig = {
   filePath: string;
   basePath?: string;
+};
+
+export type ProtoConfig = {
+  filePath: string;
+  services?: string[];
 };

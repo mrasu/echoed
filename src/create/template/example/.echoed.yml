@@ -1,0 +1,14 @@
+services:
+  - name: frontend
+    namespace: opentelemetry-demo
+    openapi: "./example/opentelemetry-demo/src/frontend/schema.yaml"
+  - name: cartservice
+    namespace: opentelemetry-demo
+    proto:
+      filePath: "./example/opentelemetry-demo/pb/demo.proto"
+      services:
+        - oteldemo.CartService
+propagationTest:
+  ignore:
+    attributes:
+      user_agent: OtelColHttpCheck/0.1

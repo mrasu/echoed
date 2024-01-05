@@ -132,7 +132,8 @@ export type IInstrumentationScope = {
 export type ICoverageInfo = {
   serviceName: string;
   serviceNamespace?: string | null;
-  http: IHttpCoverage;
+  httpCoverage?: IHttpCoverage;
+  rpcCoverage?: IRpcCoverage;
 };
 
 export type IHttpCoverage = {
@@ -142,6 +143,16 @@ export type IHttpCoverage = {
 export type IHttpOperationCoverage = {
   path: string;
   method: HttpMethod;
+  passed: boolean;
+};
+
+export type IRpcCoverage = {
+  methodCoverages: IRpcMethodCoverage[];
+};
+
+export type IRpcMethodCoverage = {
+  service: string;
+  method: string;
   passed: boolean;
 };
 

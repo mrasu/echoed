@@ -75,7 +75,7 @@ describe("ConfigLoader", () => {
       });
 
       describe("when multiple services exist", () => {
-        it("should load multiple openapi config", () => {
+        it("should load multiple config", () => {
           const config = new ConfigLoader().loadFromObject(
             buildDefaultSchemaObject([
               {
@@ -84,7 +84,7 @@ describe("ConfigLoader", () => {
               },
               {
                 name: "service2",
-                openapi: "./2/dummy-openapi.yaml",
+                proto: "./2/dummy.proto",
               },
             ]),
           );
@@ -101,9 +101,9 @@ describe("ConfigLoader", () => {
               {
                 name: "service2",
                 namespace: undefined,
-                openapi: {
-                  filePath: "./2/dummy-openapi.yaml",
-                  basePath: undefined,
+                proto: {
+                  filePath: "./2/dummy.proto",
+                  services: undefined,
                 },
               },
             ]),
@@ -154,6 +154,56 @@ describe("ConfigLoader", () => {
                 openapi: {
                   filePath: "/hello/dummy-openapi.yaml",
                   basePath: "/api",
+                },
+              },
+            ]),
+          );
+        });
+      });
+
+      describe("when proto is string", () => {
+        it("should load proto with filename", () => {
+          const config = new ConfigLoader().loadFromObject(
+            buildDefaultSchemaObject([
+              {
+                name: "service",
+                proto: "/hello/dummy.proto",
+              },
+            ]),
+          );
+          expect(config).toEqual(
+            buildConfig([
+              {
+                name: "service",
+                proto: {
+                  filePath: "/hello/dummy.proto",
+                },
+              },
+            ]),
+          );
+        });
+      });
+
+      describe("when proto is object", () => {
+        it("should load proto with filename", () => {
+          const config = new ConfigLoader().loadFromObject(
+            buildDefaultSchemaObject([
+              {
+                name: "service",
+                proto: {
+                  filePath: "/hello/dummy.proto",
+                  services: ["service1", "service2"],
+                },
+              },
+            ]),
+          );
+          expect(config).toEqual(
+            buildConfig([
+              {
+                name: "service",
+                proto: {
+                  filePath: "/hello/dummy.proto",
+                  services: ["service1", "service2"],
                 },
               },
             ]),
