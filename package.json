@@ -1,6 +1,6 @@
 {
   "name": "echoed",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Observable API testing library using OpenTelemetry for Jest.",
   "bin": "dist/create/bin.js",
   "scripts": {
