@@ -9,10 +9,13 @@ export type Coverage = {
   serviceNamespace: string | undefined;
   httpCoverage?: HttpCoverage;
   rpcCoverage?: RpcCoverage;
+
+  unmeasuredTraceIds?: string[];
 };
 
 export type HttpCoverage = {
   operationCoverages: HttpOperationCoverage[];
+  undocumentedOperations: HttpOperationTraces[];
 };
 
 export type HttpOperationCoverage = {
@@ -21,12 +24,25 @@ export type HttpOperationCoverage = {
   passed: boolean;
 };
 
+export type HttpOperationTraces = {
+  path: string;
+  method: Method;
+  traceIds: string[];
+};
+
 export type RpcCoverage = {
   methodCoverages: RpcMethodCoverage[];
+  undocumentedMethods: RpcMethodTraces[];
 };
 
 export type RpcMethodCoverage = {
   service: string;
   method: string;
   passed: boolean;
+};
+
+export type RpcMethodTraces = {
+  service: string;
+  method: string;
+  traceIds: string[];
 };

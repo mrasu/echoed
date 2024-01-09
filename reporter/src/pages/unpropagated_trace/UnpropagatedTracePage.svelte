@@ -5,7 +5,7 @@
   export let params: { traceId: string };
 
   const echoedParam = EchoedParam.convert(window.__echoed_param__);
-  const trace = echoedParam.pickPropagationFailedTrace(params.traceId);
+  const trace = echoedParam.traces.get(params.traceId);
 </script>
 
 {#if trace}

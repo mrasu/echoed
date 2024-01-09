@@ -1,11 +1,10 @@
 <script lang="ts">
-  import { HttpCoverage, HttpMethods } from "../../lib/EchoedParam";
+  import { HttpCoverage } from "../../lib/EchoedParam";
   import FailedIcon from "../../components/status_icons/FailedIcon.svelte";
   import SucceededIcon from "../../components/status_icons/SucceededIcon.svelte";
+  import { METHOD_ORDER_MAP } from "../../lib/util/http";
 
   export let httpCoverage: HttpCoverage;
-
-  const METHOD_ORDER_MAP = new Map(HttpMethods.map((method, i) => [method, i]));
 
   $: orderedPathCoverages = [...(httpCoverage.operationCoverages || [])].sort(
     (a, b) => {

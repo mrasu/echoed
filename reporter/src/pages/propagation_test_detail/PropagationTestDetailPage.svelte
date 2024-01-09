@@ -3,7 +3,8 @@
   import PropagationTestDetail from "./PropagationTestDetail.svelte";
 
   const echoedParam = EchoedParam.convert(window.__echoed_param__);
+  const traces = echoedParam.traces;
   const propagationFailedTraces = echoedParam.propagationFailedTraces;
 </script>
 
-<PropagationTestDetail {propagationFailedTraces} />
+<PropagationTestDetail {traces} {propagationFailedTraces} />

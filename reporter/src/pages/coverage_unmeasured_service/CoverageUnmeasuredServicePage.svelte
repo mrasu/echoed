@@ -1,6 +1,6 @@
 <script lang="ts">
   import { EchoedParam } from "../../lib/EchoedParam";
-  import ServiceCoverage from "./ServiceCoverage.svelte";
+  import CoverageUnmeasuredService from "./CoverageUnmeasuredService.svelte";
 
   export let params: { fullServiceName: string };
 
@@ -8,10 +8,11 @@
   const coverageInfo = echoedParam.pickCoverageInfoFromEncodedServiceName(
     params.fullServiceName,
   );
+  const traces = echoedParam.traces;
 </script>
 
 {#if coverageInfo}
-  <ServiceCoverage {coverageInfo} />
+  <CoverageUnmeasuredService {coverageInfo} {traces} />
 {:else}
-  Invalid service-name
+  <p>Not found</p>
 {/if}

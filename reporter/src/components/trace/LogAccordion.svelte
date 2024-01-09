@@ -67,7 +67,9 @@
         <Paper variant="unelevated">
           <Title>Attributes</Title>
           <PaperContent>
-            <AttributeDataTable attributes={log.attributes} />
+            <AttributeDataTable
+              attributes={log.attributes.getOrderedKeyValues()}
+            />
           </PaperContent>
         </Paper>
       </Content>

@@ -16,7 +16,8 @@ type EchoedParam = {
   config: ReportConfig;
   testInfos: TestInfo[];
   coverageInfos: CoverageInfo[];
-  propagationFailedTraces: Trace[];
+  propagationFailedTraces: PropagationFailedTrace[];
+  traces: Trace[];
 };
 
 type ReportConfig = {
@@ -60,26 +61,47 @@ type CoverageInfo = {
   serviceNamespace: string | undefined;
   httpCoverage?: HttpCoverage;
   rpcCoverage?: RpcCoverage;
+  unmeasuredTraceIds?: string[];
 };
 
 type HttpCoverage = {
   operationCoverages: HttpOperationCoverage[];
+  undocumentedOperations: HttpOperationTraces[];
 };
 
-type HttpOperationCoverage = {
+type HttpOperation = {
   path: string;
   method: string;
+};
+
+type HttpOperationCoverage = HttpOperation & {
   passed: boolean;
+};
+
+type HttpOperationTraces = HttpOperation & {
+  traceIds: string[];
 };
 
 type RpcCoverage = {
   methodCoverages: RpcMethodCoverage[];
+  undocumentedMethods: RpcMethodTraces[];
 };
 
-type RpcMethodCoverage = {
+type RpcMethod = {
   service: string;
   method: string;
+};
+
+type RpcMethodCoverage = RpcMethod & {
   passed: boolean;
+};
+
+type RpcMethodTraces = RpcMethod & {
+  traceIds: string[];
+};
+
+type PropagationFailedTrace = {
+  traceId: string;
 };
 
 type Trace = {
@@ -136,11 +158,21 @@ export class ReportFile implements IReportFile {
     const coverageInfos = this.buildCoverageInfos(coverageResult);
     const config = this.buildReportConfig();
 
+    const traces: Trace[] = [];
+    for (const traceId of Object.keys(testResult.capturedSpans)) {
+      traces.push({
+        traceId: traceId,
+        spans: testResult.capturedSpans[traceId] ?? [],
+        logRecords: testResult.capturedLogs[traceId] ?? [],
+      });
+    }
+
     return {
       testInfos,
       propagationFailedTraces,
       coverageInfos,
       config,
+      traces,
     };
   }
 
@@ -185,13 +217,13 @@ export class ReportFile implements IReportFile {
     });
   }
 
-  private buildPropagationFailedTraces(testResult: TestResult): Trace[] {
-    const propagationFailedTraces: Trace[] = [];
+  private buildPropagationFailedTraces(
+    testResult: TestResult,
+  ): PropagationFailedTrace[] {
+    const propagationFailedTraces: PropagationFailedTrace[] = [];
     for (const traceId of Object.keys(testResult.propagationFailedSpans)) {
       propagationFailedTraces.push({
         traceId: traceId,
-        spans: testResult.propagationFailedSpans[traceId],
-        logRecords: testResult.capturedLogs[traceId] || [],
       });
     }
 
@@ -206,6 +238,7 @@ export class ReportFile implements IReportFile {
         serviceNamespace: coverage.serviceNamespace,
         httpCoverage: this.buildHttpCoverage(coverage.httpCoverage),
         rpcCoverage: this.buildRpcCoverage(coverage.rpcCoverage),
+        unmeasuredTraceIds: coverage.unmeasuredTraceIds,
       };
       coverageInfos.push(coverageInfo);
     }
@@ -226,8 +259,19 @@ export class ReportFile implements IReportFile {
       };
     });
 
+    const undocumentedOperations = httpCoverage.undocumentedOperations.map(
+      (cov) => {
+        return {
+          path: cov.path,
+          method: cov.method,
+          traceIds: cov.traceIds,
+        };
+      },
+    );
+
     return {
       operationCoverages: coverages,
+      undocumentedOperations: undocumentedOperations,
     };
   }
 
@@ -244,8 +288,19 @@ export class ReportFile implements IReportFile {
       };
     });
 
+    const undocumentedOperations = rpcCoverage.undocumentedMethods.map(
+      (cov) => {
+        return {
+          service: cov.service,
+          method: cov.method,
+          traceIds: cov.traceIds,
+        };
+      },
+    );
+
     return {
       methodCoverages: coverages,
+      undocumentedMethods: undocumentedOperations,
     };
   }
 

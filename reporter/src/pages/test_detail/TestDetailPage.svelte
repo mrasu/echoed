@@ -9,7 +9,7 @@
 </script>
 
 {#if testInfo}
-  <TestDetail {testInfo} />
+  <TestDetail {testInfo} traces={echoedParam.traces} />
 {:else}
   Invalid test-id
 {/if}

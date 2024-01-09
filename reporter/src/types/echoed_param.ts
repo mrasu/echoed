@@ -1,10 +1,11 @@
-import type { HttpMethod } from "../lib/EchoedParam";
+import type { HttpMethod } from "../lib/util/http";
 
 export type IEchoedParam = {
   config: IConfig;
   testInfos: ITestInfo[];
   coverageInfos: ICoverageInfo[];
-  propagationFailedTraces: ITrace[];
+  propagationFailedTraces: IPropagationFailedTrace[];
+  traces: ITrace[];
 };
 
 export type IConfig = {
@@ -19,8 +20,6 @@ export type ITestInfo = {
   status: string;
   orderedTraceIds: string[];
   fetches: IFetch[];
-  spans?: ISpan[];
-  logRecords?: ILogRecord[];
   failureDetails?: string[];
   failureMessages?: string[];
   duration?: number;
@@ -114,7 +113,7 @@ export type ILink = {
 
 export type IStatus = {
   message?: string | null;
-  code?: number | null;
+  code?: string | null;
 };
 
 export type IResource = {
@@ -134,10 +133,12 @@ export type ICoverageInfo = {
   serviceNamespace?: string | null;
   httpCoverage?: IHttpCoverage;
   rpcCoverage?: IRpcCoverage;
+  unmeasuredTraceIds?: string[];
 };
 
 export type IHttpCoverage = {
   operationCoverages: IHttpOperationCoverage[];
+  undocumentedOperations: IHttpOperationTraces[];
 };
 
 export type IHttpOperationCoverage = {
@@ -146,14 +147,31 @@ export type IHttpOperationCoverage = {
   passed: boolean;
 };
 
+export type IHttpOperationTraces = {
+  path: string;
+  method: HttpMethod;
+  traceIds: string[];
+};
+
 export type IRpcCoverage = {
   methodCoverages: IRpcMethodCoverage[];
+  undocumentedMethods: IRpcMethodTraces[];
 };
 
 export type IRpcMethodCoverage = {
   service: string;
   method: string;
   passed: boolean;
+};
+
+export type IRpcMethodTraces = {
+  service: string;
+  method: string;
+  traceIds: string[];
+};
+
+export type IPropagationFailedTrace = {
+  traceId: string;
 };
 
 export type ITrace = {

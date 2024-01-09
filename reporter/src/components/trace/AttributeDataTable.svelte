@@ -2,7 +2,7 @@
   import { KeyValue } from "../../lib/EchoedParam";
   import DataTable, { Head, Body, Row, Cell } from "@smui/data-table";
 
-  export let attributes: KeyValue[] | undefined;
+  export let attributes: KeyValue[];
 </script>
 
 <DataTable style="width: 100%">
@@ -13,7 +13,7 @@
     </Row>
   </Head>
   <Body>
-    {#if attributes}
+    {#if attributes.length > 0}
       {#each attributes as attribute}
         <Row>
           <Cell>{attribute.key}</Cell>

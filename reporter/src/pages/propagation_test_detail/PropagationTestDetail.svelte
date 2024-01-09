@@ -1,11 +1,12 @@
 <script lang="ts">
-  import type { Trace } from "../../lib/EchoedParam";
+  import { PropagationFailedTrace, Traces } from "../../lib/EchoedParam";
   import { TestNameForPropagation } from "../../consts/testNames";
   import Description from "./Description.svelte";
   import TraceList from "./TraceList.svelte";
   import Breadcrumb from "../../components/breadcrumb/Breadcrumb.svelte";
 
-  export let propagationFailedTraces: Trace[];
+  export let traces: Traces;
+  export let propagationFailedTraces: PropagationFailedTrace[];
   const passed = propagationFailedTraces.length === 0;
 </script>
 
@@ -15,7 +16,7 @@
   <Description {passed}></Description>
 </div>
 {#if !passed}
-  <TraceList {propagationFailedTraces} />
+  <TraceList {propagationFailedTraces} {traces} />
 {/if}
 
 <style>

@@ -1,23 +1,14 @@
 <script lang="ts">
-  import { Span, TestInfo } from "../../lib/EchoedParam";
+  import { Span, TestInfo, Traces } from "../../lib/EchoedParam";
   import List, { Item, Separator, Text } from "@smui/list";
   import { push } from "svelte-spa-router";
   import Paper, { Title, Content } from "@smui/paper";
-  import { link } from "svelte-spa-router";
   import SucceededIcon from "../../components/status_icons/SucceededIcon.svelte";
   import FailedIcon from "../../components/status_icons/FailedIcon.svelte";
   import BlockedIcon from "../../components/status_icons/BlockedIcon.svelte";
 
   export let testInfo: TestInfo;
-
-  const spansMap: Map<string, Span[]> = new Map();
-  testInfo?.spans.forEach((span) => {
-    const traceId = span.traceId;
-
-    const spans = spansMap.get(traceId) || [];
-    spans.push(span);
-    spansMap.set(traceId, spans);
-  });
+  export let traces: Traces;
 
   const fetchMapByTraceId = testInfo.getFetchMapByTraceId();
 
@@ -28,7 +19,7 @@
       return `${req.method} ${req.url}`;
     }
 
-    const spans = spansMap.get(traceId);
+    const spans = traces.get(traceId)?.spans;
     if (!spans) {
       return "";
     }
@@ -40,7 +31,7 @@
   const getTraceStatus = (
     traceId: string,
   ): "succeeded" | "failed" | "unknown" => {
-    const spans = spansMap.get(traceId) || [];
+    const spans = traces.get(traceId)?.spans || [];
     if (spans.length === 0) {
       return "unknown";
     }
@@ -56,8 +47,8 @@
     name: string;
     status: "succeeded" | "failed" | "unknown";
   };
-  const traces: Trace[] = testInfo.orderedTraceIds.map((traceId) => {
-    const spans = spansMap.get(traceId) || [];
+  const orderedTraces: Trace[] = testInfo.orderedTraceIds.map((traceId) => {
+    const spans = traces.get(traceId)?.spans || [];
     const succeeded =
       spans.filter((span: Span) => !span.succeeded).length === 0;
 
@@ -77,7 +68,7 @@
   <Title>Traces</Title>
   <Content>
     <List class="demo-list">
-      {#each traces as trace}
+      {#each orderedTraces as trace}
         <Separator />
         <Item on:SMUI:action={() => moveToTrace(trace)}>
           {#if trace.status === "succeeded"}

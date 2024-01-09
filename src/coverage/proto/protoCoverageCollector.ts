@@ -12,12 +12,21 @@ import {
 } from "protobufjs";
 import { opentelemetry } from "@/generated/otelpbj";
 import Span = opentelemetry.proto.trace.v1.Span;
-import { RpcMethodCoverage } from "@/coverage/coverageResult";
+import { RpcMethodCoverage, RpcMethodTraces } from "@/coverage/coverageResult";
 import path from "path";
 import { Service } from "@/coverage/proto/service";
+import { toBase64 } from "@/util/byte";
+import { TwoKeyValuesMap } from "@/util/twoKeyValuesMap";
 
 export class ProtoCoverageCollector implements IServiceCoverageCollector {
   private services = new Map<string, Service>();
+
+  // undocumentedProtoSpans is Map<rpcService, Map<rpcMethod, UndocumentedSpans>>
+  private undocumentedProtoSpans = new TwoKeyValuesMap<
+    string,
+    string,
+    OtelSpan[]
+  >();
 
   static buildFromRoot(
     root: Root,
@@ -73,10 +82,19 @@ export class ProtoCoverageCollector implements IServiceCoverageCollector {
       if (!rpcMethod) continue;
 
       const method = this.services.get(rpcService)?.methods.get(rpcMethod);
-      if (!method) continue;
+      if (!method) {
+        this.addUndocumented(rpcService, rpcMethod, span);
+        continue;
+      }
 
       method.visited = true;
     }
+  }
+
+  addUndocumented(rpcService: string, rpcMethod: string, span: OtelSpan) {
+    this.undocumentedProtoSpans.initOr(rpcService, rpcMethod, [span], (v) => {
+      v.push(span);
+    });
   }
 
   getCoverage(): ServiceCoverageCollectorResult {
@@ -91,9 +109,27 @@ export class ProtoCoverageCollector implements IServiceCoverageCollector {
       }
     }
 
+    const undocumentedMethods: RpcMethodTraces[] = [];
+    for (const [
+      service,
+      method,
+      spans,
+    ] of this.undocumentedProtoSpans.entries()) {
+      const traceIds = spans
+        .filter((span) => span.traceId)
+        .map((span) => toBase64(span.traceId));
+
+      undocumentedMethods.push({
+        service,
+        method,
+        traceIds: traceIds,
+      });
+    }
+
     return {
       rpcCoverage: {
         methodCoverages: coverages,
+        undocumentedMethods: undocumentedMethods,
       },
     };
   }

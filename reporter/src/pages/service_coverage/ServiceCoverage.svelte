@@ -5,15 +5,17 @@
   import HttpCoverageTable from "./HttpCoverageTable.svelte";
   import RpcCoverageTable from "./RpcCoverageTable.svelte";
   import Breadcrumb from "../../components/breadcrumb/Breadcrumb.svelte";
+  import HttpUndocumentedOperationTable from "./HttpUndocumentedOperationTable.svelte";
+  import RpcUndocumentedMethodTable from "./RpcUndocumentedMethodTable.svelte";
 
   export let coverageInfo: CoverageInfo;
 </script>
 
-<Breadcrumb crumbs={["Coverage", coverageInfo.serviceName]} />
+<Breadcrumb crumbs={["Coverage", coverageInfo.fullDisplayServiceName]} />
 
 <Paper>
   <Title>
-    Coverage at {coverageInfo.fullServiceName}
+    Coverage at {coverageInfo.fullDisplayServiceName}
     {#if coverageInfo.httpCoverage}
       (HTTP)
     {:else if coverageInfo.rpcCoverage}
@@ -23,8 +25,18 @@
   <Content>
     {#if coverageInfo.httpCoverage}
       <HttpCoverageTable httpCoverage={coverageInfo.httpCoverage} />
+
+      <HttpUndocumentedOperationTable
+        service={coverageInfo.service}
+        httpCoverage={coverageInfo.httpCoverage}
+      />
     {:else if coverageInfo.rpcCoverage}
       <RpcCoverageTable rpcCoverage={coverageInfo.rpcCoverage} />
+
+      <RpcUndocumentedMethodTable
+        service={coverageInfo.service}
+        rpcCoverage={coverageInfo.rpcCoverage}
+      />
     {:else}
       <Text>No coverage found</Text>
     {/if}

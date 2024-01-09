@@ -1,14 +1,20 @@
 <script lang="ts">
-  import { Trace } from "../../lib/EchoedParam";
+  import { PropagationFailedTrace, Traces } from "../../lib/EchoedParam";
   import List, { Separator, Text } from "@smui/list";
   import { push } from "svelte-spa-router";
   import Paper, { Title, Content } from "@smui/paper";
   import FailedIcon from "../../components/status_icons/FailedIcon.svelte";
   import ListItem from "../../components/list/ListItem.svelte";
 
-  export let propagationFailedTraces: Trace[];
-  const moveToTrace = (trace: Trace) => {
+  export let traces: Traces;
+  export let propagationFailedTraces: PropagationFailedTrace[];
+
+  const moveToTrace = (trace: PropagationFailedTrace) => {
     push(`/propagation_test/unpropagated/${trace.traceId}`);
+  };
+
+  const getNameForTrace = (traceId: string): string => {
+    return traces.get(traceId)?.rootSpanName ?? "";
   };
 </script>
 
@@ -20,7 +26,7 @@
         <ListItem on:click={() => moveToTrace(trace)}>
           <FailedIcon />
           <Text style="margin-left: 10px">
-            {trace.rootSpan?.name || "Unknown"}
+            {getNameForTrace(trace.traceId)}
           </Text>
           <Text style="margin-left: 10px; font-size: 0.85rem">
             {trace.traceId}

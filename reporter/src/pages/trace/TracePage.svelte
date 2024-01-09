@@ -9,22 +9,11 @@
   const traceFetch = testInfo?.fetches.find(
     (fetch) => fetch.traceId === params.traceId,
   );
-  const traceSpans =
-    testInfo?.spans.filter((span) => span.traceId === params.traceId) || [];
-  const traceLogs =
-    testInfo?.logRecords.filter(
-      (logRecord) => logRecord.traceId === params.traceId,
-    ) || [];
+  const trace = echoedParam.traces.get(params.traceId);
 </script>
 
 {#if testInfo}
-  <TraceView
-    traceId={params.traceId}
-    {traceSpans}
-    {traceFetch}
-    {traceLogs}
-    {testInfo}
-  />
+  <TraceView traceId={params.traceId} {traceFetch} {trace} {testInfo} />
 {:else}
   Invalid trace-id
 {/if}

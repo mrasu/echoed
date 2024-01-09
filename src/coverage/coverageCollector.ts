@@ -1,10 +1,13 @@
 import { OtelSpan } from "@/type/otelSpan";
 import { Coverage, CoverageResult } from "@/coverage/coverageResult";
 import { IServiceCoverageCollector } from "@/coverage/iServiceCoverageCollector";
+import { UnmeasuredTraceCollector } from "@/coverage/unmeasuredTraceCollector";
+import { TwoKeyValuesMap } from "@/util/twoKeyValuesMap";
 
 export class CoverageCollector {
   private readonly serviceCollectors: ServiceMap<IServiceCoverageCollector> =
     new ServiceMap();
+  private unmeasuredCollector = new ServiceMap<UnmeasuredTraceCollector>();
 
   constructor() {}
 
@@ -21,13 +24,10 @@ export class CoverageCollector {
     for (const span of spans) {
       const serviceName = span.serviceName;
       const serviceNamespace = span.serviceNamespace;
-      let spans = serviceSpans.get(serviceName, serviceNamespace);
-      if (!spans) {
-        spans = [span];
-        serviceSpans.set(serviceName, serviceNamespace, spans);
-      } else {
-        spans.push(span);
-      }
+
+      serviceSpans.initOr(serviceName, serviceNamespace, [span], (v) => {
+        v.push(span);
+      });
     }
 
     for (const [
@@ -39,66 +39,62 @@ export class CoverageCollector {
         serviceName,
         serviceNamespace,
       );
-      if (!collector) continue;
+      if (!collector) {
+        this.markAsUnmeasured(serviceName, serviceNamespace, spans);
+        continue;
+      }
 
       collector.markVisited(spans);
     }
   }
 
+  private markAsUnmeasured(
+    service: string,
+    namespace: string | undefined,
+    spans: OtelSpan[],
+  ) {
+    let collector = this.unmeasuredCollector.get(service, namespace);
+    if (!collector) {
+      collector = new UnmeasuredTraceCollector();
+      this.unmeasuredCollector.set(service, namespace, collector);
+    }
+
+    collector.addSpans(spans);
+  }
+
   getCoverage(): CoverageResult {
-    const coverages: Coverage[] = [];
-    for (const [
-      serviceName,
-      serviceNamespace,
-      collector,
-    ] of this.serviceCollectors.entries()) {
-      const collectorCoverage = collector.getCoverage();
-      coverages.push({
-        serviceName,
-        serviceNamespace,
-        httpCoverage: collectorCoverage.httpCoverage,
-        rpcCoverage: collectorCoverage.rpcCoverage,
+    const coverages = this.getCoverages();
+    const unmeasuredCoverages = this.getUnmeasuredCoverages();
+
+    return new CoverageResult(coverages.concat(unmeasuredCoverages));
+  }
+
+  private getCoverages(): Coverage[] {
+    return this.serviceCollectors
+      .entries()
+      .map(([serviceName, serviceNamespace, collector]) => {
+        const collectorCoverage = collector.getCoverage();
+        return {
+          serviceName,
+          serviceNamespace,
+          httpCoverage: collectorCoverage.httpCoverage,
+          rpcCoverage: collectorCoverage.rpcCoverage,
+          unmeasuredTraceIds: undefined,
+        };
       });
-    }
+  }
 
-    return new CoverageResult(coverages);
+  private getUnmeasuredCoverages(): Coverage[] {
+    return this.unmeasuredCollector
+      .entries()
+      .map(([serviceName, serviceNamespace, collector]) => {
+        return {
+          serviceName,
+          serviceNamespace,
+          unmeasuredTraceIds: collector.traceIdArray,
+        };
+      });
   }
 }
 
-class ServiceMap<T> {
-  // serviceNamespaceKeyMap is Map<serviceName, Map<namespace, T>>
-  private readonly serviceNamespaceKeyMap: Map<
-    string,
-    Map<string | undefined, T>
-  > = new Map();
-
-  set(serviceName: string, namespace: string | undefined, value: T) {
-    let namespaceMap = this.serviceNamespaceKeyMap.get(serviceName);
-    if (!namespaceMap) {
-      namespaceMap = new Map([[namespace, value]]);
-      this.serviceNamespaceKeyMap.set(serviceName, namespaceMap);
-    } else {
-      namespaceMap.set(namespace, value);
-    }
-  }
-
-  get(service: string, namespace: string | undefined): T | undefined {
-    const namespaceMap = this.serviceNamespaceKeyMap.get(service);
-    if (!namespaceMap) return undefined;
-    return namespaceMap.get(namespace);
-  }
-
-  entries(): [string, string | undefined, T][] {
-    const ret: [string, string | undefined, T][] = [];
-    for (const [
-      serviceName,
-      namespaceMap,
-    ] of this.serviceNamespaceKeyMap.entries()) {
-      for (const [namespace, collector] of namespaceMap.entries()) {
-        ret.push([serviceName, namespace, collector]);
-      }
-    }
-
-    return ret;
-  }
-}
+class ServiceMap<T> extends TwoKeyValuesMap<string, string | undefined, T> {}

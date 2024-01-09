@@ -6,6 +6,7 @@ import { ServiceCoverageCollectorResult } from "@/coverage/iServiceCoverageColle
 import { HttpOperationCoverage } from "@/coverage/coverageResult";
 import { opentelemetry } from "@/generated/otelpbj";
 import SpanKind = opentelemetry.proto.trace.v1.Span.SpanKind;
+import { toBase64 } from "@/util/byte";
 
 describe("openApiCoverageCollector", () => {
   const buildCollector = async (): Promise<OpenApiCoverageCollector> => {
@@ -14,7 +15,7 @@ describe("openApiCoverageCollector", () => {
   };
 
   const buildExpectedCoverage = (
-    overrides: HttpOperationCoverage[],
+    overrides: HttpOperationCoverage[] = [],
   ): ServiceCoverageCollectorResult => {
     const defaultOperationCoverages: HttpOperationCoverage[] = [
       {
@@ -46,6 +47,7 @@ describe("openApiCoverageCollector", () => {
     return {
       httpCoverage: {
         operationCoverages: operationCoverages,
+        undocumentedOperations: [],
       },
     };
   };
@@ -224,6 +226,49 @@ describe("openApiCoverageCollector", () => {
             },
           ]),
         );
+      });
+    });
+
+    describe("when span doesn't match", () => {
+      const traceId = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 0]);
+      const span = new OtelSpan({
+        traceId,
+        attributes: [
+          {
+            key: "url.path",
+            value: {
+              stringValue: "/unmatched",
+            },
+          },
+          {
+            key: "http.request.method",
+            value: {
+              stringValue: "POST",
+            },
+          },
+        ],
+      });
+
+      it("should mark as undocumented", async () => {
+        const collector = await buildCollector();
+        collector.markVisited([span]);
+
+        const coverage = collector.getCoverage();
+
+        const expected = {
+          httpCoverage: {
+            operationCoverages:
+              buildExpectedCoverage().httpCoverage?.operationCoverages,
+            undocumentedOperations: [
+              {
+                path: "/unmatched",
+                method: "post",
+                traceIds: [toBase64(traceId)],
+              },
+            ],
+          },
+        };
+        expect(coverage).toEqual(expected);
       });
     });
   });

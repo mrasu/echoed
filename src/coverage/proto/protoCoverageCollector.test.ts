@@ -6,6 +6,7 @@ import { Service } from "@/coverage/proto/service";
 import { OtelSpan } from "@/type/otelSpan";
 import { opentelemetry } from "@/generated/otelpbj";
 import SpanKind = opentelemetry.proto.trace.v1.Span.SpanKind;
+import { toBase64 } from "@/util/byte";
 
 const ABSOLUTE_PROTO_PATH = path.resolve(
   path.join(__dirname, "__fixtures__/simple.proto"),
@@ -96,8 +97,11 @@ describe("ProtoCoverageCollector", () => {
       return new ProtoCoverageCollector(serviceMap);
     };
 
+    const defaultTraceId = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 0]);
+
     describe("when span has matched `rpc.service` and `rpc.method` attribute", () => {
       const span = new OtelSpan({
+        traceId: defaultTraceId,
         attributes: [
           {
             key: "rpc.service",
@@ -133,6 +137,7 @@ describe("ProtoCoverageCollector", () => {
                 passed: false,
               },
             ],
+            undocumentedMethods: [],
           },
         });
       });
@@ -140,6 +145,7 @@ describe("ProtoCoverageCollector", () => {
 
     describe("when span has not matching `rpc.service` attribute", () => {
       const span = new OtelSpan({
+        traceId: defaultTraceId,
         attributes: [
           {
             key: "rpc.service",
@@ -175,6 +181,13 @@ describe("ProtoCoverageCollector", () => {
                 passed: false,
               },
             ],
+            undocumentedMethods: [
+              {
+                service: "myPackage.AwesomeService",
+                method: "AddItem",
+                traceIds: [toBase64(defaultTraceId)],
+              },
+            ],
           },
         });
       });
@@ -182,6 +195,7 @@ describe("ProtoCoverageCollector", () => {
 
     describe("when span has not matching `rpc.method` attribute", () => {
       const span = new OtelSpan({
+        traceId: defaultTraceId,
         attributes: [
           {
             key: "rpc.service",
@@ -217,6 +231,13 @@ describe("ProtoCoverageCollector", () => {
                 passed: false,
               },
             ],
+            undocumentedMethods: [
+              {
+                service: "myPackage.CartService",
+                method: "AwesomeMethod",
+                traceIds: [toBase64(defaultTraceId)],
+              },
+            ],
           },
         });
       });
@@ -224,6 +245,7 @@ describe("ProtoCoverageCollector", () => {
 
     describe("when span has no attributes", () => {
       const span = new OtelSpan({
+        traceId: defaultTraceId,
         attributes: [],
       });
 
@@ -246,6 +268,7 @@ describe("ProtoCoverageCollector", () => {
                 passed: false,
               },
             ],
+            undocumentedMethods: [],
           },
         });
       });
@@ -267,11 +290,13 @@ describe("ProtoCoverageCollector", () => {
         },
       ];
       const clientSpan = new OtelSpan({
+        traceId: defaultTraceId,
         kind: SpanKind.SPAN_KIND_CLIENT,
         attributes: attributes,
       });
       // just to make sure that a span having same attribute but not CLIENT will be marked as visited
       const unspecifiedSpan = new OtelSpan({
+        traceId: defaultTraceId,
         kind: SpanKind.SPAN_KIND_UNSPECIFIED,
         attributes: attributes,
       });
@@ -295,6 +320,7 @@ describe("ProtoCoverageCollector", () => {
                 passed: false,
               },
             ],
+            undocumentedMethods: [],
           },
         });
 
@@ -314,6 +340,7 @@ describe("ProtoCoverageCollector", () => {
                 passed: false,
               },
             ],
+            undocumentedMethods: [],
           },
         });
       });

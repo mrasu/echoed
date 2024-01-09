@@ -18,11 +18,11 @@
         </Row>
         <Row>
           <Cell>Service</Cell>
-          <Cell>{span.serviceName}</Cell>
+          <Cell>{span.service.name}</Cell>
         </Row>
         <Row>
           <Cell>ServiceNamespace</Cell>
-          <Cell>{span.serviceNamespace ?? "-"}</Cell>
+          <Cell>{span.service.namespace ?? "-"}</Cell>
         </Row>
         <Row>
           <Cell>TraceId</Cell>
@@ -63,7 +63,7 @@
 <Paper variant="unelevated">
   <Title>Attributes</Title>
   <PaperContent>
-    <AttributeDataTable attributes={span.attributes} />
+    <AttributeDataTable attributes={span.attributes.getOrderedKeyValues()} />
   </PaperContent>
 </Paper>
 <Accordion multiple>
@@ -86,7 +86,9 @@
         <Paper variant="unelevated">
           <Title>Attributes</Title>
           <PaperContent>
-            <AttributeDataTable attributes={span.resource.attributes} />
+            <AttributeDataTable
+              attributes={span.resource.attributes.getOrderedKeyValues()}
+            />
           </PaperContent>
         </Paper>
       {:else}
@@ -95,7 +97,7 @@
     </Content>
   </Panel>
   <Panel open={true}>
-    <Header style="font-size: 1.7rem">InstrumentationScope</Header>
+    <Header style="font-size: 1.7rem">Instrumentation Scope</Header>
     <Content>
       {#if span.scope}
         <Paper variant="unelevated">
@@ -121,7 +123,9 @@
         <Paper variant="unelevated">
           <Title>Attributes</Title>
           <PaperContent>
-            <AttributeDataTable attributes={span.scope.attributes} />
+            <AttributeDataTable
+              attributes={span.scope.attributes.getOrderedKeyValues()}
+            />
           </PaperContent>
         </Paper>
       {:else}

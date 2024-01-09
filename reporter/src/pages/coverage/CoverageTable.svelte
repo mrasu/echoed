@@ -24,7 +24,7 @@
   export let coverageInfos: CoverageInfo[];
 
   const moveToServiceCoverage = (coverageInfo: CoverageInfo) => {
-    push(`/coverage/${coverageInfo.serviceName}`);
+    push(`/coverage/${coverageInfo.urlEncodedFullServiceName}`);
   };
 
   const calculateCoverageInfoSortLesserValue = (
@@ -113,7 +113,7 @@
           <Cell>
             <div style="display: table; table-layout: fixed; width: 100%">
               <Text style="display: table-cell; font-size: 1rem">
-                {coverageInfo.fullServiceName}
+                {coverageInfo.fullDisplayServiceName}
               </Text>
             </div>
           </Cell>

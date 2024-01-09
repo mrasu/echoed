@@ -7,11 +7,23 @@ import {
   IServiceCoverageCollector,
   ServiceCoverageCollectorResult,
 } from "@/coverage/iServiceCoverageCollector";
-import { HttpOperationCoverage } from "@/coverage/coverageResult";
+import {
+  HttpOperationCoverage,
+  HttpOperationTraces,
+} from "@/coverage/coverageResult";
 import { opentelemetry } from "@/generated/otelpbj";
 import Span = opentelemetry.proto.trace.v1.Span;
+import { TwoKeyValuesMap } from "@/util/twoKeyValuesMap";
+import { toBase64 } from "@/util/byte";
 
 export class OpenApiCoverageCollector implements IServiceCoverageCollector {
+  // undocumentedOperations is Map<path, Map<method, OtelSpan[]>>
+  private undocumentedOperations = new TwoKeyValuesMap<
+    string,
+    Method,
+    OtelSpan[]
+  >();
+
   static async buildFromDocument(
     document: OpenAPI.Document,
   ): Promise<OpenApiCoverageCollector> {
@@ -23,7 +35,7 @@ export class OpenApiCoverageCollector implements IServiceCoverageCollector {
   constructor(private pathTree: OperationTree) {}
 
   markVisited(spans: OtelSpan[]) {
-    const paths = new Map<string, Set<Method>>();
+    const paths = new TwoKeyValuesMap<string, Method, OtelSpan[]>();
     for (const span of spans) {
       // Ignore Client span as it is not related to "this" service's coverage
       if (span.kind === Span.SpanKind.SPAN_KIND_CLIENT) continue;
@@ -34,21 +46,19 @@ export class OpenApiCoverageCollector implements IServiceCoverageCollector {
       const method = this.extractHttpMethod(span);
       if (!method) continue;
 
-      const methods = paths.get(path);
-      if (methods) {
-        methods.add(method);
-      } else {
-        const methodSet = new Set<Method>([method]);
-        paths.set(path, methodSet);
-      }
+      paths.initOr(path, method, [span], (v) => {
+        v.push(span);
+      });
     }
 
-    for (const [url, methods] of paths) {
-      for (const method of methods) {
-        const operation = this.pathTree.get(url, method);
-        if (operation) {
-          operation.visited = true;
-        }
+    for (const [path, method, spans] of paths.entries()) {
+      const operation = this.pathTree.get(path, method);
+      if (operation) {
+        operation.visited = true;
+      } else {
+        this.undocumentedOperations.initOr(path, method, spans, (v) => {
+          v.push(...spans);
+        });
       }
     }
   }
@@ -84,9 +94,23 @@ export class OpenApiCoverageCollector implements IServiceCoverageCollector {
       });
     });
 
+    const undocumentedOperations: HttpOperationTraces[] = [];
+    for (const [path, method, spans] of this.undocumentedOperations.entries()) {
+      const traceIds = spans
+        .filter((span) => span.traceId)
+        .map((span) => toBase64(span.traceId));
+
+      undocumentedOperations.push({
+        path,
+        method,
+        traceIds: traceIds,
+      });
+    }
+
     return {
       httpCoverage: {
         operationCoverages: coverages,
+        undocumentedOperations: undocumentedOperations,
       },
     };
   }
