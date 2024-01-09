@@ -6,6 +6,7 @@ Echoed empowers Integration testing, aka API testing, by providing visualization
 Echoed enhances your testing experience with the following features:
 
 * **Effortless Test Troubleshooting**: Quickly identify issues in failed tests by visualizing OpenTelemetry's traces and logs.
+* **Coverage Analysis**: Gain insights into the coverage of your API endpoints based on OpenAPI or Protocol Buffers specifications.
 * **Detect Propagation Leaks**: Uncover spans that don't propagate OpenTelemetry's context to their children.
 * **Validate Spans**: Validate span's fields, such as SQL or requests going outside.
 * **CI-Friendly**: Integrates with CI without relying on external services.
@@ -21,10 +22,10 @@ Explore the screenshots below to see how it looks:
 * Trace and logs of the Test  
     ![Screenshot of Echoed's log detail](./docs/img/readme-trace-detail-trace.png)
     ![Screenshot of Echoed's log detail](./docs/img/readme-trace-detail-log.png)
+* Coverage per service  
+    ![Screenshot of Echoed's coverage](./docs/img/readme-coverage.png)
 * List of executed tests  
     ![Screenshot of Echoed's test list](./docs/img/readme-test-list.png)
-* Detail result  
-    ![Screenshot of Echoed's test results](./docs/img/readme-test-detail.png)
 
 
 # Installation
@@ -42,9 +43,13 @@ Echoed offers two installation methods, choose one that suits your needs:
     ```bash
     cat README.md
     ```
-3. Once you're familiar, remove the `example` directory and begin crafting your own tests:
+3. Run test:
     ```bash
     npm run test
+    ```
+4. Once you're familiar, remove the `example` directory and begin crafting your own tests:
+    ```bash
+    rm -rf ./example
     ```
 
 ## 2. Integrate with Existing Tests
@@ -86,7 +91,7 @@ Echoed offers two installation methods, choose one that suits your needs:
 
 # How to Use
 
-## Make Tests Observable
+### Make Tests Observable
 
 To generate an HTML report visualizing API traces, no additional code is needed.  
 Simply write your Jest tests as usual.
@@ -104,7 +109,7 @@ describe("Awesome test", () => {
 ```
 The code above produces an HTML report illustrating a trace for the requested endpoint (`http://localhost:8080/api/cart`).
 
-## Test OpenTelemetry's Spans
+### Test OpenTelemetry's Spans
 
 In addition to the HTML output, Echoed offers a method for testing OpenTelemetry spans.  
 Use the `waitForSpan` function to obtain a span that matches your needs.
@@ -139,7 +144,7 @@ The code above waits for a span that satisfies the following specified condition
 * `app.products.count` attribute is greater than or equal to `5`
 * `rpc.system` attribute matches `/grpc/`
 
-## Test SQL
+### Test SQL
 
 You can use the `waitForSpan` function to test executed SQL too.
 
@@ -172,6 +177,25 @@ describe("Awesome test", () => {
     expect(query?.value?.stringValue).toBe("INSERT INTO products (name, price) VALUES ('Awesome Product', 100)");
   });
 });
+```
+
+### Analyze Coverage
+
+You can get coverage of your HTTP and gRPC endpoints based on OpenAPI or Protocol Buffers specifications.  
+By configuring the `openapi` or `proto` option in your `.echoed.yml` file, Echoed analyzes the coverage of your tests and generates a report.  
+For more option, refer to the [Configuration](#Configuration) section.  
+
+```yaml
+services:
+  - name: frontend
+    namespace: opentelemetry-demo
+    openapi: "./example/opentelemetry-demo/src/frontend/schema.yaml"
+  - name: cartservice
+    namespace: opentelemetry-demo
+    proto:
+      filePath: "./example/opentelemetry-demo/pb/demo.proto"
+      services:
+        - oteldemo.CartService
 ```
 
 # Configuration

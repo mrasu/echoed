@@ -24,7 +24,7 @@
 <Breadcrumb crumbs={["Coverage", coverageInfo.fullDisplayServiceName]} />
 
 <Paper>
-  <Title>Found Traces</Title>
+  <Title>Unknown Service({coverageInfo.fullDisplayServiceName})'s Traces</Title>
   <Content>
     <TraceTable
       service={coverageInfo.service}

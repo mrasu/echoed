@@ -1,4 +1,4 @@
 output: "report/result.html"
 
 # Remove the following line after removing `example` directory
-override: ["./example/.echoed.yml"]
+overrides: ["./example/.echoed.yml"]
