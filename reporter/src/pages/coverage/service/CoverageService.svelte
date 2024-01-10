@@ -1,10 +1,10 @@
 <script lang="ts">
   import { Text } from "@smui/list";
-  import { CoverageInfo } from "../../../lib/EchoedParam";
+  import { CoverageInfo } from "@/lib/EchoedParam";
   import Paper, { Content, Title } from "@smui/paper";
   import HttpCoverageTable from "./HttpCoverageTable.svelte";
   import RpcCoverageTable from "./RpcCoverageTable.svelte";
-  import Breadcrumb from "../../../components/breadcrumb/Breadcrumb.svelte";
+  import Breadcrumb from "@/components/breadcrumb/Breadcrumb.svelte";
   import HttpUndocumentedOperationTable from "./HttpUndocumentedOperationTable.svelte";
   import RpcUndocumentedMethodTable from "./RpcUndocumentedMethodTable.svelte";
 

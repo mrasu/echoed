@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Text } from "@smui/list";
-  import { CoverageInfo } from "../../lib/EchoedParam";
+  import { CoverageInfo } from "@/lib/EchoedParam";
   import { push } from "svelte-spa-router";
   import DataTable, {
     Head,

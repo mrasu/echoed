@@ -4,11 +4,11 @@
     Service,
     Trace,
     Traces,
-  } from "../../../../../../lib/EchoedParam";
+  } from "@/lib/EchoedParam";
   import { push } from "svelte-spa-router";
   import Paper, { Content, Title } from "@smui/paper";
-  import Breadcrumb from "../../../../../../components/breadcrumb/Breadcrumb.svelte";
-  import TraceTable from "../../../../../../components/trace_table/TraceTable.svelte";
+  import Breadcrumb from "@/components/breadcrumb/Breadcrumb.svelte";
+  import TraceTable from "@/components/trace_table/TraceTable.svelte";
 
   export let service: Service;
   export let httpOperationTraces: HttpOperationTraces;

@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { type Trace } from "../../../../lib/EchoedParam";
+  import { type Trace } from "@/lib/EchoedParam";
   import Paper, { Content as PaperContent, Title } from "@smui/paper";
   import { Text } from "@smui/list";
-  import { TestNameForPropagation } from "../../../../consts/testNames";
-  import Breadcrumb from "../../../../components/breadcrumb/Breadcrumb.svelte";
-  import TraceWithLog from "../../../../components/trace/TraceWithLog.svelte";
+  import { TestNameForPropagation } from "@/consts/testNames";
+  import Breadcrumb from "@/components/breadcrumb/Breadcrumb.svelte";
+  import TraceWithLog from "@/components/trace/TraceWithLog.svelte";
 
   export let trace: Trace;
 

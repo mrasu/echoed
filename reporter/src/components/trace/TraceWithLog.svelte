@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Trace, Span } from "../../lib/EchoedParam";
+  import type { Trace, Span } from "@/lib/EchoedParam";
   import Paper from "@smui/paper";
   import Accordion, { Panel, Header, Content } from "@smui-extra/accordion";
   import TraceTree from "./TraceTree.svelte";

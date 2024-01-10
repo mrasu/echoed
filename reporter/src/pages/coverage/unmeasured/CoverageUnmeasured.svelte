@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { CoverageInfo, Trace, Traces } from "../../../lib/EchoedParam";
+  import { CoverageInfo, Trace, Traces } from "@/lib/EchoedParam";
   import { push } from "svelte-spa-router";
   import Paper, { Content, Title } from "@smui/paper";
-  import Breadcrumb from "../../../components/breadcrumb/Breadcrumb.svelte";
-  import TraceTable from "../../../components/trace_table/TraceTable.svelte";
+  import Breadcrumb from "@/components/breadcrumb/Breadcrumb.svelte";
+  import TraceTable from "@/components/trace_table/TraceTable.svelte";
 
   export let coverageInfo: CoverageInfo;
   export let traces: Traces;

@@ -27,7 +27,7 @@ import type {
   IPropagationFailedTrace,
   IHttpOperationTraces,
   IRpcMethodTraces,
-} from "../types/echoed_param";
+} from "@/types/echoed_param";
 import Long from "long";
 import type { HttpMethod } from "./util/http";
 

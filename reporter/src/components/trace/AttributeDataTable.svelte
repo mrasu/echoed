@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { KeyValue } from "../../lib/EchoedParam";
+  import { KeyValue } from "@/lib/EchoedParam";
   import DataTable, { Head, Body, Row, Cell } from "@smui/data-table";
 
   export let attributes: KeyValue[];

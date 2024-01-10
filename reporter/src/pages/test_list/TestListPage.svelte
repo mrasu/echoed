@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { echoedParam } from "../../consts/echoedParam";
+  import { echoedParam } from "@/consts/echoedParam";
   import List, { Separator, Group, Subheader, Text } from "@smui/list";
   import Paper, { Title, Content } from "@smui/paper";
   import TestListInSameFile from "./TestListInSameFile.svelte";

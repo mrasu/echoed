@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { echoedParam } from "../../../consts/echoedParam";
+  import { echoedParam } from "@/consts/echoedParam";
   import TraceView from "./TraceView.svelte";
 
   export let params: { testId: string; traceId: string };

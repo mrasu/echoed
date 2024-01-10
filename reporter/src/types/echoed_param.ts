@@ -1,4 +1,4 @@
-import type { HttpMethod } from "../lib/util/http";
+import type { HttpMethod } from "@/lib/util/http";
 
 export type IEchoedParam = {
   config: IConfig;

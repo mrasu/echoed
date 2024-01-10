@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Span } from "../../lib/EchoedParam";
+  import { Span } from "@/lib/EchoedParam";
   import DataTable, { Body, Row, Cell } from "@smui/data-table";
   import Paper, { Title, Content as PaperContent } from "@smui/paper";
   import Accordion, { Panel, Header, Content } from "@smui-extra/accordion";

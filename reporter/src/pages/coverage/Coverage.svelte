@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { CoverageInfo } from "../../lib/EchoedParam";
+  import { CoverageInfo } from "@/lib/EchoedParam";
   import Paper, { Content, Title } from "@smui/paper";
   import CoverageTable from "./CoverageTable.svelte";
   import UnmeasuredServiceTable from "./UnmeasuredServiceTable.svelte";

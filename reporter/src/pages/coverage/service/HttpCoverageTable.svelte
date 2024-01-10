@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { HttpCoverage } from "../../../lib/EchoedParam";
-  import FailedIcon from "../../../components/status_icons/FailedIcon.svelte";
-  import SucceededIcon from "../../../components/status_icons/SucceededIcon.svelte";
-  import { METHOD_ORDER_MAP } from "../../../lib/util/http";
+  import { HttpCoverage } from "@/lib/EchoedParam";
+  import FailedIcon from "@/components/status_icons/FailedIcon.svelte";
+  import SucceededIcon from "@/components/status_icons/SucceededIcon.svelte";
+  import { METHOD_ORDER_MAP } from "@/lib/util/http";
 
   export let httpCoverage: HttpCoverage;
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { echoedParam } from "../../../../../../../consts/echoedParam";
+  import { echoedParam } from "@/consts/echoedParam";
   import UndocumentedRpcMethodTrace from "./UndocumentedRpcMethodTrace.svelte";
 
   export let params: {

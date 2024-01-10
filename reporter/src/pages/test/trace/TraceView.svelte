@@ -1,11 +1,11 @@
 <script lang="ts">
-  import type { Trace, Fetch, TestInfo } from "../../../lib/EchoedParam";
+  import type { Trace, Fetch, TestInfo } from "@/lib/EchoedParam";
   import DataTable, { Body, Row, Cell } from "@smui/data-table";
   import Paper, { Title, Content as PaperContent } from "@smui/paper";
   import Accordion, { Panel, Header, Content } from "@smui-extra/accordion";
   import { Text } from "@smui/list";
-  import Breadcrumb from "../../../components/breadcrumb/Breadcrumb.svelte";
-  import TraceWithLog from "../../../components/trace/TraceWithLog.svelte";
+  import Breadcrumb from "@/components/breadcrumb/Breadcrumb.svelte";
+  import TraceWithLog from "@/components/trace/TraceWithLog.svelte";
 
   export let traceId: string;
   export let testInfo: TestInfo;

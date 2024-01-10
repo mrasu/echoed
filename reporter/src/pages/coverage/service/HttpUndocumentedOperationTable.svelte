@@ -3,11 +3,11 @@
     HttpCoverage,
     HttpOperationTraces,
     Service,
-  } from "../../../lib/EchoedParam";
+  } from "@/lib/EchoedParam";
   import { Text } from "@smui/list";
   import DataTable, { Body, Row, Cell } from "@smui/data-table";
   import { push } from "svelte-spa-router";
-  import { METHOD_ORDER_MAP } from "../../../lib/util/http";
+  import { METHOD_ORDER_MAP } from "@/lib/util/http";
 
   export let service: Service;
   export let httpCoverage: HttpCoverage;

@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { PropagationFailedTrace, Traces } from "../../lib/EchoedParam";
+  import { PropagationFailedTrace, Traces } from "@/lib/EchoedParam";
   import List, { Separator, Text } from "@smui/list";
   import { push } from "svelte-spa-router";
   import Paper, { Title, Content } from "@smui/paper";
-  import FailedIcon from "../../components/status_icons/FailedIcon.svelte";
-  import ListItem from "../../components/list/ListItem.svelte";
+  import FailedIcon from "@/components/status_icons/FailedIcon.svelte";
+  import ListItem from "@/components/list/ListItem.svelte";
 
   export let traces: Traces;
   export let propagationFailedTraces: PropagationFailedTrace[];

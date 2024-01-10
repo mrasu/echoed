@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { TestInfo } from "../../lib/EchoedParam";
+  import { TestInfo } from "@/lib/EchoedParam";
   import Paper, { Title, Content } from "@smui/paper";
   import { Text } from "@smui/list";
-  import SucceededIcon from "../../components/status_icons/SucceededIcon.svelte";
-  import FailedIcon from "../../components/status_icons/FailedIcon.svelte";
-  import BlockedIcon from "../../components/status_icons/BlockedIcon.svelte";
+  import SucceededIcon from "@/components/status_icons/SucceededIcon.svelte";
+  import FailedIcon from "@/components/status_icons/FailedIcon.svelte";
+  import BlockedIcon from "@/components/status_icons/BlockedIcon.svelte";
 
   export let testInfo: TestInfo;
 

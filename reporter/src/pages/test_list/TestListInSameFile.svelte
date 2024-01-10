@@ -1,11 +1,11 @@
 <script lang="ts">
-  import { TestInfo } from "../../lib/EchoedParam";
+  import { TestInfo } from "@/lib/EchoedParam";
   import { Text } from "@smui/list";
   import { push } from "svelte-spa-router";
-  import SucceededIcon from "../../components/status_icons/SucceededIcon.svelte";
-  import FailedIcon from "../../components/status_icons/FailedIcon.svelte";
-  import BlockedIcon from "../../components/status_icons/BlockedIcon.svelte";
-  import ListItem from "../..//components/list/ListItem.svelte";
+  import SucceededIcon from "@/components/status_icons/SucceededIcon.svelte";
+  import FailedIcon from "@/components/status_icons/FailedIcon.svelte";
+  import BlockedIcon from "@/components/status_icons/BlockedIcon.svelte";
+  import ListItem from "@/components/list/ListItem.svelte";
 
   export let testInfos: TestInfo[];
 

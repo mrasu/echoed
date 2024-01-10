@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { echoedParam } from "../../../../../../consts/echoedParam";
+  import { echoedParam } from "@/consts/echoedParam";
   import UndocumentedHttpOperation from "./UndocumentedHttpOperation.svelte";
-  import { toMethod } from "../../../../../../lib/util/http";
+  import { toMethod } from "@/lib/util/http";
 
   export let params: { fullServiceName: string; method: string; path: string };
 

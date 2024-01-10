@@ -1,9 +1,9 @@
 <script lang="ts">
   import Paper, { Title, Content } from "@smui/paper";
   import { Text } from "@smui/list";
-  import SucceededIcon from "../../components/status_icons/SucceededIcon.svelte";
-  import FailedIcon from "../../components/status_icons/FailedIcon.svelte";
-  import { TestNameForPropagation } from "../../consts/testNames";
+  import SucceededIcon from "@/components/status_icons/SucceededIcon.svelte";
+  import FailedIcon from "@/components/status_icons/FailedIcon.svelte";
+  import { TestNameForPropagation } from "@/consts/testNames";
 
   export let passed: boolean;
 </script>

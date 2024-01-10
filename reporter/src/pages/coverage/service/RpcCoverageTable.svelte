@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { RpcCoverage, RpcMethodCoverage } from "../../../lib/EchoedParam";
-  import FailedIcon from "../../../components/status_icons/FailedIcon.svelte";
-  import SucceededIcon from "../../../components/status_icons/SucceededIcon.svelte";
+  import { RpcCoverage, RpcMethodCoverage } from "@/lib/EchoedParam";
+  import FailedIcon from "@/components/status_icons/FailedIcon.svelte";
+  import SucceededIcon from "@/components/status_icons/SucceededIcon.svelte";
   import { Text } from "@smui/list";
 
   export let rpcCoverage: RpcCoverage;

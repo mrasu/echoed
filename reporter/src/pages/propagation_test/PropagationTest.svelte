@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { PropagationFailedTrace, Traces } from "../../lib/EchoedParam";
-  import { TestNameForPropagation } from "../../consts/testNames";
+  import { PropagationFailedTrace, Traces } from "@/lib/EchoedParam";
+  import { TestNameForPropagation } from "@/consts/testNames";
   import Description from "./Description.svelte";
   import TraceList from "./TraceList.svelte";
-  import Breadcrumb from "../../components/breadcrumb/Breadcrumb.svelte";
+  import Breadcrumb from "@/components/breadcrumb/Breadcrumb.svelte";
 
   export let traces: Traces;
   export let propagationFailedTraces: PropagationFailedTrace[];

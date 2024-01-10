@@ -3,8 +3,8 @@
   import Chart from "chart.js/auto";
   import type { ILabelNode } from "chartjs-plugin-hierarchical";
   import { createEventDispatcher, onMount } from "svelte";
-  import type { Span } from "../../lib/EchoedParam";
-  import { MemorizedColorSelector } from "../../lib/MemorizedColorSelector";
+  import type { Span } from "@/lib/EchoedParam";
+  import { MemorizedColorSelector } from "@/lib/MemorizedColorSelector";
 
   const dispatch = createEventDispatcher<{ click: string }>();
 

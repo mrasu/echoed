@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { Service, Trace, Traces } from "../../lib/EchoedParam";
+  import { Service, Trace, Traces } from "@/lib/EchoedParam";
   import { Text } from "@smui/list";
   import { Head, Row, Cell } from "@smui/data-table";
-  import PagingDataTable from "../../components/data_table/PagingDataTable.svelte";
+  import PagingDataTable from "@/components/data_table/PagingDataTable.svelte";
   import { createEventDispatcher } from "svelte";
 
   export let service: Service;

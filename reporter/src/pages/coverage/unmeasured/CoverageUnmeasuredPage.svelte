@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { echoedParam } from "../../../consts/echoedParam";
+  import { echoedParam } from "@/consts/echoedParam";
   import CoverageUnmeasuredService from "./CoverageUnmeasured.svelte";
 
   export let params: { fullServiceName: string };

@@ -1,9 +1,5 @@
 <script lang="ts">
-  import {
-    RpcCoverage,
-    RpcMethodTraces,
-    Service,
-  } from "../../../lib/EchoedParam";
+  import { RpcCoverage, RpcMethodTraces, Service } from "@/lib/EchoedParam";
   import { Text } from "@smui/list";
   import DataTable, { Body, Row, Head, Cell } from "@smui/data-table";
   import { push } from "svelte-spa-router";

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { echoedParam } from "../../consts/echoedParam";
+  import { echoedParam } from "@/consts/echoedParam";
   import Coverage from "./Coverage.svelte";
 
   const coverageInfos = echoedParam.coverageInfos;

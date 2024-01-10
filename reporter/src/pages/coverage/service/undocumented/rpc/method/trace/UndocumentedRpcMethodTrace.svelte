@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { Service, type Trace } from "../../../../../../../lib/EchoedParam";
+  import { Service, type Trace } from "@/lib/EchoedParam";
   import Paper, { Title, Content as PaperContent } from "@smui/paper";
-  import Breadcrumb from "../../../../../../../components/breadcrumb/Breadcrumb.svelte";
-  import TraceWithLog from "../../../../../../../components/trace/TraceWithLog.svelte";
+  import Breadcrumb from "@/components/breadcrumb/Breadcrumb.svelte";
+  import TraceWithLog from "@/components/trace/TraceWithLog.svelte";
 
   export let trace: Trace;
   export let service: Service;
