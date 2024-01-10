@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { EchoedParam } from "../../../../../../../lib/EchoedParam";
+  import { echoedParam } from "../../../../../../../consts/echoedParam";
   import UndocumentedRpcMethodTrace from "./UndocumentedRpcMethodTrace.svelte";
 
   export let params: {
@@ -9,7 +9,6 @@
     traceId: string;
   };
 
-  const echoedParam = EchoedParam.convert(window.__echoed_param__);
   const rpcService = decodeURIComponent(params.service);
   const rpcMethod = decodeURIComponent(params.method);
   const coverageInfo = echoedParam.pickCoverageInfoFromEncodedServiceName(

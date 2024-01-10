@@ -1,8 +1,7 @@
 <script lang="ts">
-  import { EchoedParam } from "../../lib/EchoedParam";
+  import { echoedParam } from "../../consts/echoedParam";
   import PropagationTest from "./PropagationTest.svelte";
 
-  const echoedParam = EchoedParam.convert(window.__echoed_param__);
   const traces = echoedParam.traces;
   const propagationFailedTraces = echoedParam.propagationFailedTraces;
 </script>

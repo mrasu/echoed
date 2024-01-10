@@ -1,10 +1,9 @@
 <script lang="ts">
-  import { EchoedParam } from "../../../lib/EchoedParam";
+  import { echoedParam } from "../../../consts/echoedParam";
   import CoverageService from "./CoverageService.svelte";
 
   export let params: { fullServiceName: string };
 
-  const echoedParam = EchoedParam.convert(window.__echoed_param__);
   const coverageInfo = echoedParam.pickCoverageInfoFromEncodedServiceName(
     params.fullServiceName,
   );

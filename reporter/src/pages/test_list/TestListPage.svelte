@@ -1,11 +1,10 @@
 <script lang="ts">
-  import { EchoedParam } from "../../lib/EchoedParam";
+  import { echoedParam } from "../../consts/echoedParam";
   import List, { Separator, Group, Subheader, Text } from "@smui/list";
   import Paper, { Title, Content } from "@smui/paper";
   import TestListInSameFile from "./TestListInSameFile.svelte";
   import OtherTestsList from "./OtherTestsList.svelte";
 
-  const echoedParam = EchoedParam.convert(window.__echoed_param__);
   const testInfosByFile = echoedParam.testInfosByFile();
 
   const orderedFileName = [...testInfosByFile.keys()].sort((a, b) =>

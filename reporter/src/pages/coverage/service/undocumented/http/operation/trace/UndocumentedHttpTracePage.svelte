@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { EchoedParam } from "../../../../../../../lib/EchoedParam";
+  import { echoedParam } from "../../../../../../../consts/echoedParam";
   import UndocumentedHttpTrace from "./UndocumentedHttpTrace.svelte";
   import { toMethod } from "../../../../../../../lib/util/http";
 
@@ -10,7 +10,6 @@
     traceId: string;
   };
 
-  const echoedParam = EchoedParam.convert(window.__echoed_param__);
   const method = toMethod(decodeURIComponent(params.method));
   const path = decodeURIComponent(params.path);
   const coverageInfo = echoedParam.pickCoverageInfoFromEncodedServiceName(

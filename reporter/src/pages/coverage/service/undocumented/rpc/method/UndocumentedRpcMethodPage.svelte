@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { EchoedParam } from "../../../../../../lib/EchoedParam";
+  import { echoedParam } from "../../../../../../consts/echoedParam";
   import UndocumentedRpcMethod from "./UndocumentedRpcMethod.svelte";
 
   export let params: {
@@ -7,8 +7,6 @@
     service: string;
     method: string;
   };
-
-  const echoedParam = EchoedParam.convert(window.__echoed_param__);
 
   const service = decodeURIComponent(params.service);
   const method = decodeURIComponent(params.method);
