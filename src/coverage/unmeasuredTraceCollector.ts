@@ -7,7 +7,7 @@ export class UnmeasuredTraceCollector {
   addSpans(spans: OtelSpan[]) {
     for (const span of spans) {
       if (!span.traceId) continue;
-      this.traceIds.add(toBase64(span.traceId));
+      this.traceIds.add(toBase64(span.traceId).base64String);
     }
   }
 

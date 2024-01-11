@@ -3,6 +3,7 @@ import { OtelSpan } from "@/type/otelSpan";
 import { toBase64 } from "@/util/byte";
 import { opentelemetry } from "@/generated/otelpbj";
 import { Comparable } from "@/comparision/comparable";
+import { Base64String } from "@/type/base64String";
 
 export class WantSpanRequest {
   public readonly bus: SpanBus;
@@ -23,8 +24,8 @@ export class WantSpanRequest {
     await this.bus.emitReceiveSpanEvent(this.wantId, this.traceId, span);
   }
 
-  get traceId(): string {
-    return this.event.traceId;
+  get traceId(): Base64String {
+    return new Base64String(this.event.base64TraceId);
   }
 
   private get wantId(): string {
@@ -36,7 +37,7 @@ export class WantSpanRequest {
   }
 
   private matches(span: OtelSpan): boolean {
-    if (this.traceId !== toBase64(span.traceId)) return false;
+    if (!this.traceId.equals(toBase64(span.traceId))) return false;
 
     if (this.filter.name) {
       if (!this.filter.name.matchString(span.name)) return false;

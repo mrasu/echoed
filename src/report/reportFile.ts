@@ -268,7 +268,7 @@ export class ReportFile implements IReportFile {
         return {
           path: cov.path,
           method: cov.method,
-          traceIds: cov.traceIds,
+          traceIds: cov.traceIds.map((v) => v.base64String),
         };
       },
     );
@@ -297,7 +297,7 @@ export class ReportFile implements IReportFile {
         return {
           service: cov.service,
           method: cov.method,
-          traceIds: cov.traceIds,
+          traceIds: cov.traceIds.map((v) => v.base64String),
         };
       },
     );

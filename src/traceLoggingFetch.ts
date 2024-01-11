@@ -2,6 +2,7 @@ import crypto from "crypto";
 import { hexToBase64 } from "@/util/byte";
 import { FetchFinishedLog, FetchStartedLog } from "@/types";
 import { readBodyInit, readStreamFully } from "@/util/stream";
+import { Base64String } from "@/type/base64String";
 
 type FetchType = typeof global.fetch;
 
@@ -35,7 +36,10 @@ export function buildTraceLoggingFetch(
     return response;
   };
 
-  function generateTraceParent() {
+  function generateTraceParent(): {
+    traceparent: string;
+    traceId: Base64String;
+  } {
     const uuid = crypto.randomUUID();
     const traceId = uuid.replace(/-/g, "");
     const spanId = crypto.randomBytes(8).toString("hex");
@@ -45,10 +49,10 @@ export function buildTraceLoggingFetch(
     return { traceparent, traceId: hexToBase64(traceId) };
   }
 
-  async function logFetchStarted(traceId: string) {
+  async function logFetchStarted(traceId: Base64String) {
     const value: FetchStartedLog = {
       type: "fetchStarted",
-      traceId: traceId,
+      traceId: traceId.base64String,
       testPath: testPath,
       timeMillis: Date.now(),
     };
@@ -57,7 +61,7 @@ export function buildTraceLoggingFetch(
   }
 
   async function logFetchFinished(
-    traceId: string,
+    traceId: Base64String,
     requestInfo: fetchRequestInfo,
     response: Response,
   ) {
@@ -67,7 +71,7 @@ export function buildTraceLoggingFetch(
 
     const value: FetchFinishedLog = {
       type: "fetchFinished",
-      traceId: traceId,
+      traceId: traceId.base64String,
       request: {
         url: requestInfo.url,
         method: requestInfo.method,

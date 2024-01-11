@@ -1,4 +1,5 @@
 import { Method } from "@/type/http";
+import { Base64String } from "@/type/base64String";
 
 export class CoverageResult {
   constructor(public readonly coverages: Coverage[]) {}
@@ -27,7 +28,7 @@ export type HttpOperationCoverage = {
 export type HttpOperationTraces = {
   path: string;
   method: Method;
-  traceIds: string[];
+  traceIds: Base64String[];
 };
 
 export type RpcCoverage = {
@@ -44,5 +45,5 @@ export type RpcMethodCoverage = {
 export type RpcMethodTraces = {
   service: string;
   method: string;
-  traceIds: string[];
+  traceIds: Base64String[];
 };

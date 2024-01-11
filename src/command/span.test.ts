@@ -8,6 +8,7 @@ import { Lte } from "@/comparision/lte";
 import { Lt } from "@/comparision/lt";
 import { Gt } from "@/comparision/gt";
 import { DummyBus } from "@/testUtil/eventBus/dummyBus";
+import { Base64String } from "@/type/base64String";
 
 describe("waitForSpan", () => {
   const span = {
@@ -28,7 +29,7 @@ describe("waitForSpan", () => {
     delete globalThis.__ECHOED_BUS__;
   });
 
-  const buildResponse = (traceId: string) => {
+  const buildResponse = (traceId: Base64String) => {
     const res = {} as Response;
     (res as any)[traceIdPropertyName] = traceId;
     return res;
@@ -36,7 +37,7 @@ describe("waitForSpan", () => {
 
   describe("when filtering by name", () => {
     it("should emit data to Bus with filtered by name", async () => {
-      const res = buildResponse("dummy-trace-id");
+      const res = buildResponse(new Base64String("dummy-trace-id"));
       await waitForSpan(
         res,
         {
@@ -46,7 +47,7 @@ describe("waitForSpan", () => {
       );
 
       expect(bus.emittedData.length).toBe(1);
-      expect(bus.emittedData[0][1].traceId).toBe("dummy-trace-id");
+      expect(bus.emittedData[0][1].base64TraceId).toBe("dummy-trace-id");
       expect(bus.emittedData[0][1].filter).toStrictEqual({
         name: new Eq("dummy/name"),
         attributes: {},
@@ -59,7 +60,7 @@ describe("waitForSpan", () => {
 
   describe("when filtering by attributes", () => {
     it("should emit data to Bus with filtered by attributes", async () => {
-      const res = buildResponse("dummy-trace-id");
+      const res = buildResponse(new Base64String("dummy-trace-id"));
       await waitForSpan(
         res,
         {
@@ -72,7 +73,7 @@ describe("waitForSpan", () => {
       );
 
       expect(bus.emittedData.length).toBe(1);
-      expect(bus.emittedData[0][1].traceId).toBe("dummy-trace-id");
+      expect(bus.emittedData[0][1].base64TraceId).toBe("dummy-trace-id");
       expect(bus.emittedData[0][1].filter).toStrictEqual({
         name: undefined,
         attributes: {
@@ -88,7 +89,7 @@ describe("waitForSpan", () => {
 
   describe("when filtering by resource's attributes", () => {
     it("should emit data to Bus with filtered by resource's attributes", async () => {
-      const res = buildResponse("dummy-trace-id");
+      const res = buildResponse(new Base64String("dummy-trace-id"));
       await waitForSpan(
         res,
         {
@@ -103,7 +104,7 @@ describe("waitForSpan", () => {
       );
 
       expect(bus.emittedData.length).toBe(1);
-      expect(bus.emittedData[0][1].traceId).toBe("dummy-trace-id");
+      expect(bus.emittedData[0][1].base64TraceId).toBe("dummy-trace-id");
       expect(bus.emittedData[0][1].filter).toStrictEqual({
         name: undefined,
         attributes: {},
@@ -119,7 +120,7 @@ describe("waitForSpan", () => {
 
   describe("when using eq", () => {
     it("should emit data to Bus with eq filter", async () => {
-      const res = buildResponse("dummy-trace-id");
+      const res = buildResponse(new Base64String("dummy-trace-id"));
       await waitForSpan(
         res,
         {
@@ -145,7 +146,7 @@ describe("waitForSpan", () => {
 
   describe("when using RegExp", () => {
     it("should emit data to Bus with Reg filter", async () => {
-      const res = buildResponse("dummy-trace-id");
+      const res = buildResponse(new Base64String("dummy-trace-id"));
       await waitForSpan(
         res,
         {
@@ -171,7 +172,7 @@ describe("waitForSpan", () => {
 
   describe("when using number comparator", () => {
     it("should emit data to Bus with number comparison filter", async () => {
-      const res = buildResponse("dummy-trace-id");
+      const res = buildResponse(new Base64String("dummy-trace-id"));
       await waitForSpan(
         res,
         {

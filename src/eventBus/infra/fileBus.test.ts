@@ -95,7 +95,7 @@ describe("FileBus", () => {
     });
 
     it("should return event when event is emitted", async () => {
-      const callback = (data: Record<string, string>) => {
+      const callback = (data: unknown) => {
         return data;
       };
 

@@ -55,15 +55,15 @@ export class Server {
   }
 
   private async handleWantSpanRequest(request: WantSpanRequest) {
-    const traceId = request.traceId;
+    const base64TraceId = request.traceId.base64String;
 
     let spans: OtelSpan[] | undefined = [];
     await this.mutex.runExclusive(async () => {
-      spans = this.capturedSpans.get(traceId);
+      spans = this.capturedSpans.get(base64TraceId);
 
-      const requests = this.wantSpanRequests.get(traceId) || [];
+      const requests = this.wantSpanRequests.get(base64TraceId) || [];
       requests.push(request);
-      this.wantSpanRequests.set(traceId, requests);
+      this.wantSpanRequests.set(base64TraceId, requests);
     });
 
     spans?.forEach((span) => {
@@ -129,7 +129,7 @@ export class Server {
   private async captureSpan(span: OtelSpan) {
     this.debugLogSpan(span);
 
-    let traceId = toBase64(span.traceId);
+    let traceId = toBase64(span.traceId).base64String;
 
     await this.mutex.runExclusive(async () => {
       if (!this.capturedSpans.has(traceId)) {
@@ -147,7 +147,7 @@ export class Server {
   private async captureLog(log: IOtelLogRecord) {
     this.debugLogLogRecord(log);
 
-    let traceId = toBase64(log.traceId);
+    let traceId = toBase64(log.traceId).base64String;
 
     await this.mutex.runExclusive(async () => {
       if (!this.capturedLogs.has(traceId)) {

@@ -9,19 +9,20 @@ import { Eq } from "@/comparision/eq";
 import { Reg } from "@/comparision/reg";
 import { IEventBus } from "@/eventBus/infra/iEventBus";
 import { Span } from "@/type/span";
+import { Base64String } from "@/type/base64String";
 
 const WANT_SPAN_EVENT_NAME = "wantSpan";
 const RECEIVE_SPAN_EVENT_NAME = "receiveSpan";
 
 export type WantSpanEvent = {
-  traceId: string;
+  base64TraceId: string;
   filter: SpanFilterOption;
   wantId: string;
 };
 
 type ReceiveSpanEvent = {
   wantId: string;
-  traceId: string;
+  base64TraceId: string;
   span: jsonSpan;
 };
 
@@ -51,7 +52,7 @@ export class SpanBus {
 
   private restoreWantSpanEvent(data: any): WantSpanEvent {
     return {
-      traceId: data.traceId,
+      base64TraceId: data.base64TraceId,
       filter: this.restoreSpanFilterOption(data.filter),
       wantId: data.wantId,
     };
@@ -68,13 +69,13 @@ export class SpanBus {
   }
 
   async requestWantSpan(
-    traceId: string,
+    traceId: Base64String,
     filter: SpanFilterOption,
     waitTimeoutMs: number,
   ): Promise<Span> {
     const wantId = crypto.randomUUID();
     await this.emitWantSpanEvent({
-      traceId,
+      base64TraceId: traceId.base64String,
       filter,
       wantId,
     });
@@ -82,8 +83,12 @@ export class SpanBus {
     const span = await this.bus.onOnce(
       RECEIVE_SPAN_EVENT_NAME,
       waitTimeoutMs,
-      (event: ReceiveSpanEvent) => {
-        if (event.wantId === wantId && event.traceId === traceId) {
+      (data: unknown) => {
+        const event = this.restoreReceiveSpanEvent(data);
+        if (
+          event.wantId === wantId &&
+          event.base64TraceId === traceId.base64String
+        ) {
           return event.span;
         }
         return undefined;
@@ -93,14 +98,26 @@ export class SpanBus {
     return new Span(span);
   }
 
+  private restoreReceiveSpanEvent(data: any): ReceiveSpanEvent {
+    return {
+      wantId: data.wantId,
+      base64TraceId: data.base64TraceId,
+      span: data.span,
+    };
+  }
+
   private async emitWantSpanEvent(event: WantSpanEvent) {
     await this.bus.emit(WANT_SPAN_EVENT_NAME, event);
   }
 
-  async emitReceiveSpanEvent(wantId: string, traceId: string, span: OtelSpan) {
+  async emitReceiveSpanEvent(
+    wantId: string,
+    traceId: Base64String,
+    span: OtelSpan,
+  ) {
     const event: ReceiveSpanEmitEvent = {
       wantId,
-      traceId,
+      base64TraceId: traceId.base64String,
       span,
     };
     await this.bus.emit(RECEIVE_SPAN_EVENT_NAME, event);

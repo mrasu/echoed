@@ -64,14 +64,14 @@ export class FileBus implements IEventBus {
    * @param timeoutMs
    * @param fn
    */
-  public async onOnce<T, U>(
+  public async onOnce<U>(
     eventName: string,
     timeoutMs: number,
-    fn: (data: T) => U | undefined,
+    fn: (data: unknown) => U | undefined,
   ): Promise<U> {
     return new Promise((resolve, reject) => {
-      const callback = (data: any) => {
-        const res = fn(data as T);
+      const callback = (data: unknown) => {
+        const res = fn(data);
         if (!res) {
           return;
         }

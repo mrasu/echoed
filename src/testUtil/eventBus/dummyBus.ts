@@ -11,16 +11,16 @@ export class DummyBus implements IEventBus {
   on(eventName: string, callback: WatchCallback) {
     this.watchingEvents.set(eventName, callback);
   }
-  async onOnce<T, U>(
+  async onOnce<T>(
     eventName: string,
     timeoutMs: number,
-    fn: (data: T) => U | undefined,
-  ): Promise<U> {
+    fn: (data: unknown) => T | undefined,
+  ): Promise<T> {
     if (this.immediateReturnObject) {
-      return this.immediateReturnObject as U;
+      return this.immediateReturnObject as T;
     }
 
-    return undefined as U;
+    return undefined as T;
   }
   async emit(eventName: string, data: any) {
     this.emittedData.push([eventName, data]);

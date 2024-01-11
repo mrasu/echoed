@@ -4,6 +4,7 @@ import { Reg } from "@/comparision/reg";
 import { DummyBus } from "@/testUtil/eventBus/dummyBus";
 import { jsonSpan } from "@/type/jsonSpan";
 import { Span } from "@/type/span";
+import { Base64String } from "@/type/base64String";
 
 describe("SpanBus", () => {
   const defaultFilter: SpanFilterOption = {
@@ -37,11 +38,11 @@ describe("SpanBus", () => {
       const callback = jest.fn();
       bus.listenWantSpanEvent(callback);
 
-      await bus.requestWantSpan("trace-id", defaultFilter, 0);
+      await bus.requestWantSpan(new Base64String("trace-id"), defaultFilter, 0);
 
       const expected: WantSpanEvent = {
         wantId: expect.any(String),
-        traceId: "trace-id",
+        base64TraceId: "trace-id",
         filter: defaultFilter,
       };
       expect(callback.mock.calls).toStrictEqual([[expected]]);
@@ -67,7 +68,7 @@ describe("SpanBus", () => {
 
     it("should return Span", async () => {
       const returnedSpan = await bus.requestWantSpan(
-        "trace-id",
+        new Base64String("trace-id"),
         defaultFilter,
         0,
       );
