@@ -41,7 +41,7 @@ export class OtelSpan extends opentelemetry.proto.trace.v1.Span {
     }
   }
 
-  public toJSON() {
+  public override toJSON() {
     const v = super.toJSON();
     v["resource"] = this.resource?.toJSON();
     v["scope"] = this.scope?.toJSON();

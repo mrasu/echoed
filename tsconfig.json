@@ -12,7 +12,8 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "noImplicitOverride": true,
   },
   "exclude": ["dist", "tsup.config.ts", "reporter", "src/create/template"]
 }
