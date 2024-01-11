@@ -30,7 +30,7 @@ export class FileBus implements IEventBus {
         continue;
       }
 
-      let data: any;
+      let data: { event: string; data: unknown };
       try {
         data = JSON.parse(line);
       } catch (error) {

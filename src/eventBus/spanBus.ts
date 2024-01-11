@@ -41,16 +41,37 @@ export type SpanFilterOption = {
   };
 };
 
+type jsonWantSpanEvent = {
+  base64TraceId: string;
+  filter: jsonSpanFilterOption;
+  wantId: string;
+};
+
+type jsonSpanFilterOption = {
+  name?: unknown;
+  attributes: Record<string, unknown>;
+  resource: {
+    attributes: Record<string, unknown>;
+  };
+};
+
+type jsonReceiveSpanEvent = {
+  wantId: string;
+  base64TraceId: string;
+  span: jsonSpan;
+};
+
 export class SpanBus {
   constructor(private readonly bus: IEventBus) {}
 
   listenWantSpanEvent(callback: (event: WantSpanEvent) => void) {
-    this.bus.on(WANT_SPAN_EVENT_NAME, async (data) => {
+    this.bus.on(WANT_SPAN_EVENT_NAME, async (data: unknown) => {
       callback(this.restoreWantSpanEvent(data));
     });
   }
 
-  private restoreWantSpanEvent(data: any): WantSpanEvent {
+  private restoreWantSpanEvent(origData: unknown): WantSpanEvent {
+    const data = origData as jsonWantSpanEvent;
     return {
       base64TraceId: data.base64TraceId,
       filter: this.restoreSpanFilterOption(data.filter),
@@ -58,7 +79,9 @@ export class SpanBus {
     };
   }
 
-  private restoreSpanFilterOption(data: any): SpanFilterOption {
+  private restoreSpanFilterOption(
+    data: jsonSpanFilterOption,
+  ): SpanFilterOption {
     return {
       name: restoreStringComparable(data.name),
       attributes: restoreComparables(data.attributes),
@@ -98,7 +121,8 @@ export class SpanBus {
     return new Span(span);
   }
 
-  private restoreReceiveSpanEvent(data: any): ReceiveSpanEvent {
+  private restoreReceiveSpanEvent(origData: unknown): ReceiveSpanEvent {
+    const data = origData as jsonReceiveSpanEvent;
     return {
       wantId: data.wantId,
       base64TraceId: data.base64TraceId,

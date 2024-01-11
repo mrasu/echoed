@@ -18,7 +18,7 @@ export abstract class Comparable {
     target: opentelemetry.proto.common.v1.IAnyValue,
   ): boolean;
 
-  toJSON(): any {
+  toJSON(): unknown {
     return {
       kind: this.kind,
       ...this.toJsonObj(),
