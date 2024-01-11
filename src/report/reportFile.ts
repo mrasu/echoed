@@ -159,11 +159,11 @@ export class ReportFile implements IReportFile {
     const config = this.buildReportConfig();
 
     const traces: Trace[] = [];
-    for (const traceId of Object.keys(testResult.capturedSpans)) {
+    for (const traceId of testResult.capturedSpans.keys()) {
       traces.push({
         traceId: traceId,
-        spans: testResult.capturedSpans[traceId] ?? [],
-        logRecords: testResult.capturedLogs[traceId] ?? [],
+        spans: testResult.capturedSpans.get(traceId) ?? [],
+        logRecords: testResult.capturedLogs.get(traceId) ?? [],
       });
     }
 
@@ -183,8 +183,12 @@ export class ReportFile implements IReportFile {
       let traceLogs: IOtelLogRecord[] = [];
 
       for (const traceId of result.orderedTraceIds) {
-        traceSpans = traceSpans.concat(testResult.capturedSpans[traceId] || []);
-        traceLogs = traceLogs.concat(testResult.capturedLogs[traceId] || []);
+        traceSpans = traceSpans.concat(
+          testResult.capturedSpans.get(traceId) || [],
+        );
+        traceLogs = traceLogs.concat(
+          testResult.capturedLogs.get(traceId) || [],
+        );
       }
 
       const testInfo: TestInfo = {
@@ -221,7 +225,7 @@ export class ReportFile implements IReportFile {
     testResult: TestResult,
   ): PropagationFailedTrace[] {
     const propagationFailedTraces: PropagationFailedTrace[] = [];
-    for (const traceId of Object.keys(testResult.propagationFailedSpans)) {
+    for (const traceId of testResult.propagationFailedSpans.keys()) {
       propagationFailedTraces.push({
         traceId: traceId,
       });

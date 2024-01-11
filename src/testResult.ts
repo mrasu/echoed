@@ -38,11 +38,11 @@ function isPropagationRequiredSpan(span: OtelSpan): boolean {
 
 function extractPropagationFailedSpans(
   propagationTestConfig: PropagationTestConfig,
-  allSpans: Record<string, OtelSpan[]>,
-): Record<string, OtelSpan[]> {
+  allSpans: Map<string, OtelSpan[]>,
+): Map<string, OtelSpan[]> {
   const propagationFailedTraceIds: Set<string> = new Set();
 
-  for (const [traceId, spanList] of Object.entries(allSpans)) {
+  for (const [traceId, spanList] of allSpans.entries()) {
     for (const span of spanList) {
       if (!isPropagationRequiredSpan(span)) continue;
       if (span.shouldIgnoreFromPropagationTest(propagationTestConfig)) {
@@ -54,11 +54,11 @@ function extractPropagationFailedSpans(
     }
   }
 
-  const propagationFailedSpans: Record<string, OtelSpan[]> = {};
+  const propagationFailedSpans = new Map<string, OtelSpan[]>();
 
-  for (const [traceId, spanList] of Object.entries(allSpans)) {
+  for (const [traceId, spanList] of allSpans.entries()) {
     if (propagationFailedTraceIds.has(traceId)) {
-      propagationFailedSpans[traceId] = spanList;
+      propagationFailedSpans.set(traceId, spanList);
     }
   }
 
@@ -67,15 +67,15 @@ function extractPropagationFailedSpans(
 
 export class TestResult {
   public testCaseResults: Map<string, TestCaseResult[]>;
-  public capturedSpans: Record<string, OtelSpan[]>;
-  public propagationFailedSpans: Record<string, OtelSpan[]>;
-  public capturedLogs: Record<string, IOtelLogRecord[]>;
+  public capturedSpans: Map<string, OtelSpan[]>;
+  public propagationFailedSpans: Map<string, OtelSpan[]>;
+  public capturedLogs: Map<string, IOtelLogRecord[]>;
 
   static async collect(
     testRootDir: string,
     tmpLogDir: string,
-    capturedSpans: Record<string, OtelSpan[]>,
-    capturedLogs: Record<string, IOtelLogRecord[]>,
+    capturedSpans: Map<string, OtelSpan[]>,
+    capturedLogs: Map<string, IOtelLogRecord[]>,
     config: Config,
     testCases: Map<string, TestCase[]>,
   ): Promise<TestResult> {
@@ -87,8 +87,8 @@ export class TestResult {
 
   constructor(
     testCaseResults: Map<string, TestCaseResult[]>,
-    capturedSpans: Record<string, OtelSpan[]>,
-    capturedLogs: Record<string, IOtelLogRecord[]>,
+    capturedSpans: Map<string, OtelSpan[]>,
+    capturedLogs: Map<string, IOtelLogRecord[]>,
     config: Config,
   ) {
     this.testCaseResults = testCaseResults;
@@ -104,7 +104,7 @@ export class TestResult {
 
   get propagationFailedRootSpans(): OtelSpan[] {
     const rootSpans: OtelSpan[] = [];
-    for (const [_, spans] of Object.entries(this.propagationFailedSpans)) {
+    for (const spans of this.propagationFailedSpans.values()) {
       for (const span of spans) {
         if (!span.isRoot) continue;
 

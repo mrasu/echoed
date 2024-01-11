@@ -21,8 +21,8 @@ export class Server {
 
   private buses?: FileBus[];
   private httpServer?: http.Server;
-  private capturedSpans: Record<string, OtelSpan[]> = {};
-  private capturedLogs: Record<string, IOtelLogRecord[]> = {};
+  private capturedSpans: Map<string, OtelSpan[]> = new Map();
+  private capturedLogs: Map<string, IOtelLogRecord[]> = new Map();
 
   static async start(port: number, busFiles: string[]) {
     const server = new Server();
@@ -59,7 +59,7 @@ export class Server {
 
     let spans: OtelSpan[] | undefined = [];
     await this.mutex.runExclusive(async () => {
-      spans = this.capturedSpans[traceId];
+      spans = this.capturedSpans.get(traceId);
 
       const requests = this.wantSpanRequests.get(traceId) || [];
       requests.push(request);
@@ -130,10 +130,12 @@ export class Server {
     this.debugLogSpan(span);
 
     let traceId = toBase64(span.traceId);
-    this.capturedSpans[traceId] = this.capturedSpans[traceId] || [];
 
     await this.mutex.runExclusive(async () => {
-      this.capturedSpans[traceId].push(span);
+      if (!this.capturedSpans.has(traceId)) {
+        this.capturedSpans.set(traceId, []);
+      }
+      this.capturedSpans.get(traceId)?.push(span);
     });
 
     const requests = this.wantSpanRequests.get(traceId);
@@ -142,12 +144,17 @@ export class Server {
     });
   }
 
-  private captureLog(log: IOtelLogRecord) {
+  private async captureLog(log: IOtelLogRecord) {
     this.debugLogLogRecord(log);
 
     let traceId = toBase64(log.traceId);
-    this.capturedLogs[traceId] = this.capturedLogs[traceId] || [];
-    this.capturedLogs[traceId].push(log);
+
+    await this.mutex.runExclusive(async () => {
+      if (!this.capturedLogs.has(traceId)) {
+        this.capturedLogs.set(traceId, []);
+      }
+      this.capturedLogs.get(traceId)?.push(log);
+    });
   }
 
   private debugLogSpan(span: OtelSpan) {

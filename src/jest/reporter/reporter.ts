@@ -28,16 +28,6 @@ import SwaggerParser from "@apidevtools/swagger-parser";
 import { IServiceCoverageCollector } from "@/coverage/iServiceCoverageCollector";
 import { ProtoCoverageCollector } from "@/coverage/proto/protoCoverageCollector";
 
-export type PropagationTestConfig = {
-  enabled?: boolean;
-  ignore?: {
-    attributes?: Record<string, string | boolean | number>;
-    resource?: {
-      attributes?: Record<string, string | boolean | number>;
-    };
-  };
-};
-
 export class Reporter {
   private mutex = new Mutex();
 
@@ -140,7 +130,7 @@ export class Reporter {
     const { capturedSpans, capturedLogs } = await this.server.stopAfter(
       this.config.serverStopAfter,
     );
-    this.coverageCollector.markVisited(Object.values(capturedSpans).flat());
+    this.coverageCollector.markVisited([...capturedSpans.values()].flat());
 
     const testResult = await TestResult.collect(
       this.jestRootDir,
@@ -168,7 +158,7 @@ export class Reporter {
 
   private logPropagationTestResult(testResult: TestResult): boolean {
     const propagationTestFailedSpans = testResult.propagationFailedSpans;
-    const failedSpanLength = Object.keys(propagationTestFailedSpans).length;
+    const failedSpanLength = propagationTestFailedSpans.size;
     const testName = "Propagation test";
     if (failedSpanLength === 0) {
       Logger.log(`${AnsiGreen}✓${AnsiReset} ${testName}`);
