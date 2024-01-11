@@ -48,7 +48,8 @@
     "js-yaml": "^4.0.0",
     "long": "^5.0.0",
     "protobufjs": "^7.0.0",
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "zod": "^3.22.4"
   },
   "files": [
     "dist",

@@ -1,6 +1,6 @@
 export function override<T extends Record<string, any>>(
   target: T,
-  source: T,
+  source: Partial<T>,
 ): T {
   const ret: Record<string, any> = structuredClone(target);
 

@@ -13,6 +13,11 @@ import { Eq } from "@/comparision/eq";
 import { ConfigFileSchema } from "@/config/configFileSchema";
 import { override } from "@/util/object";
 import { Logger } from "@/logger";
+import {
+  ConfigFileSchemaZod,
+  PartialConfigFileSchemaZod,
+} from "@/config/configFileSchemaZod";
+import { SafeParseReturnType, ZodError } from "zod";
 
 type YamlValue = string | boolean | number | null;
 
@@ -23,15 +28,71 @@ export class ConfigLoader {
   constructor() {}
 
   loadFromFile(filepath: string): Config {
-    const schemaObject = this.readFileRecursively(filepath, false);
+    const result = this.readFileRecursively(filepath);
 
-    return this.loadFromObject(schemaObject);
+    if (!result.success) {
+      throw new Error(
+        `Echoed: invalid configuration: \n${this.formatError(result.error)}`,
+      );
+    }
+
+    return this.loadFromObject(result.data);
   }
 
   private readFileRecursively(
     filepath: string,
-    overridden: boolean,
-  ): ConfigFileSchema {
+  ): SafeParseReturnType<ConfigFileSchemaZod, ConfigFileSchemaZod> {
+    const schemaObject = this.readFile(filepath, false);
+    const config = ConfigFileSchemaZod.safeParse(schemaObject);
+
+    if (!config.success) {
+      return config;
+    }
+
+    let configData = config.data;
+
+    if (configData.overrides) {
+      for (const filepath of configData.overrides) {
+        const overridden = this.readFileRecursivelyOverridden(filepath);
+        if (!overridden.success) {
+          return overridden;
+        }
+        configData = override(configData, overridden.data);
+      }
+    }
+
+    return { success: true, data: configData };
+  }
+
+  private readFileRecursivelyOverridden(
+    filepath: string,
+  ): SafeParseReturnType<
+    PartialConfigFileSchemaZod,
+    PartialConfigFileSchemaZod
+  > {
+    const schemaObject = this.readFile(filepath, true);
+    const partial = PartialConfigFileSchemaZod.safeParse(schemaObject);
+
+    if (!partial.success) {
+      return partial;
+    }
+
+    let partialData = partial.data;
+
+    if (partialData.overrides) {
+      for (const filepath of partialData.overrides) {
+        const overridden = this.readFileRecursivelyOverridden(filepath);
+        if (!overridden.success) {
+          return overridden;
+        }
+        partialData = override(partialData, overridden.data);
+      }
+    }
+
+    return { success: true, data: partialData };
+  }
+
+  private readFile(filepath: string, overridden: boolean): unknown {
     const overriddenTxt = overridden ? "overridden " : "";
 
     const stat = statSync(filepath);
@@ -54,18 +115,23 @@ export class ConfigLoader {
       );
     }
 
-    let schemaObject = yaml.load(
-      fs.readFileSync(filepath, "utf-8"),
-    ) as ConfigFileSchema;
-
-    if (schemaObject.overrides) {
-      for (const filepath of schemaObject.overrides) {
-        const overridden = this.readFileRecursively(filepath, true);
-        schemaObject = override(schemaObject, overridden);
-      }
-    }
-
+    const schemaObject = yaml.load(fs.readFileSync(filepath, "utf-8"));
     return schemaObject;
+  }
+
+  private formatError(error: ZodError<ConfigFileSchemaZod>): string {
+    const v = JSON.stringify(
+      error.format(),
+      (k, v) => {
+        if (Array.isArray(v)) {
+          if (v.length === 0) return undefined;
+        }
+        return v;
+      },
+      2,
+    );
+
+    return v;
   }
 
   loadFromObject(schemaObject: ConfigFileSchema): Config {
