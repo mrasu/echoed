@@ -1,7 +1,6 @@
 import fs from "fs";
 import path from "path";
 import { OtelSpan } from "@/type/otelSpan";
-import { IOtelLogRecord } from "@/types";
 import { TestResult } from "@/testResult";
 import { TestCaseResult } from "@/testCaseResult";
 import { Config } from "@/config/config";
@@ -11,6 +10,7 @@ import {
   HttpCoverage as HttpCoverageResult,
   RpcCoverage as RpcCoverageResult,
 } from "@/coverage/coverageResult";
+import { OtelLogRecord } from "@/type/otelLogRecord";
 
 type EchoedParam = {
   config: ReportConfig;
@@ -35,8 +35,6 @@ type TestInfo = {
   failureDetails?: string[];
   failureMessages?: string[];
   duration?: number;
-  spans: OtelSpan[];
-  logRecords: any[];
 };
 
 type Fetch = {
@@ -107,7 +105,7 @@ type PropagationFailedTrace = {
 type Trace = {
   traceId: string;
   spans: OtelSpan[];
-  logRecords: any[];
+  logRecords: OtelLogRecord[];
 };
 
 const REPORT_HTML_TEMPLATE_PATH_FROM_ROOT_DIR = "reporter/dist/index.html";
@@ -179,18 +177,6 @@ export class ReportFile implements IReportFile {
   private buildTestInfos(testResult: TestResult) {
     const results = [...testResult.testCaseResults.values()].flat();
     const testInfos = results.map((result) => {
-      let traceSpans: OtelSpan[] = [];
-      let traceLogs: IOtelLogRecord[] = [];
-
-      for (const traceId of result.orderedTraceIds) {
-        traceSpans = traceSpans.concat(
-          testResult.capturedSpans.get(traceId) || [],
-        );
-        traceLogs = traceLogs.concat(
-          testResult.capturedLogs.get(traceId) || [],
-        );
-      }
-
       const testInfo: TestInfo = {
         testId: result.testId,
         file: result.file,
@@ -202,8 +188,6 @@ export class ReportFile implements IReportFile {
         failureDetails: result.failureDetails,
         failureMessages: result.failureMessages,
         duration: result.duration,
-        spans: traceSpans,
-        logRecords: traceLogs,
       };
       return testInfo;
     });

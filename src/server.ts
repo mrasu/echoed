@@ -4,13 +4,13 @@ import opentelemetry from "@/generated/otelpbj";
 import http from "http";
 import { sleep } from "@/util/async";
 import { toBase64 } from "@/util/byte";
-import { IOtelLogRecord } from "@/types";
 import { OtelSpan } from "@/type/otelSpan";
 import { Logger } from "@/logger";
 import { FileBus } from "@/eventBus/infra/fileBus";
 import { Mutex } from "async-mutex";
 import { SpanBus } from "@/eventBus/spanBus";
 import { WantSpanRequest } from "@/eventBus/wantSpanRequest";
+import { OtelLogRecord } from "@/type/otelLogRecord";
 
 const TracesData = opentelemetry.opentelemetry.proto.trace.v1.TracesData;
 const LogsData = opentelemetry.opentelemetry.proto.logs.v1.LogsData;
@@ -22,7 +22,7 @@ export class Server {
   private buses?: FileBus[];
   private httpServer?: http.Server;
   private capturedSpans: Map<string, OtelSpan[]> = new Map();
-  private capturedLogs: Map<string, IOtelLogRecord[]> = new Map();
+  private capturedLogs: Map<string, OtelLogRecord[]> = new Map();
 
   static async start(port: number, busFiles: string[]) {
     const server = new Server();
@@ -120,7 +120,8 @@ export class Server {
     logsData.resourceLogs.forEach((resourceLog) => {
       resourceLog.scopeLogs?.forEach((scopeLog) => {
         scopeLog.logRecords?.forEach((log) => {
-          this.captureLog(log);
+          const otelLogRecord = new OtelLogRecord(log);
+          this.captureLog(otelLogRecord);
         });
       });
     });
@@ -144,7 +145,7 @@ export class Server {
     });
   }
 
-  private async captureLog(log: IOtelLogRecord) {
+  private async captureLog(log: OtelLogRecord) {
     this.debugLogLogRecord(log);
 
     let traceId = toBase64(log.traceId).base64String;
@@ -161,7 +162,7 @@ export class Server {
     Logger.debug("Trace", "JSON", JSON.stringify(span));
   }
 
-  private debugLogLogRecord(log: IOtelLogRecord) {
+  private debugLogLogRecord(log: OtelLogRecord) {
     Logger.debug("Log", "JSON", JSON.stringify(log));
   }
 

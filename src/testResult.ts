@@ -2,12 +2,7 @@ import fs from "fs";
 import path from "path";
 
 import { OtelSpan } from "@/type/otelSpan";
-import {
-  FetchFinishedLog,
-  FetchStartedLog,
-  IOtelLogRecord,
-  Log,
-} from "@/types";
+import { FetchFinishedLog, FetchStartedLog, Log } from "@/types";
 import { TestCaseResult } from "@/testCaseResult";
 import { Logger } from "@/logger";
 import { PropagationTestConfig } from "@/config/propagationTestConfig";
@@ -16,6 +11,7 @@ import { FetchInfo } from "@/fetchInfo";
 import { opentelemetry } from "@/generated/otelpbj";
 import { TestCase } from "@/testCase";
 import { omitDirPath } from "@/util/file";
+import { OtelLogRecord } from "@/type/otelLogRecord";
 
 const SpanKind = opentelemetry.proto.trace.v1.Span.SpanKind;
 
@@ -69,13 +65,13 @@ export class TestResult {
   public testCaseResults: Map<string, TestCaseResult[]>;
   public capturedSpans: Map<string, OtelSpan[]>;
   public propagationFailedSpans: Map<string, OtelSpan[]>;
-  public capturedLogs: Map<string, IOtelLogRecord[]>;
+  public capturedLogs: Map<string, OtelLogRecord[]>;
 
   static async collect(
     testRootDir: string,
     tmpLogDir: string,
     capturedSpans: Map<string, OtelSpan[]>,
-    capturedLogs: Map<string, IOtelLogRecord[]>,
+    capturedLogs: Map<string, OtelLogRecord[]>,
     config: Config,
     testCases: Map<string, TestCase[]>,
   ): Promise<TestResult> {
@@ -88,7 +84,7 @@ export class TestResult {
   constructor(
     testCaseResults: Map<string, TestCaseResult[]>,
     capturedSpans: Map<string, OtelSpan[]>,
-    capturedLogs: Map<string, IOtelLogRecord[]>,
+    capturedLogs: Map<string, OtelLogRecord[]>,
     config: Config,
   ) {
     this.testCaseResults = testCaseResults;

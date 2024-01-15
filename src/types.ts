@@ -1,5 +1,3 @@
-import { opentelemetry } from "@/generated/otelpbj";
-
 export type Log = FetchStartedLog | FetchFinishedLog;
 
 export type FetchStartedLog = {
@@ -22,5 +20,3 @@ export type FetchFinishedLog = {
     body?: string;
   };
 };
-
-export type IOtelLogRecord = opentelemetry.proto.logs.v1.ILogRecord;
