@@ -10,7 +10,7 @@ export abstract class NumComparable extends Comparable {
   protected matchIAnyVal(
     target: opentelemetry.proto.common.v1.IAnyValue,
   ): boolean {
-    const valueNum = target.intValue || target.doubleValue || undefined;
+    const valueNum = target.intValue ?? target.doubleValue ?? undefined;
     if (!valueNum) return false;
 
     return this.matchNumber(valueNum);

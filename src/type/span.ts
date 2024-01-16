@@ -59,9 +59,9 @@ export class Event {
     this.timeUnixNano = event.timeUnixNano
       ? Long.fromString(event.timeUnixNano)
       : undefined;
-    this.name = event.name || undefined;
+    this.name = event.name ?? undefined;
     this.attributes = event.attributes?.map((kv) => new KeyValue(kv));
-    this.droppedAttributesCount = event.droppedAttributesCount || undefined;
+    this.droppedAttributesCount = event.droppedAttributesCount ?? undefined;
   }
 }
 
@@ -75,9 +75,9 @@ export class Link {
   constructor(link: jsonLink) {
     this.traceId = link.traceId ? decodeBase64(link.traceId) : undefined;
     this.spanId = link.spanId ? decodeBase64(link.spanId) : undefined;
-    this.traceState = link.traceState || undefined;
+    this.traceState = link.traceState ?? undefined;
     this.attributes = link.attributes?.map((kv) => new KeyValue(kv));
-    this.droppedAttributesCount = link.droppedAttributesCount || undefined;
+    this.droppedAttributesCount = link.droppedAttributesCount ?? undefined;
   }
 }
 
@@ -86,8 +86,8 @@ export class Status {
   code?: number;
 
   constructor(status: jsonStatus) {
-    this.message = status.message || undefined;
-    this.code = status.code || undefined;
+    this.message = status.message ?? undefined;
+    this.code = status.code ?? undefined;
   }
 }
 
@@ -97,7 +97,7 @@ export class Resource {
 
   constructor(status: jsonResource) {
     this.attributes = status.attributes?.map((kv) => new KeyValue(kv));
-    this.droppedAttributesCount = status.droppedAttributesCount || undefined;
+    this.droppedAttributesCount = status.droppedAttributesCount ?? undefined;
   }
 }
 
@@ -108,10 +108,10 @@ export class InstrumentationScope {
   droppedAttributesCount?: number;
 
   constructor(status: jsonInstrumentationScope) {
-    this.name = status.name || undefined;
-    this.version = status.version || undefined;
+    this.name = status.name ?? undefined;
+    this.version = status.version ?? undefined;
     this.attributes = status.attributes?.map((kv) => new KeyValue(kv));
-    this.droppedAttributesCount = status.droppedAttributesCount || undefined;
+    this.droppedAttributesCount = status.droppedAttributesCount ?? undefined;
   }
 }
 
@@ -120,7 +120,7 @@ export class KeyValue {
   value?: AnyValue;
 
   constructor(kv: jsonKeyValue) {
-    this.key = kv.key || undefined;
+    this.key = kv.key ?? undefined;
     this.value = kv.value ? new AnyValue(kv.value) : undefined;
   }
 }
@@ -135,12 +135,12 @@ export class AnyValue {
   kvlistValue?: KeyValueList;
 
   constructor(value: jsonAnyValue) {
-    this.stringValue = value.stringValue || undefined;
-    this.boolValue = value.boolValue || undefined;
+    this.stringValue = value.stringValue ?? undefined;
+    this.boolValue = value.boolValue ?? undefined;
     this.intValue = value.intValue
       ? Long.fromString(value.intValue).toNumber()
       : undefined;
-    this.doubleValue = value.doubleValue || undefined;
+    this.doubleValue = value.doubleValue ?? undefined;
     this.bytesValue = value.bytesValue
       ? decodeBase64(value.bytesValue)
       : undefined;

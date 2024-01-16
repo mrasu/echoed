@@ -75,7 +75,7 @@ export function buildTraceLoggingFetch(
       request: {
         url: requestInfo.url,
         method: requestInfo.method,
-        body: requestInfo.body || undefined,
+        body: requestInfo.body ?? undefined,
       },
       response: {
         status: clonedResponse.status,

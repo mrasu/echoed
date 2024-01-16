@@ -158,11 +158,11 @@ class TestCaseLogCollector {
           request: {
             url: parsed.request.url,
             method: parsed.request.method,
-            body: parsed.request.body || undefined,
+            body: parsed.request.body ?? undefined,
           },
           response: {
             status: parsed.response.status,
-            body: parsed.response.body || undefined,
+            body: parsed.response.body ?? undefined,
           },
         });
       } else {
