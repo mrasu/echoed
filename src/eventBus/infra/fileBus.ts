@@ -20,7 +20,7 @@ export class FileBus implements IEventBus {
     this.file = file;
   }
 
-  async open() {
+  async open(): Promise<void> {
     const watcher = new FileWatcher(this.file);
     await watcher.open(async (text) => {
       await this.handleTextAdded(text);
@@ -29,7 +29,7 @@ export class FileBus implements IEventBus {
     this.watcher = watcher;
   }
 
-  private async handleTextAdded(text: string) {
+  private async handleTextAdded(text: string): Promise<void> {
     const lines = text.split("\n");
     for (const line of lines) {
       if (line === "") {
@@ -80,7 +80,7 @@ export class FileBus implements IEventBus {
     fn: (data: unknown) => Promise<U | undefined>,
   ): Promise<U> {
     return new Promise((resolve, reject) => {
-      const callback = async (data: unknown) => {
+      const callback = async (data: unknown): Promise<void> => {
         const res = await fn(data);
         if (!res) {
           return;
@@ -111,7 +111,7 @@ export class FileBus implements IEventBus {
     callbacks.splice(index, 1);
   }
 
-  public async emit(eventName: string, data: unknown) {
+  public async emit(eventName: string, data: unknown): Promise<void> {
     if (!fs.existsSync(this.file)) {
       await createEmptyFile(this.file);
     }

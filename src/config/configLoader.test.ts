@@ -8,14 +8,14 @@ describe("ConfigLoader", () => {
     describe("when services section exists", () => {
       const buildDefaultSchemaObject = (
         services: ConfigFileSchema["services"],
-      ) => {
+      ): { output: string; services: ConfigFileSchema["services"] } => {
         return {
           output: "dummy",
           services,
         };
       };
 
-      const buildConfig = (serviceConfigs: ServiceConfig[]) => {
+      const buildConfig = (serviceConfigs: ServiceConfig[]): Config => {
         return new Config(
           "dummy",
           3000,

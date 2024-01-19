@@ -64,7 +64,7 @@ export function buildTraceLoggingFetch(
     return { traceparent, traceId: hexToBase64(traceId) };
   }
 
-  async function logFetchStarted(traceId: Base64String) {
+  async function logFetchStarted(traceId: Base64String): Promise<void> {
     const value: FetchStartedLog = {
       type: "fetchStarted",
       traceId: traceId.base64String,
@@ -79,7 +79,7 @@ export function buildTraceLoggingFetch(
     traceId: Base64String,
     requestInfo: fetchRequestInfo,
     response: Response,
-  ) {
+  ): Promise<void> {
     const clonedResponse = response.clone();
 
     const body = await clonedResponse.text();

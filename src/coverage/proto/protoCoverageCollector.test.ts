@@ -22,7 +22,7 @@ describe("ProtoCoverageCollector", () => {
     const assertCoveredServices = (
       collector: ProtoCoverageCollector,
       expectedServices: string[],
-    ) => {
+    ): void => {
       const services = collector
         .getCoverage()
         .rpcCoverage?.methodCoverages.map((v) => v.service);

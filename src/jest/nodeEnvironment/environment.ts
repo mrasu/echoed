@@ -10,7 +10,11 @@ import { IFileLogger } from "@/fileLog/iFileLogger";
 export class Environment {
   constructor(public testPath: string) {}
 
-  async setup(global: Global.Global, tmpDir: string, workerID: string) {
+  async setup(
+    global: Global.Global,
+    tmpDir: string,
+    workerID: string,
+  ): Promise<void> {
     const fileSpace = new FileSpace(tmpDir);
     this.patchFetch(fileSpace.testLogDir, global);
 
@@ -18,12 +22,12 @@ export class Environment {
     await openBus(busFilePath, global);
   }
 
-  teardown(global: Global.Global) {
+  teardown(global: Global.Global): void {
     closeBus(global);
     restoreFetch(global);
   }
 
-  private patchFetch(tmpDir: string, global: Global.Global) {
+  private patchFetch(tmpDir: string, global: Global.Global): void {
     const logger = this.createLogger(tmpDir);
 
     patchFetch(logger, this.testPath, global);

@@ -30,7 +30,7 @@ describe("waitForSpan", () => {
     delete globalThis.__ECHOED_BUS__;
   });
 
-  const buildResponse = (traceId: Base64String) => {
+  const buildResponse = (traceId: Base64String): Response => {
     const res = {} as Response;
     setTraceIdToResponse(res, traceId);
     return res;

@@ -1,7 +1,10 @@
 import fs from "fs";
 import path from "path";
 
-export async function appendFileLine(filepath: string, text: string) {
+export async function appendFileLine(
+  filepath: string,
+  text: string,
+): Promise<void> {
   await new Promise((resolve, reject) => {
     fs.appendFile(filepath, text + "\n", (err) => {
       if (err) {
@@ -25,7 +28,7 @@ export function statSync(file: string): fs.Stats | undefined {
   }
 }
 
-export async function createEmptyFile(file: string) {
+export async function createEmptyFile(file: string): Promise<void> {
   await fs.promises.mkdir(path.dirname(file), {
     recursive: true,
   });

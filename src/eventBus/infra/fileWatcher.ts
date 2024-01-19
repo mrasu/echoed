@@ -14,7 +14,7 @@ export class FileWatcher {
     this.file = file;
   }
 
-  async open(callback: (_: string) => Promise<void>) {
+  async open(callback: (_: string) => Promise<void>): Promise<void> {
     const stat = statSync(this.file);
     const position = stat?.size || 0;
     if (!stat) {
@@ -33,7 +33,7 @@ export class FileWatcher {
     this.fsWatcher?.close();
   }
 
-  private async receiveFSEvent(eventType: fs.WatchEventType) {
+  private async receiveFSEvent(eventType: fs.WatchEventType): Promise<void> {
     await this.mutex.runExclusive(async () => {
       switch (eventType) {
         case "rename":
@@ -48,7 +48,7 @@ export class FileWatcher {
     });
   }
 
-  private async handleFileChanged() {
+  private async handleFileChanged(): Promise<void> {
     const text = await this.readChangedText();
     if (!text) return;
 

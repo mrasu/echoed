@@ -6,9 +6,9 @@ export class DummyBus<T> implements IEventBus {
 
   private watchingEvents = new Map<string, WatchCallback>();
 
-  async open() {}
-  close() {}
-  on(eventName: string, callback: WatchCallback) {
+  async open(): Promise<void> {}
+  close(): void {}
+  on(eventName: string, callback: WatchCallback): void {
     this.watchingEvents.set(eventName, callback);
   }
 
@@ -24,7 +24,7 @@ export class DummyBus<T> implements IEventBus {
     return Promise.resolve(undefined as R);
   }
 
-  async emit(eventName: string, data: T) {
+  async emit(eventName: string, data: T): Promise<void> {
     this.emittedData.push([eventName, data]);
     for (const [key, callback] of this.watchingEvents) {
       if (key === eventName) {

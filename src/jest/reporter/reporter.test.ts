@@ -19,7 +19,7 @@ import { TestCase } from "@/testCase";
 
 class DummyReportFile implements IReportFile {
   testResult: TestResult | undefined;
-  async generate(
+  generate(
     testResult: TestResult,
     _coverageResult: CoverageResult,
   ): Promise<string> {
@@ -45,7 +45,7 @@ describe("Reporter", () => {
     }
   });
 
-  const buildReporter = () => {
+  const buildReporter = (): Reporter => {
     const config = new Config(
       "result/report.html",
       13333,
@@ -65,7 +65,7 @@ describe("Reporter", () => {
     return new Reporter(buildGlobalConfig(), config);
   };
 
-  const startReporter = async () => {
+  const startReporter = async (): Promise<Reporter> => {
     const reporter = buildReporter();
     await reporter.onRunStart(
       buildAggregatedResult(),
@@ -76,7 +76,7 @@ describe("Reporter", () => {
   };
 
   const stopReporterDefer = (reporter: Reporter) => {
-    return async () => {
+    return async (): Promise<void> => {
       const reportFile = new DummyReportFile();
       await reporter.onRunComplete(
         new Set(),

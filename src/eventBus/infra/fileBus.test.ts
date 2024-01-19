@@ -95,7 +95,7 @@ describe("FileBus", () => {
     });
 
     it("should return event when event is emitted", async () => {
-      const callback = async (data: unknown) => {
+      const callback = async (data: unknown): Promise<unknown> => {
         return Promise.resolve(data);
       };
 
@@ -134,7 +134,7 @@ describe("FileBus", () => {
   });
 
   describe("emit", () => {
-    const readEvents = async (file: string) => {
+    const readEvents = async (file: string): Promise<unknown[]> => {
       const txt = await fs.promises.readFile(file, "utf-8");
       const events = txt
         .split("\n")

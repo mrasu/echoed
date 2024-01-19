@@ -30,15 +30,21 @@ export class JestReporter implements IJestReporter {
     this.reporter = new Reporter(globalConfig, this.config);
   }
 
-  async onRunStart(results: AggregatedResult, options: ReporterOnStartOptions) {
+  async onRunStart(
+    results: AggregatedResult,
+    options: ReporterOnStartOptions,
+  ): Promise<void> {
     await this.reporter.onRunStart(results, options);
   }
 
-  readonly getLastError = () => {
+  readonly getLastError = (): Error | void => {
     this.reporter.getLastError();
   };
 
-  async onRunComplete(contexts: Set<TestContext>, results: AggregatedResult) {
+  async onRunComplete(
+    contexts: Set<TestContext>,
+    results: AggregatedResult,
+  ): Promise<void> {
     const reportFile = new ReportFile(this.config, ECHOED_ROOT_DIR);
     await this.reporter.onRunComplete(contexts, results, reportFile);
   }
@@ -46,11 +52,14 @@ export class JestReporter implements IJestReporter {
   async onTestCaseStart(
     test: Test,
     testCaseStartInfo: Circus.TestCaseStartInfo,
-  ) {
+  ): Promise<void> {
     await this.reporter.onTestCaseStart(test, testCaseStartInfo);
   }
 
-  async onTestCaseResult(test: Test, testCaseResult: TestCaseResult) {
+  async onTestCaseResult(
+    test: Test,
+    testCaseResult: TestCaseResult,
+  ): Promise<void> {
     await this.reporter.onTestCaseResult(test, testCaseResult);
   }
 }

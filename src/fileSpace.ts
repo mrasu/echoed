@@ -10,7 +10,7 @@ export class FileSpace {
     this.busEventDir = path.join(dir, "busEvent");
   }
 
-  ensureDirectoryExistence() {
+  ensureDirectoryExistence(): void {
     fs.mkdirSync(this.testLogDir, { recursive: true });
     fs.mkdirSync(this.busEventDir, { recursive: true });
   }

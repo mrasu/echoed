@@ -77,7 +77,7 @@ export class Reporter {
   async onRunStart(
     _results: AggregatedResult,
     _options: ReporterOnStartOptions,
-  ) {
+  ): Promise<void> {
     await this.prepareCoverageCollector();
 
     Logger.log("Starting server...");
@@ -90,7 +90,7 @@ export class Reporter {
     this.server = await Server.start(this.config.serverPort, busFiles);
   }
 
-  private async prepareCoverageCollector() {
+  private async prepareCoverageCollector(): Promise<void> {
     for (const service of this.config.serviceConfigs) {
       const collector = await this.buildCoverageCollector(service);
       if (!collector) continue;
@@ -117,7 +117,7 @@ export class Reporter {
     }
   }
 
-  readonly getLastError = () => {
+  readonly getLastError = (): Error | undefined => {
     return this.lastError;
   };
 
@@ -125,7 +125,7 @@ export class Reporter {
     _contexts: Set<TestContext>,
     _results: AggregatedResult,
     reportFile: IReportFile,
-  ) {
+  ): Promise<void> {
     if (!this.server) {
       throw new Error("Echoed: server is not started");
     }
@@ -181,7 +181,7 @@ export class Reporter {
   async onTestCaseStart(
     test: Test,
     testCaseStartInfo: Circus.TestCaseStartInfo,
-  ) {
+  ): Promise<void> {
     const startInfo = new TestCaseStartInfo(
       this.knownTestCount.toString(),
       omitDirPath(test.path, this.jestRootDir),
@@ -197,7 +197,10 @@ export class Reporter {
     });
   }
 
-  async onTestCaseResult(test: Test, testCaseResult: TestCaseResult) {
+  async onTestCaseResult(
+    test: Test,
+    testCaseResult: TestCaseResult,
+  ): Promise<void> {
     const testCase = await this.mutex.runExclusive(
       (): TestCaseStartInfo | undefined => {
         const testPath = omitDirPath(test.path, this.jestRootDir);

@@ -94,7 +94,7 @@ export class OperationTree {
     this.root = new OperationNode("");
   }
 
-  add(specPath: string, pathObject: OpenAPIPathItemObject) {
+  add(specPath: string, pathObject: OpenAPIPathItemObject): void {
     const parts = normalizePath(specPath).split("/");
     const normalizedParts = parts.map((part) => {
       if (part.match(/^\{(.+)}$/)) return PathWildcard;
@@ -126,7 +126,7 @@ export class OperationTree {
     return parts;
   }
 
-  visitOperations(visitor: (operation: Operation) => void) {
+  visitOperations(visitor: (operation: Operation) => void): void {
     this.root.visitOperations(visitor);
   }
 }

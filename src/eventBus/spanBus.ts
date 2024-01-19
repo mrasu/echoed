@@ -64,7 +64,7 @@ type jsonReceiveSpanEvent = {
 export class SpanBus {
   constructor(private readonly bus: IEventBus) {}
 
-  listenWantSpanEvent(callback: (event: WantSpanEvent) => Promise<void>) {
+  listenWantSpanEvent(callback: (event: WantSpanEvent) => Promise<void>): void {
     this.bus.on(WANT_SPAN_EVENT_NAME, async (data: unknown) => {
       await callback(this.restoreWantSpanEvent(data));
     });
@@ -130,7 +130,7 @@ export class SpanBus {
     };
   }
 
-  private async emitWantSpanEvent(event: WantSpanEvent) {
+  private async emitWantSpanEvent(event: WantSpanEvent): Promise<void> {
     await this.bus.emit(WANT_SPAN_EVENT_NAME, event);
   }
 
@@ -138,7 +138,7 @@ export class SpanBus {
     wantId: string,
     traceId: Base64String,
     span: OtelSpan,
-  ) {
+  ): Promise<void> {
     const event: ReceiveSpanEmitEvent = {
       wantId,
       base64TraceId: traceId.base64String,

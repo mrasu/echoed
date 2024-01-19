@@ -36,7 +36,7 @@ export class ProtoCoverageCollector implements IServiceCoverageCollector {
     const absoluteFilename = path.resolve(filename);
     const services = new Map<string, Service>();
 
-    const inspect = (namespace: NamespaceBase) => {
+    const inspect = (namespace: NamespaceBase): void => {
       if (namespace instanceof protobufService) {
         if (!namespace.filename) return;
 
@@ -91,7 +91,7 @@ export class ProtoCoverageCollector implements IServiceCoverageCollector {
     }
   }
 
-  addUndocumented(rpcService: string, rpcMethod: string, span: OtelSpan) {
+  addUndocumented(rpcService: string, rpcMethod: string, span: OtelSpan): void {
     this.undocumentedProtoSpans.initOr(rpcService, rpcMethod, [span], (v) => {
       v.push(span);
     });

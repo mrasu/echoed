@@ -34,7 +34,7 @@ export class OpenApiCoverageCollector implements IServiceCoverageCollector {
 
   constructor(private pathTree: OperationTree) {}
 
-  markVisited(spans: OtelSpan[]) {
+  markVisited(spans: OtelSpan[]): void {
     const paths = new TwoKeyValuesMap<string, Method, OtelSpan[]>();
     for (const span of spans) {
       // Ignore Client span as it is not related to "this" service's coverage

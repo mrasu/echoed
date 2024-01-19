@@ -3,8 +3,8 @@ type sleepingCallbackFn = () => void;
 
 export async function sleep(
   ms: number,
-  sleeping: sleepingCallbackFn = () => {},
-) {
+  sleeping: sleepingCallbackFn = (): void => {},
+): Promise<void> {
   let waitMs = 0;
   while (waitMs < ms) {
     if (waitMs > 0) {

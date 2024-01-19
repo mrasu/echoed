@@ -11,8 +11,8 @@ export function patchFetch(
   logger: IFileLogger,
   testPath: string,
   global: Global.Global,
-) {
-  const logFileFn = async (text: string) => {
+): void {
+  const logFileFn = async (text: string): Promise<void> => {
     await logger.appendFileLine(text);
   };
 
@@ -24,7 +24,7 @@ export function patchFetch(
   global.fetch = customFetch;
 }
 
-export function restoreFetch(global: Global.Global) {
+export function restoreFetch(global: Global.Global): void {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   global.fetch = originalFetch;

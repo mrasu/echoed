@@ -15,11 +15,11 @@ export class CoverageCollector {
     serviceName: string,
     serviceNamespace: string | undefined,
     collector: IServiceCoverageCollector,
-  ) {
+  ): void {
     this.serviceCollectors.set(serviceName, serviceNamespace, collector);
   }
 
-  markVisited(spans: OtelSpan[]) {
+  markVisited(spans: OtelSpan[]): void {
     const serviceSpans = new ServiceMap<OtelSpan[]>();
     for (const span of spans) {
       const serviceName = span.serviceName;
@@ -52,7 +52,7 @@ export class CoverageCollector {
     service: string,
     namespace: string | undefined,
     spans: OtelSpan[],
-  ) {
+  ): void {
     let collector = this.unmeasuredCollector.get(service, namespace);
     if (!collector) {
       collector = new UnmeasuredTraceCollector();

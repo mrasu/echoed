@@ -13,7 +13,7 @@ afterEach(() => {
 
 class DummyLogger implements IFileLogger {
   texts: string[] = [];
-  async appendFileLine(text: string) {
+  async appendFileLine(text: string): Promise<void> {
     this.texts.push(text);
 
     return Promise.resolve();

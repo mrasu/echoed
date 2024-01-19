@@ -17,7 +17,7 @@ export class TwoKeyValuesMap<K1, K2, V> {
     return [v, "found"];
   }
 
-  set(k1: K1, k2: K2, v: V) {
+  set(k1: K1, k2: K2, v: V): void {
     let map2 = this.map.get(k1);
     if (!map2) {
       map2 = new Map<K2, V>();
@@ -26,7 +26,7 @@ export class TwoKeyValuesMap<K1, K2, V> {
     map2.set(k2, v);
   }
 
-  initOr(k1: K1, k2: K2, init: V, fn: (v: V) => void) {
+  initOr(k1: K1, k2: K2, init: V, fn: (v: V) => void): void {
     const v = this.get(k1, k2);
     if (v) {
       fn(v);

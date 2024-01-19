@@ -14,13 +14,13 @@ export class WantSpanRequest {
     this.event = event;
   }
 
-  async respondIfMatch(span: OtelSpan) {
+  async respondIfMatch(span: OtelSpan): Promise<void> {
     if (!this.matches(span)) return;
 
     await this.respond(span);
   }
 
-  private async respond(span: OtelSpan) {
+  private async respond(span: OtelSpan): Promise<void> {
     await this.bus.emitReceiveSpanEvent(this.wantId, this.traceId, span);
   }
 

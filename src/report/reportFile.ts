@@ -174,7 +174,7 @@ export class ReportFile implements IReportFile {
     };
   }
 
-  private buildTestInfos(testResult: TestResult) {
+  private buildTestInfos(testResult: TestResult): TestInfo[] {
     const results = [...testResult.testCaseResults.values()].flat();
     const testInfos = results.map((result) => {
       const testInfo: TestInfo = {

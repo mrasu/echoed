@@ -20,7 +20,7 @@ export class OperationNode {
     partialPaths: PartialPath[],
     pathItemObject: OpenAPIPathItemObject,
     specPath: string,
-  ) {
+  ): void {
     if (partialPaths.length === 0) {
       for (const method of Object.keys(pathItemObject)) {
         const m = toMethod(method);
@@ -56,7 +56,7 @@ export class OperationNode {
     return child.get(partialPaths.slice(1), method);
   }
 
-  visitOperations(visitor: (operation: Operation) => void) {
+  visitOperations(visitor: (operation: Operation) => void): void {
     for (const operation of this.operations.values()) {
       visitor(operation);
     }

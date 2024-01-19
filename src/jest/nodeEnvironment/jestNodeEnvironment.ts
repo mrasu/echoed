@@ -15,7 +15,7 @@ export class JestNodeEnvironment extends NodeEnvironment {
     this.env = new Environment(context.testPath);
   }
 
-  override async setup() {
+  override async setup(): Promise<void> {
     await super.setup();
 
     const tmpDir = getTmpDirFromEnv();
@@ -28,7 +28,7 @@ export class JestNodeEnvironment extends NodeEnvironment {
     await this.env.setup(this.global, tmpDir, workerID!);
   }
 
-  override async teardown() {
+  override async teardown(): Promise<void> {
     this.env.teardown(this.global);
 
     await super.teardown();

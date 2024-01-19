@@ -7,15 +7,15 @@ export class Logger {
   static enabled = true;
   static showDebug = false;
 
-  static setEnable(enabled: boolean) {
+  static setEnable(enabled: boolean): void {
     Logger.enabled = enabled;
   }
 
-  static setShowDebug(showDebug: boolean) {
+  static setShowDebug(showDebug: boolean): void {
     Logger.showDebug = showDebug;
   }
 
-  static warn(message?: string, ...optionalParams: unknown[]) {
+  static warn(message?: string, ...optionalParams: unknown[]): void {
     if (!this.enabled) return;
 
     console.warn(
@@ -23,13 +23,13 @@ export class Logger {
       ...optionalParams,
     );
   }
-  static error(message?: string, ...optionalParams: unknown[]) {
+  static error(message?: string, ...optionalParams: unknown[]): void {
     if (!this.enabled) return;
 
     console.error(`${tag} ${message}`, ...optionalParams);
   }
 
-  static debug(message?: string, ...optionalParams: unknown[]) {
+  static debug(message?: string, ...optionalParams: unknown[]): void {
     if (!this.enabled) return;
 
     if (Logger.showDebug) {
@@ -37,13 +37,13 @@ export class Logger {
     }
   }
 
-  static log(message?: string, ...optionalParams: unknown[]) {
+  static log(message?: string, ...optionalParams: unknown[]): void {
     if (!this.enabled) return;
 
     console.log(`${tag} ${message}`, ...optionalParams);
   }
 
-  static logGrayComment(message?: string, ...optionalParams: unknown[]) {
+  static logGrayComment(message?: string, ...optionalParams: unknown[]): void {
     if (!this.enabled) return;
 
     console.log(
@@ -52,13 +52,13 @@ export class Logger {
     );
   }
 
-  static writeWithTag(message: string) {
+  static writeWithTag(message: string): void {
     if (!this.enabled) return;
 
     process.stdout.write(`${tag} ${message}`);
   }
 
-  static write(message: string) {
+  static write(message: string): void {
     if (!this.enabled) return;
 
     process.stdout.write(message);

@@ -25,13 +25,13 @@ export class Server {
   private capturedSpans: Map<string, OtelSpan[]> = new Map();
   private capturedLogs: Map<string, OtelLogRecord[]> = new Map();
 
-  static async start(port: number, busFiles: string[]) {
+  static async start(port: number, busFiles: string[]): Promise<Server> {
     const server = new Server();
     await server.start(port, busFiles);
     return server;
   }
 
-  private async start(port: number, busFiles: string[]) {
+  private async start(port: number, busFiles: string[]): Promise<void> {
     const server = await this.startHttpServer(port);
     const buses = await this.startBus(busFiles);
 
@@ -55,7 +55,7 @@ export class Server {
     return buses;
   }
 
-  private async handleWantSpanRequest(request: WantSpanRequest) {
+  private async handleWantSpanRequest(request: WantSpanRequest): Promise<void> {
     const base64TraceId = request.traceId.base64String;
 
     let spans: OtelSpan[] | undefined = [];
@@ -107,7 +107,7 @@ export class Server {
     return server;
   }
 
-  private async handleOtelTraces(body: Buffer) {
+  private async handleOtelTraces(body: Buffer): Promise<void> {
     const tracesData = TracesData.decode(body);
     const otelSpans: OtelSpan[] = [];
     tracesData.resourceSpans.forEach((resourceSpan) => {
@@ -128,7 +128,7 @@ export class Server {
     }
   }
 
-  private async handleOtelLogs(body: Buffer) {
+  private async handleOtelLogs(body: Buffer): Promise<void> {
     const logsData = LogsData.decode(body);
 
     const otelLogs: OtelLogRecord[] = [];
@@ -146,7 +146,7 @@ export class Server {
     }
   }
 
-  private async captureSpan(span: OtelSpan) {
+  private async captureSpan(span: OtelSpan): Promise<void> {
     this.debugLogSpan(span);
 
     const traceId = toBase64(span.traceId).base64String;
@@ -164,7 +164,7 @@ export class Server {
     });
   }
 
-  private async captureLog(log: OtelLogRecord) {
+  private async captureLog(log: OtelLogRecord): Promise<void> {
     this.debugLogLogRecord(log);
 
     const traceId = toBase64(log.traceId).base64String;
@@ -177,15 +177,18 @@ export class Server {
     });
   }
 
-  private debugLogSpan(span: OtelSpan) {
+  private debugLogSpan(span: OtelSpan): void {
     Logger.debug("Trace", "JSON", JSON.stringify(span));
   }
 
-  private debugLogLogRecord(log: OtelLogRecord) {
+  private debugLogLogRecord(log: OtelLogRecord): void {
     Logger.debug("Log", "JSON", JSON.stringify(log));
   }
 
-  async stopAfter(waitSec: number) {
+  async stopAfter(waitSec: number): Promise<{
+    capturedSpans: Map<string, OtelSpan[]>;
+    capturedLogs: Map<string, OtelLogRecord[]>;
+  }> {
     Logger.writeWithTag(`waiting for OpenTelemetry for ${waitSec} seconds`);
     await sleep(1000 * waitSec, () => {
       Logger.write(".");
@@ -200,7 +203,7 @@ export class Server {
     };
   }
 
-  private async stop() {
+  private async stop(): Promise<void> {
     await new Promise((resolve) => {
       this.httpServer?.close(() => {
         resolve(undefined);

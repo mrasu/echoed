@@ -20,6 +20,7 @@ module.exports = {
         argsIgnorePattern: "^_",
       },
     ],
+    "@typescript-eslint/explicit-function-return-type": "error",
   },
   parserOptions: {
     project: true,
