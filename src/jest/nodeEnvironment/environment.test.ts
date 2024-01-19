@@ -10,7 +10,7 @@ const WORKER_ID = "1";
 describe("Environment", () => {
   let tmpdir: string;
 
-  let defers: (() => Promise<void>)[] = [];
+  let defers: (() => void)[] = [];
 
   beforeEach(async () => {
     defers = [];
@@ -27,7 +27,7 @@ describe("Environment", () => {
 
   afterEach(async () => {
     for (const defer of defers) {
-      await defer();
+      defer();
     }
 
     await fs.promises.rm(tmpdir, { recursive: true });
@@ -41,13 +41,13 @@ describe("Environment", () => {
 
     const environment = new Environment("/path/to/example.test.js");
     await environment.setup(global, tmpdir, WORKER_ID);
-    defers.push(async () => {
-      await environment.teardown(global);
+    defers.push(() => {
+      environment.teardown(global);
     });
 
     expect(global.fetch).not.toBe(originalFetch);
 
-    await environment.teardown(global);
+    environment.teardown(global);
     defers = [];
 
     expect(global.fetch).toBe(originalFetch);
@@ -61,13 +61,13 @@ describe("Environment", () => {
 
     const environment = new Environment("/path/to/example.test.js");
     await environment.setup(global, tmpdir, WORKER_ID);
-    defers.push(async () => {
-      await environment.teardown(global);
+    defers.push(() => {
+      environment.teardown(global);
     });
 
     expect(global.__ECHOED_BUS__).toBeDefined();
 
-    await environment.teardown(global);
+    environment.teardown(global);
     defers = [];
 
     expect(global.__ECHOED_BUS__).not.toBeDefined();

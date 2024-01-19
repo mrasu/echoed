@@ -122,7 +122,7 @@ export class ConfigLoader {
   private formatError(error: ZodError<ConfigFileSchemaZod>): string {
     const v = JSON.stringify(
       error.format(),
-      (k, v) => {
+      (k, v: unknown) => {
         if (Array.isArray(v)) {
           if (v.length === 0) return undefined;
         }
@@ -170,7 +170,7 @@ export class ConfigLoader {
   ): Map<string, Comparable> {
     if (!values) return new Map();
 
-    const ret = new Map();
+    const ret = new Map<string, Comparable>();
     for (const [key, val] of Object.entries(values)) {
       if (val === null) continue;
 

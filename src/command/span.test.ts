@@ -1,5 +1,5 @@
 import { waitForSpan } from "@/command/span";
-import { traceIdPropertyName } from "@/traceLoggingFetch";
+import { setTraceIdToResponse } from "@/traceLoggingFetch";
 import { Eq } from "@/comparision/eq";
 import { Reg } from "@/comparision/reg";
 import { eq, gt, gte, lt, lte } from "@/command/compare";
@@ -9,6 +9,7 @@ import { Lt } from "@/comparision/lt";
 import { Gt } from "@/comparision/gt";
 import { DummyBus } from "@/testUtil/eventBus/dummyBus";
 import { Base64String } from "@/type/base64String";
+import { WantSpanEvent } from "@/eventBus/spanBus";
 
 describe("waitForSpan", () => {
   const span = {
@@ -18,7 +19,7 @@ describe("waitForSpan", () => {
     attributes: [],
   };
 
-  let bus: DummyBus;
+  let bus: DummyBus<WantSpanEvent>;
   beforeEach(() => {
     bus = new DummyBus();
     bus.immediateReturnObject = span;
@@ -31,7 +32,7 @@ describe("waitForSpan", () => {
 
   const buildResponse = (traceId: Base64String) => {
     const res = {} as Response;
-    (res as any)[traceIdPropertyName] = traceId;
+    setTraceIdToResponse(res, traceId);
     return res;
   };
 

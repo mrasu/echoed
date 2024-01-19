@@ -147,7 +147,7 @@ describe("Reg", () => {
   describe("fromJsonObj", () => {
     describe("when object doesn't have flag", () => {
       const obj = {
-        kind: "reg",
+        kind: "reg" as const,
         source: "^abc",
         flags: "",
       };
@@ -159,7 +159,7 @@ describe("Reg", () => {
 
     describe("when comparing value has flag", () => {
       const obj = {
-        kind: "reg",
+        kind: "reg" as const,
         source: "^abc",
         flags: "ig",
       };

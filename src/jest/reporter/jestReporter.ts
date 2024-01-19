@@ -5,6 +5,7 @@ import {
   Config as JestReporterConfig,
   Reporter as IJestReporter,
   ReporterOnStartOptions,
+  SummaryReporterOptions,
 } from "@jest/reporters";
 import { Test, TestCaseResult, TestContext } from "@jest/test-result";
 import { Circus } from "@jest/types";
@@ -18,7 +19,10 @@ export class JestReporter implements IJestReporter {
   private readonly reporter: Reporter;
   private readonly config: Config;
 
-  constructor(globalConfig: JestReporterConfig.GlobalConfig, option: {}) {
+  constructor(
+    globalConfig: JestReporterConfig.GlobalConfig,
+    _option: SummaryReporterOptions,
+  ) {
     const filepath = path.join(process.cwd(), ECHOED_CONFIG_FILE_NAME);
     const config = Config.load(filepath);
 

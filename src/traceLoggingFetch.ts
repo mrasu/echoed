@@ -12,7 +12,22 @@ type fetchRequestInfo = {
   body: string | null;
 };
 
-export const traceIdPropertyName = "__echoed_traceId";
+const traceIdPropertyName = "__echoed_traceId";
+
+export type WrappedResponse = { [traceIdPropertyName]: Base64String };
+
+export function setTraceIdToResponse(
+  response: Response,
+  traceId: Base64String,
+): void {
+  (response as unknown as WrappedResponse)[traceIdPropertyName] = traceId;
+}
+
+export function getTraceIdFromResponse(
+  response: Response,
+): Base64String | undefined {
+  return (response as unknown as WrappedResponse)[traceIdPropertyName];
+}
 
 export function buildTraceLoggingFetch(
   testPath: string,
@@ -29,7 +44,7 @@ export function buildTraceLoggingFetch(
       input,
       init,
     );
-    (response as any)[traceIdPropertyName] = traceId;
+    setTraceIdToResponse(response, traceId);
 
     await logFetchFinished(traceId, requestInfo, response);
 

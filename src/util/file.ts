@@ -17,8 +17,8 @@ export async function appendFileLine(filepath: string, text: string) {
 export function statSync(file: string): fs.Stats | undefined {
   try {
     return fs.statSync(file);
-  } catch (e: any) {
-    if ("code" in e && e.code === "ENOENT") {
+  } catch (e: unknown) {
+    if (e && typeof e === "object" && "code" in e && e.code === "ENOENT") {
       return undefined;
     }
     throw e;

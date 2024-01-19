@@ -1,5 +1,5 @@
 import { SpanBus } from "@/eventBus/spanBus";
-import { traceIdPropertyName } from "@/traceLoggingFetch";
+import { getTraceIdFromResponse } from "@/traceLoggingFetch";
 import { Span } from "@/command/spanType";
 import { Compare } from "@/command/compare";
 import { convertSpanFilterOption } from "@/command/bridge/compare";
@@ -26,7 +26,7 @@ export async function waitForSpan(
   const bus = globalThis.__ECHOED_BUS__;
   if (!bus) throw new Error("No bus for Echoed. not using reporter?");
 
-  const traceId = (res as any)[traceIdPropertyName];
+  const traceId = getTraceIdFromResponse(res);
   if (!traceId) {
     throw new Error(
       "Not having Echoed's property in Response. Not the response of fetch?",

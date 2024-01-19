@@ -18,7 +18,7 @@ export class Environment {
     await openBus(busFilePath, global);
   }
 
-  async teardown(global: Global.Global) {
+  teardown(global: Global.Global) {
     closeBus(global);
     restoreFetch(global);
   }

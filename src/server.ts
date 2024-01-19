@@ -11,6 +11,7 @@ import { Mutex } from "async-mutex";
 import { SpanBus } from "@/eventBus/spanBus";
 import { WantSpanRequest } from "@/eventBus/wantSpanRequest";
 import { OtelLogRecord } from "@/type/otelLogRecord";
+import asyncHandler from "express-async-handler";
 
 const TracesData = opentelemetry.opentelemetry.proto.trace.v1.TracesData;
 const LogsData = opentelemetry.opentelemetry.proto.logs.v1.LogsData;
@@ -58,17 +59,18 @@ export class Server {
     const base64TraceId = request.traceId.base64String;
 
     let spans: OtelSpan[] | undefined = [];
-    await this.mutex.runExclusive(async () => {
+    await this.mutex.runExclusive(() => {
       spans = this.capturedSpans.get(base64TraceId);
 
       const requests = this.wantSpanRequests.get(base64TraceId) || [];
       requests.push(request);
       this.wantSpanRequests.set(base64TraceId, requests);
     });
+    if (!spans) return;
 
-    spans?.forEach((span) => {
-      request.respondIfMatch(span);
-    });
+    for (const span of spans) {
+      await request.respondIfMatch(span);
+    }
   }
 
   private async startHttpServer(port: number): Promise<http.Server> {
@@ -80,15 +82,21 @@ export class Server {
       res.send("Hello World!");
     });
 
-    app.post("/v1/traces", (req, res, buf) => {
-      this.handleOtelTraces(req.body);
-      res.send("{}");
-    });
+    app.post(
+      "/v1/traces",
+      asyncHandler(async (req, res, _buf) => {
+        await this.handleOtelTraces(req.body as Buffer);
+        res.send("{}");
+      }),
+    );
 
-    app.post("/v1/logs", (req, res, buf) => {
-      this.handleOtelLogs(req.body);
-      res.send("{}");
-    });
+    app.post(
+      "/v1/logs",
+      asyncHandler(async (req, res, _buf) => {
+        await this.handleOtelLogs(req.body as Buffer);
+        res.send("{}");
+      }),
+    );
 
     const server = await new Promise<http.Server>((resolve) => {
       const server = app.listen(port, () => {
@@ -99,8 +107,9 @@ export class Server {
     return server;
   }
 
-  private handleOtelTraces(body: any) {
+  private async handleOtelTraces(body: Buffer) {
     const tracesData = TracesData.decode(body);
+    const otelSpans: OtelSpan[] = [];
     tracesData.resourceSpans.forEach((resourceSpan) => {
       resourceSpan.scopeSpans?.forEach((scopeSpan) => {
         scopeSpan.spans?.forEach((span) => {
@@ -109,30 +118,40 @@ export class Server {
           const scope =
             scopeSpan.scope as opentelemetry.opentelemetry.proto.common.v1.InstrumentationScope;
           const otelSpan = new OtelSpan(span, resource, scope);
-          this.captureSpan(otelSpan);
+          otelSpans.push(otelSpan);
         });
       });
     });
+
+    for (const otelSpan of otelSpans) {
+      await this.captureSpan(otelSpan);
+    }
   }
 
-  private handleOtelLogs(body: any) {
+  private async handleOtelLogs(body: Buffer) {
     const logsData = LogsData.decode(body);
+
+    const otelLogs: OtelLogRecord[] = [];
     logsData.resourceLogs.forEach((resourceLog) => {
       resourceLog.scopeLogs?.forEach((scopeLog) => {
         scopeLog.logRecords?.forEach((log) => {
           const otelLogRecord = new OtelLogRecord(log);
-          this.captureLog(otelLogRecord);
+          otelLogs.push(otelLogRecord);
         });
       });
     });
+
+    for (const otelLogRecord of otelLogs) {
+      await this.captureLog(otelLogRecord);
+    }
   }
 
   private async captureSpan(span: OtelSpan) {
     this.debugLogSpan(span);
 
-    let traceId = toBase64(span.traceId).base64String;
+    const traceId = toBase64(span.traceId).base64String;
 
-    await this.mutex.runExclusive(async () => {
+    await this.mutex.runExclusive(() => {
       if (!this.capturedSpans.has(traceId)) {
         this.capturedSpans.set(traceId, []);
       }
@@ -141,16 +160,16 @@ export class Server {
 
     const requests = this.wantSpanRequests.get(traceId);
     requests?.forEach((request) => {
-      request.respondIfMatch(span);
+      void request.respondIfMatch(span);
     });
   }
 
   private async captureLog(log: OtelLogRecord) {
     this.debugLogLogRecord(log);
 
-    let traceId = toBase64(log.traceId).base64String;
+    const traceId = toBase64(log.traceId).base64String;
 
-    await this.mutex.runExclusive(async () => {
+    await this.mutex.runExclusive(() => {
       if (!this.capturedLogs.has(traceId)) {
         this.capturedLogs.set(traceId, []);
       }

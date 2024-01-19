@@ -1,6 +1,14 @@
-import { NumComparable } from "@/comparision/numComparable";
+import { JsonNumComparable, NumComparable } from "@/comparision/numComparable";
 import Long from "long";
 import { Kind } from "@/comparision/kind";
+import { z } from "zod";
+
+const KIND = "gte";
+
+export const JsonGte = JsonNumComparable.extend({
+  kind: z.literal(KIND),
+});
+export type JsonGte = z.infer<typeof JsonGte>;
 
 export class Gte extends NumComparable {
   constructor(value: number) {
@@ -16,10 +24,10 @@ export class Gte extends NumComparable {
   }
 
   protected get kind(): Kind {
-    return "gte";
+    return KIND;
   }
 
-  static fromJsonObj(obj: any): Gte {
+  static fromJsonObj(obj: JsonNumComparable): Gte {
     return new Gte(obj.value);
   }
 }

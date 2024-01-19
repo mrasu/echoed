@@ -3,6 +3,12 @@ import { appendFileLine, createEmptyFile } from "@/util/file";
 import { Logger } from "@/logger";
 import { FileWatcher } from "@/eventBus/infra/fileWatcher";
 import { IEventBus, WatchCallback } from "@/eventBus/infra/iEventBus";
+import { z } from "zod";
+
+const eventData = z.object({
+  event: z.string(),
+  data: z.unknown(),
+});
 
 export class FileBus implements IEventBus {
   private readonly file: string;
@@ -16,23 +22,23 @@ export class FileBus implements IEventBus {
 
   async open() {
     const watcher = new FileWatcher(this.file);
-    await watcher.open((text) => {
-      this.handleTextAdded(text);
+    await watcher.open(async (text) => {
+      await this.handleTextAdded(text);
     });
 
     this.watcher = watcher;
   }
 
-  private handleTextAdded(text: string) {
+  private async handleTextAdded(text: string) {
     const lines = text.split("\n");
     for (const line of lines) {
       if (line === "") {
         continue;
       }
 
-      let data: { event: string; data: unknown };
+      let data: z.infer<typeof eventData>;
       try {
-        data = JSON.parse(line);
+        data = eventData.parse(JSON.parse(line));
       } catch (error) {
         Logger.warn("failed to parse eventBus line", error, line);
         continue;
@@ -40,9 +46,13 @@ export class FileBus implements IEventBus {
       const event = data.event;
 
       const callbacks = this.watchingEvents.get(event);
-      callbacks?.forEach((callback) => {
-        callback(data.data);
-      });
+      if (!callbacks) return;
+
+      await Promise.all(
+        callbacks?.map(async (callback) => {
+          await callback(data.data);
+        }),
+      );
     }
   }
 
@@ -67,11 +77,11 @@ export class FileBus implements IEventBus {
   public async onOnce<U>(
     eventName: string,
     timeoutMs: number,
-    fn: (data: unknown) => U | undefined,
+    fn: (data: unknown) => Promise<U | undefined>,
   ): Promise<U> {
     return new Promise((resolve, reject) => {
-      const callback = (data: unknown) => {
-        const res = fn(data);
+      const callback = async (data: unknown) => {
+        const res = await fn(data);
         if (!res) {
           return;
         }
@@ -90,7 +100,7 @@ export class FileBus implements IEventBus {
     });
   }
 
-  off(eventName: string, callback: (data: any) => void): void {
+  off(eventName: string, callback: WatchCallback): void {
     const callbacks = this.watchingEvents.get(eventName);
     if (!callbacks) return;
 
@@ -101,7 +111,7 @@ export class FileBus implements IEventBus {
     callbacks.splice(index, 1);
   }
 
-  public async emit(eventName: string, data: any) {
+  public async emit(eventName: string, data: unknown) {
     if (!fs.existsSync(this.file)) {
       await createEmptyFile(this.file);
     }

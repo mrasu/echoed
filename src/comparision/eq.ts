@@ -1,6 +1,15 @@
 import { Comparable, Primitive } from "@/comparision/comparable";
 import { opentelemetry } from "@/generated/otelpbj";
 import { Kind } from "@/comparision/kind";
+import { z } from "zod";
+
+const KIND = "eq";
+
+export const JsonEq = z.object({
+  kind: z.literal(KIND),
+  value: Primitive,
+});
+export type JsonEq = z.infer<typeof JsonEq>;
 
 export class Eq extends Comparable {
   constructor(private value: Primitive) {
@@ -29,16 +38,16 @@ export class Eq extends Comparable {
   }
 
   protected get kind(): Kind {
-    return "eq";
+    return KIND;
   }
 
-  protected toJsonObj(): Record<string, Primitive> {
+  protected toJsonObj(): Omit<JsonEq, "kind"> {
     return {
       value: this.value,
     };
   }
 
-  static fromJsonObj(obj: any): Eq {
+  static fromJsonObj(obj: JsonEq): Eq {
     return new Eq(obj.value);
   }
 }

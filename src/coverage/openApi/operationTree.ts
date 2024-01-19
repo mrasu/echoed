@@ -24,14 +24,13 @@ function findBasePath(doc: OpenAPI.Document): string {
     const server = doc.servers[0];
 
     const baseUrl = server.url;
-    const url = baseUrl.replace(/\{(.+?)}/g, (match, p1) => {
+    const url = baseUrl.replace(/\{(.+?)}/g, (match, p1: string) => {
       if (server.variables && server.variables[p1]) {
         return server.variables[p1].default;
       }
       throw new Error(`No variable found for OpenAPI server URL: ${baseUrl}`);
     });
     const basePathName = new URL(url).pathname;
-    const variables = server.variables ?? {};
 
     const path = normalizePath(basePathName);
     return removeLastSlash(path);
@@ -81,7 +80,8 @@ export class OperationTree {
       return pathTree;
     }
 
-    for (const [pattern, pathObject] of Object.entries(doc.paths)) {
+    for (const pattern of Object.keys(doc.paths)) {
+      const pathObject = doc.paths[pattern];
       if (!pathObject) continue;
       pathTree.add(pattern, pathObject);
     }

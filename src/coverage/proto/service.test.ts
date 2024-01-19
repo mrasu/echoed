@@ -1,5 +1,5 @@
 import { Service } from "@/coverage/proto/service";
-import { Root, Service as ProtobufService } from "protobufjs";
+import { Root } from "protobufjs";
 
 describe("Service", () => {
   const root = Root.fromJSON({

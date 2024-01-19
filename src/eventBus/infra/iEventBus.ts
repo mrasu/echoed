@@ -1,4 +1,4 @@
-export type WatchCallback = (data: unknown) => void;
+export type WatchCallback = (data: unknown) => Promise<void>;
 
 export interface IEventBus {
   open(): Promise<void>;
@@ -7,8 +7,8 @@ export interface IEventBus {
   onOnce<T>(
     eventName: string,
     timeoutMs: number,
-    fn: (data: unknown) => T | undefined,
+    fn: (data: unknown) => Promise<T | undefined>,
   ): Promise<T>;
 
-  emit(eventName: string, data: any): Promise<any>;
+  emit(eventName: string, data: unknown): Promise<void>;
 }

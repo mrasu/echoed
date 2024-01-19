@@ -14,7 +14,7 @@ if (fs.existsSync(cwd)) {
 }
 
 const creator = new Creator(cwd);
-creator.run().then(() => {
+void creator.run().then(() => {
   console.log(`Finish initializing Echoed.
 
 The initialization also creates example tests to demonstrate Echoed's behavior.

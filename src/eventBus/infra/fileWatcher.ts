@@ -1,26 +1,27 @@
 import { createEmptyFile, statSync } from "@/util/file";
 import fs from "fs";
 import { Mutex } from "async-mutex";
+import { neverVisit } from "@/util/never";
 
 export class FileWatcher {
   private readonly file: string;
   private fsWatcher?: fs.FSWatcher;
   private mutex = new Mutex();
   private lastFilePosition = 0;
-  private callback?: (addedText: string) => void;
+  private callback?: (addedText: string) => Promise<void>;
 
   constructor(file: string) {
     this.file = file;
   }
 
-  async open(callback: (_: string) => void) {
+  async open(callback: (_: string) => Promise<void>) {
     const stat = statSync(this.file);
     const position = stat?.size || 0;
     if (!stat) {
       await createEmptyFile(this.file);
     }
     const fsWatcher = fs.watch(this.file, (eventType) => {
-      this.receiveFSEvent(eventType);
+      void this.receiveFSEvent(eventType);
     });
 
     this.fsWatcher = fsWatcher;
@@ -42,14 +43,21 @@ export class FileWatcher {
           await this.handleFileChanged();
           break;
         default:
-          throw new Error(
-            `unknown event while watching eventBus: ${eventType}`,
-          );
+          neverVisit("unknown event while watching eventBus", eventType);
       }
     });
   }
 
   private async handleFileChanged() {
+    const text = await this.readChangedText();
+    if (!text) return;
+
+    if (this.callback) {
+      await this.callback(text);
+    }
+  }
+
+  private async readChangedText(): Promise<string | undefined> {
     const stat = await fs.promises.stat(this.file);
     if (stat.size <= this.lastFilePosition) {
       return;
@@ -63,21 +71,18 @@ export class FileWatcher {
       encoding: "utf-8",
     });
 
-    return new Promise((resolve, reject) => {
+    return new Promise<string>((resolve) => {
       const chunks: string[] = [];
       stream.on("readable", () => {
         let chunk;
-        while ((chunk = stream.read()) !== null) {
-          chunks.push(chunk as string);
+        while ((chunk = stream.read() as string) !== null) {
+          chunks.push(chunk);
         }
       });
 
       stream.on("end", () => {
         const text = chunks.join("");
-        if (this.callback) {
-          this.callback(text);
-        }
-        resolve(undefined);
+        resolve(text);
       });
     });
   }

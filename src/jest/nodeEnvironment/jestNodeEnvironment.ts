@@ -4,7 +4,6 @@ import type {
   EnvironmentContext,
 } from "@jest/environment";
 import { getTmpDirFromEnv } from "@/env";
-import { Logger } from "@/logger";
 import { Environment } from "@/jest/nodeEnvironment/environment";
 
 export class JestNodeEnvironment extends NodeEnvironment {
@@ -30,7 +29,7 @@ export class JestNodeEnvironment extends NodeEnvironment {
   }
 
   override async teardown() {
-    await this.env.teardown(this.global);
+    this.env.teardown(this.global);
 
     await super.teardown();
   }

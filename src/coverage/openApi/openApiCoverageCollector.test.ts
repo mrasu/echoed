@@ -11,7 +11,7 @@ import { toBase64 } from "@/util/byte";
 describe("openApiCoverageCollector", () => {
   const buildCollector = async (): Promise<OpenApiCoverageCollector> => {
     const doc = await SwaggerParser.parse(buildV3Document());
-    return await OpenApiCoverageCollector.buildFromDocument(doc);
+    return OpenApiCoverageCollector.buildFromDocument(doc);
   };
 
   const buildExpectedCoverage = (

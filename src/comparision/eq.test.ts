@@ -245,7 +245,7 @@ describe("Eq", () => {
   describe("fromJsonObj", () => {
     it("should create Eq from object", () => {
       const obj = {
-        kind: "eq",
+        kind: "eq" as const,
         value: "1234",
       };
       expect(Eq.fromJsonObj(obj)).toStrictEqual(new Eq("1234"));

@@ -1,6 +1,16 @@
-import { Comparable, Primitive } from "@/comparision/comparable";
+import { Comparable } from "@/comparision/comparable";
 import { opentelemetry } from "@/generated/otelpbj";
 import { Kind } from "@/comparision/kind";
+import { z } from "zod";
+
+const KIND = "reg";
+
+export const JsonReg = z.object({
+  kind: z.literal(KIND),
+  source: z.string(),
+  flags: z.string(),
+});
+export type JsonReg = z.infer<typeof JsonReg>;
 
 export class Reg extends Comparable {
   constructor(private regExp: RegExp) {
@@ -24,17 +34,17 @@ export class Reg extends Comparable {
   }
 
   protected get kind(): Kind {
-    return "reg";
+    return KIND;
   }
 
-  protected toJsonObj(): Record<string, Primitive> {
+  protected toJsonObj(): Omit<JsonReg, "kind"> {
     return {
       source: this.regExp.source,
       flags: this.regExp.flags,
     };
   }
 
-  static fromJsonObj(obj: any): Reg {
+  static fromJsonObj(obj: JsonReg): Reg {
     return new Reg(new RegExp(obj.source, obj.flags));
   }
 }

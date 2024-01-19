@@ -15,7 +15,7 @@ export class Logger {
     Logger.showDebug = showDebug;
   }
 
-  static warn(message?: any, ...optionalParams: any[]) {
+  static warn(message?: string, ...optionalParams: unknown[]) {
     if (!this.enabled) return;
 
     console.warn(
@@ -23,13 +23,13 @@ export class Logger {
       ...optionalParams,
     );
   }
-  static error(message?: any, ...optionalParams: any[]) {
+  static error(message?: string, ...optionalParams: unknown[]) {
     if (!this.enabled) return;
 
     console.error(`${tag} ${message}`, ...optionalParams);
   }
 
-  static debug(message?: any, ...optionalParams: any[]) {
+  static debug(message?: string, ...optionalParams: unknown[]) {
     if (!this.enabled) return;
 
     if (Logger.showDebug) {
@@ -37,13 +37,13 @@ export class Logger {
     }
   }
 
-  static log(message?: any, ...optionalParams: any[]) {
+  static log(message?: string, ...optionalParams: unknown[]) {
     if (!this.enabled) return;
 
     console.log(`${tag} ${message}`, ...optionalParams);
   }
 
-  static logGrayComment(message?: any, ...optionalParams: any[]) {
+  static logGrayComment(message?: string, ...optionalParams: unknown[]) {
     if (!this.enabled) return;
 
     console.log(

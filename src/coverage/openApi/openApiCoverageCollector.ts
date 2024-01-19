@@ -24,9 +24,9 @@ export class OpenApiCoverageCollector implements IServiceCoverageCollector {
     OtelSpan[]
   >();
 
-  static async buildFromDocument(
+  static buildFromDocument(
     document: OpenAPI.Document,
-  ): Promise<OpenApiCoverageCollector> {
+  ): OpenApiCoverageCollector {
     const pathTree = OperationTree.buildFromDocument(document);
 
     return new OpenApiCoverageCollector(pathTree);

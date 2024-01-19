@@ -1,11 +1,11 @@
 import { Operation } from "@/coverage/openApi/operation";
-import { Method, Methods, toMethod } from "@/type/http";
+import { Method, toMethod } from "@/type/http";
 import {
   OpenAPIPathItemObject,
   PathWildcard,
 } from "@/coverage/openApi/operationTree";
 
-type PartialPath = string | Symbol;
+type PartialPath = string | symbol;
 
 export class OperationNode {
   partialPath: PartialPath;
@@ -22,10 +22,11 @@ export class OperationNode {
     specPath: string,
   ) {
     if (partialPaths.length === 0) {
-      for (const [method, operationObject] of Object.entries(pathItemObject)) {
-        if (!operationObject) continue;
+      for (const method of Object.keys(pathItemObject)) {
         const m = toMethod(method);
         if (!m) continue;
+        const operationObject = pathItemObject[m];
+        if (!operationObject) continue;
 
         this.operations.set(m, new Operation(specPath, m, operationObject));
       }

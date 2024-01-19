@@ -14,16 +14,18 @@ import { buildTestCaseResult } from "@/testUtil/jest/testCaseResult";
 import { Config } from "@/config/config";
 import { PropagationTestConfig } from "@/config/propagationTestConfig";
 import { CoverageResult } from "@/coverage/coverageResult";
+import { TestCaseStartInfo } from "@/jest/reporter/testCase";
+import { TestCase } from "@/testCase";
 
 class DummyReportFile implements IReportFile {
   testResult: TestResult | undefined;
   async generate(
     testResult: TestResult,
-    coverageResult: CoverageResult,
+    _coverageResult: CoverageResult,
   ): Promise<string> {
     this.testResult = testResult;
 
-    return "";
+    return Promise.resolve("");
   }
 }
 
@@ -36,7 +38,7 @@ afterEach(() => {
 });
 
 describe("Reporter", () => {
-  let defers: (() => Promise<void>)[] = [];
+  const defers: (() => Promise<void>)[] = [];
   afterEach(async () => {
     for (const defer of defers) {
       await defer();
@@ -148,13 +150,13 @@ describe("Reporter", () => {
       testId: string,
       file: string,
       startedAt: number,
-    ): {} => {
-      return {
-        testId: testId,
-        file: file,
-        name: DEFAULT_TEST_FULL_NAME,
-        startTimeMillis: startedAt,
-      };
+    ): TestCaseStartInfo => {
+      return new TestCaseStartInfo(
+        testId,
+        file,
+        DEFAULT_TEST_FULL_NAME,
+        startedAt,
+      );
     };
 
     it("should hold current running test", async () => {
@@ -233,17 +235,17 @@ describe("Reporter", () => {
     testId: string,
     file: string,
     startedAt: number,
-  ): {} => {
-    return {
-      testId: testId,
-      file: file,
-      name: DEFAULT_TEST_FULL_NAME,
-      startTimeMillis: startedAt,
-      status: "passed",
-      duration: 123,
-      failureDetails: [],
-      failureMessages: [],
-    };
+  ): TestCase => {
+    return new TestCase(
+      testId,
+      file,
+      DEFAULT_TEST_FULL_NAME,
+      startedAt,
+      "passed",
+      123,
+      [],
+      [],
+    );
   };
   describe("onTestCaseResult", () => {
     it("should record the result of test", async () => {

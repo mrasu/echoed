@@ -41,7 +41,7 @@ describe("SpanBus", () => {
       await bus.requestWantSpan(new Base64String("trace-id"), defaultFilter, 0);
 
       const expected: WantSpanEvent = {
-        wantId: expect.any(String),
+        wantId: expect.any(String) as string,
         base64TraceId: "trace-id",
         filter: defaultFilter,
       };

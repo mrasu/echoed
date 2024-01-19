@@ -95,8 +95,8 @@ describe("FileBus", () => {
     });
 
     it("should return event when event is emitted", async () => {
-      const callback = (data: unknown) => {
-        return data;
+      const callback = async (data: unknown) => {
+        return Promise.resolve(data);
       };
 
       await bus.open();
@@ -139,7 +139,7 @@ describe("FileBus", () => {
       const events = txt
         .split("\n")
         .filter((a) => a)
-        .map((line) => JSON.parse(line));
+        .map((line) => JSON.parse(line) as unknown);
       return events;
     };
 

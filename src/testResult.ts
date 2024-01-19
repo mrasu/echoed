@@ -12,6 +12,7 @@ import { opentelemetry } from "@/generated/otelpbj";
 import { TestCase } from "@/testCase";
 import { omitDirPath } from "@/util/file";
 import { OtelLogRecord } from "@/type/otelLogRecord";
+import { neverVisit } from "@/util/never";
 
 const SpanKind = opentelemetry.proto.trace.v1.Span.SpanKind;
 
@@ -121,13 +122,13 @@ class TestCaseLogCollector {
   async collect(
     testCases: Map<string, TestCase[]>,
   ): Promise<Map<string, TestCaseResult[]>> {
-    const logs = this.readLogs();
+    const logs = await this.readLogs();
     const testCaseResults = this.toTestCaseResults(testCases, logs);
     return testCaseResults;
   }
 
-  private readLogs(): Log[] {
-    const logFiles = fs.readdirSync(this.tmpLogDir);
+  private async readLogs(): Promise<Log[]> {
+    const logFiles = await fs.promises.readdir(this.tmpLogDir);
 
     const rawLogs = logFiles
       .map((file: string) =>
@@ -137,12 +138,13 @@ class TestCaseLogCollector {
 
     const logs: Log[] = [];
     rawLogs.forEach((rawLog: string) => {
-      let parsed: any;
+      let logJson: unknown;
       try {
-        parsed = JSON.parse(rawLog);
+        logJson = JSON.parse(rawLog);
       } catch (e) {
         return;
       }
+      const parsed = Log.parse(logJson);
 
       if (parsed.type === "fetchStarted") {
         logs.push({
@@ -166,7 +168,7 @@ class TestCaseLogCollector {
           },
         });
       } else {
-        Logger.warn("unknown log type found: ", parsed.type);
+        neverVisit("unknown log type found: ", parsed);
       }
     });
 

@@ -74,7 +74,10 @@ export class Reporter {
     this.coverageCollector = new CoverageCollector();
   }
 
-  async onRunStart(results: AggregatedResult, options: ReporterOnStartOptions) {
+  async onRunStart(
+    _results: AggregatedResult,
+    _options: ReporterOnStartOptions,
+  ) {
     await this.prepareCoverageCollector();
 
     Logger.log("Starting server...");
@@ -101,10 +104,10 @@ export class Reporter {
   ): Promise<IServiceCoverageCollector | undefined> {
     if (service.openapi) {
       const document = await SwaggerParser.parse(service.openapi.filePath);
-      return await OpenApiCoverageCollector.buildFromDocument(document);
+      return OpenApiCoverageCollector.buildFromDocument(document);
     } else if (service.proto) {
       const root = await protobuf.load(service.proto.filePath);
-      return await ProtoCoverageCollector.buildFromRoot(
+      return ProtoCoverageCollector.buildFromRoot(
         root,
         service.proto.filePath,
         service.proto.services ? new Set(service.proto.services) : undefined,

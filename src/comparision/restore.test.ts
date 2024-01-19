@@ -13,7 +13,7 @@ describe("restoreComparables", () => {
         JSON.stringify({
           key: new Eq("abc"),
         }),
-      );
+      ) as Record<string, unknown>;
 
       it("should return Eq instance", () => {
         expect(restoreComparables(obj)).toStrictEqual({
@@ -27,7 +27,7 @@ describe("restoreComparables", () => {
         JSON.stringify({
           key: new Eq(1234),
         }),
-      );
+      ) as Record<string, unknown>;
 
       it("should return Eq instance", () => {
         expect(restoreComparables(obj)).toStrictEqual({
@@ -41,7 +41,7 @@ describe("restoreComparables", () => {
         JSON.stringify({
           key: new Eq(true),
         }),
-      );
+      ) as Record<string, unknown>;
 
       it("should return Eq instance", () => {
         expect(restoreComparables(obj)).toStrictEqual({
@@ -57,7 +57,7 @@ describe("restoreComparables", () => {
         JSON.stringify({
           key: new Gt(1234),
         }),
-      );
+      ) as Record<string, unknown>;
 
       expect(restoreComparables(obj)).toStrictEqual({
         key: new Gt(1234),
@@ -71,7 +71,7 @@ describe("restoreComparables", () => {
         JSON.stringify({
           key: new Gte(1234),
         }),
-      );
+      ) as Record<string, unknown>;
 
       expect(restoreComparables(obj)).toStrictEqual({
         key: new Gte(1234),
@@ -85,7 +85,7 @@ describe("restoreComparables", () => {
         JSON.stringify({
           key: new Lt(1234),
         }),
-      );
+      ) as Record<string, unknown>;
 
       expect(restoreComparables(obj)).toStrictEqual({
         key: new Lt(1234),
@@ -99,7 +99,7 @@ describe("restoreComparables", () => {
         JSON.stringify({
           key: new Lte(1234),
         }),
-      );
+      ) as Record<string, unknown>;
 
       expect(restoreComparables(obj)).toStrictEqual({
         key: new Lte(1234),
@@ -114,7 +114,7 @@ describe("restoreComparables", () => {
           JSON.stringify({
             key: new Reg(/^abc/),
           }),
-        );
+        ) as Record<string, unknown>;
 
         expect(restoreComparables(obj)).toStrictEqual({
           key: new Reg(/^abc/),
@@ -128,7 +128,7 @@ describe("restoreComparables", () => {
           JSON.stringify({
             key: new Reg(/^abc/gi),
           }),
-        );
+        ) as Record<string, unknown>;
 
         expect(restoreComparables(obj)).toStrictEqual({
           key: new Reg(/^abc/gi),

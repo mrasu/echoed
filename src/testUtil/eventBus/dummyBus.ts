@@ -1,8 +1,8 @@
 import { IEventBus, WatchCallback } from "@/eventBus/infra/iEventBus";
 
-export class DummyBus implements IEventBus {
-  emittedData: [string, any][] = [];
-  immediateReturnObject: any = undefined;
+export class DummyBus<T> implements IEventBus {
+  emittedData: [string, T][] = [];
+  immediateReturnObject?: unknown = undefined;
 
   private watchingEvents = new Map<string, WatchCallback>();
 
@@ -11,23 +11,25 @@ export class DummyBus implements IEventBus {
   on(eventName: string, callback: WatchCallback) {
     this.watchingEvents.set(eventName, callback);
   }
-  async onOnce<T>(
-    eventName: string,
-    timeoutMs: number,
-    fn: (data: unknown) => T | undefined,
-  ): Promise<T> {
+
+  onOnce<R>(
+    _eventName: string,
+    _timeoutMs: number,
+    _fn: (data: unknown) => Promise<R | undefined>,
+  ): Promise<R> {
     if (this.immediateReturnObject) {
-      return this.immediateReturnObject as T;
+      return Promise.resolve(this.immediateReturnObject as R);
     }
 
-    return undefined as T;
+    return Promise.resolve(undefined as R);
   }
-  async emit(eventName: string, data: any) {
+
+  async emit(eventName: string, data: T) {
     this.emittedData.push([eventName, data]);
     for (const [key, callback] of this.watchingEvents) {
       if (key === eventName) {
         // call JSON.stringify and parse to emulate file writing and reading
-        callback(JSON.parse(JSON.stringify(data)));
+        await callback(JSON.parse(JSON.stringify(data)));
       }
     }
   }

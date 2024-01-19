@@ -5,7 +5,7 @@ export class TwoKeyValuesMap<K1, K2, V> {
   private map = new Map<K1, Map<K2, V>>();
 
   get(k1: K1, k2: K2): V | undefined {
-    const [value, _] = this.getWithType(k1, k2);
+    const [value] = this.getWithType(k1, k2);
     return value;
   }
 

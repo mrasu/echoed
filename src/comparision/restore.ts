@@ -1,36 +1,43 @@
 import { Comparable } from "@/comparision/comparable";
-import { Eq } from "@/comparision/eq";
-import { Gt } from "@/comparision/gt";
-import { Gte } from "@/comparision/gte";
-import { Lt } from "@/comparision/lt";
-import { Lte } from "@/comparision/lte";
-import { Reg } from "@/comparision/reg";
-import { Kind, toKind } from "@/comparision/kind";
+import { Eq, JsonEq } from "@/comparision/eq";
+import { Gt, JsonGt } from "@/comparision/gt";
+import { Gte, JsonGte } from "@/comparision/gte";
+import { Lt, JsonLt } from "@/comparision/lt";
+import { Lte, JsonLte } from "@/comparision/lte";
+import { Reg, JsonReg } from "@/comparision/reg";
+import { z } from "zod";
+import { neverVisit } from "@/util/never";
+
+const JsonComparable = z.discriminatedUnion("kind", [
+  JsonEq,
+  JsonGt,
+  JsonGte,
+  JsonLt,
+  JsonLte,
+  JsonReg,
+]);
+
+type JsonComparable = z.infer<typeof JsonComparable>;
 
 export function restoreComparables(
-  obj: Record<string, any> | undefined,
+  obj: Record<string, unknown> | undefined,
 ): Record<string, Comparable> {
   if (!obj) return {};
 
   const ret: Record<string, Comparable> = {};
   for (const [key, value] of Object.entries(obj)) {
-    ret[key] = restoreComparable(value);
+    ret[key] = restoreComparable(JsonComparable.parse(value));
   }
 
   return ret;
 }
 
-function restoreComparable(obj: any): Comparable {
-  const kind = toKind(obj.kind);
-  if (!kind) {
-    throw new Error(`Unknown kind: ${obj.kind}`);
-  }
-
-  return restoreComparableFromKind(kind, obj);
+function restoreComparable(obj: JsonComparable): Comparable {
+  return restoreComparableFromKind(obj);
 }
 
-function restoreComparableFromKind(kind: Kind, obj: any): Comparable {
-  switch (kind) {
+function restoreComparableFromKind(obj: JsonComparable): Comparable {
+  switch (obj.kind) {
     case "eq":
       return Eq.fromJsonObj(obj);
     case "gt":
@@ -43,15 +50,21 @@ function restoreComparableFromKind(kind: Kind, obj: any): Comparable {
       return Lte.fromJsonObj(obj);
     case "reg":
       return Reg.fromJsonObj(obj);
+    default:
+      neverVisit("unknown kind", obj);
   }
 }
 
-export function restoreStringComparable(obj: any): Reg | Eq {
+const JsonStringComparable = z.discriminatedUnion("kind", [JsonEq, JsonReg]);
+
+export function restoreStringComparable(orig: unknown): Reg | Eq {
+  const obj = JsonStringComparable.parse(orig);
   switch (obj.kind) {
     case "eq":
       return Eq.fromJsonObj(obj);
     case "reg":
       return Reg.fromJsonObj(obj);
+    default:
+      neverVisit("unknown kind", obj);
   }
-  throw new Error(`Unknown kind: ${obj.kind}`);
 }

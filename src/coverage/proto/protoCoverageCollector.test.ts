@@ -118,7 +118,7 @@ describe("ProtoCoverageCollector", () => {
         ],
       });
 
-      it("should mark the method as visited", async () => {
+      it("should mark the method as visited", () => {
         const collector = buildCollector();
         collector.markVisited([span]);
 
@@ -162,7 +162,7 @@ describe("ProtoCoverageCollector", () => {
         ],
       });
 
-      it("should not mark the method as visited", async () => {
+      it("should not mark the method as visited", () => {
         const collector = buildCollector();
         collector.markVisited([span]);
 
@@ -212,7 +212,7 @@ describe("ProtoCoverageCollector", () => {
         ],
       });
 
-      it("should not mark the method as visited", async () => {
+      it("should not mark the method as visited", () => {
         const collector = buildCollector();
         collector.markVisited([span]);
 
@@ -249,7 +249,7 @@ describe("ProtoCoverageCollector", () => {
         attributes: [],
       });
 
-      it("should not mark the method as visited", async () => {
+      it("should not mark the method as visited", () => {
         const collector = buildCollector();
         collector.markVisited([span]);
 
@@ -301,7 +301,7 @@ describe("ProtoCoverageCollector", () => {
         attributes: attributes,
       });
 
-      it("should not mark the method as visited", async () => {
+      it("should not mark the method as visited", () => {
         const collector = buildCollector();
         collector.markVisited([clientSpan]);
 

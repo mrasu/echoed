@@ -9,13 +9,19 @@ export async function readBodyInit(bodyInit: BodyInit): Promise<string> {
     // If it's an ArrayBuffer, create a Uint8Array and read it as text
     return new TextDecoder().decode(new Uint8Array(bodyInit));
   } else if (bodyInit instanceof ReadableStream) {
-    // If it's a ReadableStream, use the previous example to read it fully
-    return await readStreamFully(bodyInit);
-  } else if (
-    bodyInit instanceof FormData ||
-    bodyInit instanceof URLSearchParams
-  ) {
-    // For FormData or URLSearchParams, convert to string
+    // If it's a ReadableStream, use readStreamFully to read it fully
+    return await readStreamFully(bodyInit as ReadableStream<Uint8Array>);
+  } else if (bodyInit instanceof FormData) {
+    const entries: Record<string, string> = {};
+    for (const [key, value] of bodyInit.entries()) {
+      if (typeof value === "string") {
+        entries[key] = value;
+      } else {
+        entries[key] = `File(${value.name})`;
+      }
+    }
+    return JSON.stringify(entries);
+  } else if (bodyInit instanceof URLSearchParams) {
     return bodyInit.toString();
   } else {
     return "UNSUPPORTED BODY";
@@ -29,6 +35,7 @@ export async function readStreamFully(
   let result = "";
 
   try {
+    // eslint-disable-next-line no-constant-condition
     while (true) {
       const { done, value } = await reader.read();
 

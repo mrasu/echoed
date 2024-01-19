@@ -1,7 +1,9 @@
 import { opentelemetry } from "@/generated/otelpbj";
 import { Kind } from "@/comparision/kind";
+import { z } from "zod";
 
-export type Primitive = string | boolean | number;
+export const Primitive = z.union([z.string(), z.number(), z.boolean()]);
+export type Primitive = z.infer<typeof Primitive>;
 
 export abstract class Comparable {
   abstract matchString(target: string | null | undefined): boolean;

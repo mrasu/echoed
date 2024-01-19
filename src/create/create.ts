@@ -5,6 +5,6 @@ export class Creator {
   constructor(private cwd: string) {}
   async run() {
     const dir = path.join(__dirname, "template");
-    fs.cpSync(dir, this.cwd, { recursive: true });
+    await fs.promises.cp(dir, this.cwd, { recursive: true });
   }
 }

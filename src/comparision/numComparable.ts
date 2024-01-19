@@ -1,6 +1,10 @@
-import { Comparable, Primitive } from "@/comparision/comparable";
+import { Comparable } from "@/comparision/comparable";
 import { opentelemetry } from "@/generated/otelpbj";
 import Long from "long";
+import { z } from "zod";
+
+export const JsonNumComparable = z.object({ value: z.number() });
+export type JsonNumComparable = z.infer<typeof JsonNumComparable>;
 
 export abstract class NumComparable extends Comparable {
   protected constructor(protected value: number) {
@@ -22,7 +26,7 @@ export abstract class NumComparable extends Comparable {
     return false;
   }
 
-  protected toJsonObj(): Record<string, Primitive> {
+  protected toJsonObj(): JsonNumComparable {
     return {
       value: this.value,
     };
