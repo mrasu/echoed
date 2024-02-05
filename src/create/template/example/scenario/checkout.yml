@@ -10,7 +10,7 @@ scenarios:
         act:
           runner: fetch
           argument:
-            endpoint: /cart?currencyCode=${session.currencyCode}
+            endpoint: cart?currencyCode=${session.currencyCode}
             method: POST
             jsonBody:
               item:
@@ -28,7 +28,7 @@ scenarios:
         act:
           runner: fetch
           argument:
-            endpoint: /cart?currencyCode=${session.currencyCode}
+            endpoint: cart?currencyCode=${session.currencyCode}
             method: POST
             jsonBody:
               item:
@@ -49,7 +49,7 @@ scenarios:
         act:
           runner: fetch
           argument:
-            endpoint: /checkout?currencyCode=${session.currencyCode}
+            endpoint: checkout?currencyCode=${session.currencyCode}
             method: POST
             jsonBody:
               email: someone@example.com

@@ -51,6 +51,14 @@ type Option = {
    *
    * @example
    * When argument's endpoint is "v1/hello", whether baseEndpoint is "https://example.com/api" or "https://example.com/api/", the result will be the same: "https://example.com/api/v1/hello"
+   *
+   * Below table shows the result of different combination of baseEndpoint and endpoint
+   * | baseEndpoint | endpoint | result |
+   * | ------------ | -------- | ------ |
+   * | https://example.com/api  | v1/hello  | https://example.com/api/v1/hello |
+   * | https://example.com/api/ | v1/hello  | https://example.com/api/v1/hello |
+   * | https://example.com/api  | /v1/hello | https://example.com/v1/hello |
+   * | https://example.com/api  | ../hello  | https://example.com/hello |
    */
   baseEndpoint?: string;
 

@@ -7,7 +7,7 @@ scenarios:
         act:
           runner: fetch
           argument:
-            endpoint: /products/${productId}
+            endpoint: products/${productId}
         assert:
           - expect(_.response.status).toBe(200)
           - expect(_.jsonBody.id).toBe(productId)

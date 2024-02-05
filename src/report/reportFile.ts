@@ -128,11 +128,14 @@ export class ReportFile implements IReportFile {
 
     const echoedParam = this.createEchoedParam(testResult, coverageResult);
 
+    const echoedParamText = this.escapeTagForHtmlEmbedJSON(
+      JSON.stringify(echoedParam),
+    );
     const fileContent = htmlContent.replace(
       /<!-- -z- replace:dummy start -z- -->.+<!-- -z- replace:dummy end -z- -->/s,
       `
     <script>
-    window.__echoed_param__ = ${JSON.stringify(echoedParam)}
+    window.__echoed_param__ = ${echoedParamText}
     </script>
     `,
     );
@@ -296,5 +299,31 @@ export class ReportFile implements IReportFile {
     return {
       propagationTestEnabled: this.config.propagationTestConfig.enabled,
     };
+  }
+
+  /**
+   * Because when text like "<script" or "<!CDATA" exists inside text, HTML considered javascript is stopped.
+   * To stop the separation, split the text and combine with "+" instead.
+   *
+   * For example, below HTML doesn't work as expected
+   * ```
+   * <script>
+   * const json = {"hello": "good<script>world</script>"}
+   * </script>
+   * ```
+   *
+   * But the result of `escapeTagForHtmlEmbedJSON` is embeddable safely as tag is separated.
+   * ```
+   * <script>
+   * const json = {"hello": "good<"+"script>world<"+"/script>"}
+   * </script>
+   * ```
+   *
+   * @example
+   * escapeTagForHtmlEmbedJSON(`{"hello": "good<script>world</script>"}`)
+   *   -> `{"hello": "good<"+"script>world<"+"/script>"}`
+   */
+  private escapeTagForHtmlEmbedJSON(json: string): string {
+    return json.replace(/<(.)/g, `<"+"$1`);
   }
 }

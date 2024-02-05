@@ -7,7 +7,7 @@ scenarios:
         act:
           runner: fetch
           argument:
-            endpoint: /cart?sessionId=${session.userId}&currencyCode=${session.currencyCode}
+            endpoint: cart?sessionId=${session.userId}&currencyCode=${session.currencyCode}
         assert:
           # assertStatus is imported by default.
           - assertStatus:
@@ -26,7 +26,7 @@ scenarios:
         act:
           runner: fetch
           argument:
-            endpoint: /products?currencyCode=${session.currencyCode}
+            endpoint: products?currencyCode=${session.currencyCode}
         assert:
           - expect(_.response.status).toBe(200)
       - description: Check Span

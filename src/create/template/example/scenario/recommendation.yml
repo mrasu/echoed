@@ -9,7 +9,7 @@ scenarios:
         act:
           runner: fetch
           argument:
-            endpoint: /recommendations?productIds=${productId}&sessionId=${session.userId}&currencyCode=${session.currencyCode}
+            endpoint: recommendations?productIds=${productId}&sessionId=${session.userId}&currencyCode=${session.currencyCode}
         assert:
           - expect(_.response.status).toBe(200)
           - expect(_.jsonBody.length).toBe(4)
