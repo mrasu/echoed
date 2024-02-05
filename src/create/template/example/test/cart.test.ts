@@ -1,10 +1,10 @@
-import { defaultSession } from "../util/session";
+import { createSession } from "../util/session";
 
 describe("Cart", () => {
   const productId = "OLJCESPC7Z";
 
   it("should add item to cart", async () => {
-    const session = defaultSession();
+    const session = createSession();
 
     const cartUrl = `http://localhost:8080/api/cart?sessionId=${session.userId}&currencyCode=${session.currencyCode}`;
     const beforeCartResponse = await fetch(cartUrl);

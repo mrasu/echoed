@@ -1,0 +1,73 @@
+variable:
+  firstProductId: OLJCESPC7Z
+  secondProductId: HQTGWGPNH4
+scenarios:
+  - name: Checkout Flow should create an order with two items
+    variable:
+      session: ${createSession()}
+    steps:
+      - description: Add product to cart
+        act:
+          runner: fetch
+          argument:
+            endpoint: /cart?currencyCode=${session.currencyCode}
+            method: POST
+            jsonBody:
+              item:
+                productId: ${firstProductId}
+                quantity: 1
+              userId: ${session.userId}
+        assert:
+          - expect(_.response.status).toBe(200)
+          - |
+              expect(_.jsonBody).toEqual({
+                items: [ { productId: firstProductId, quantity: 1 } ],
+                userId: session.userId,
+              })
+      - description: Add another product to cart
+        act:
+          runner: fetch
+          argument:
+            endpoint: /cart?currencyCode=${session.currencyCode}
+            method: POST
+            jsonBody:
+              item:
+                productId: ${secondProductId}
+                quantity: 1
+              userId: ${session.userId}
+        assert:
+          - expect(_.response.status).toBe(200)
+          - |
+              expect(_.jsonBody).toEqual({
+                items: [
+                  { productId: firstProductId, quantity: 1 },
+                  { productId: secondProductId, quantity: 1 }
+                ],
+                userId: session.userId,
+              })
+      - description: Add another product to cart
+        act:
+          runner: fetch
+          argument:
+            endpoint: /checkout?currencyCode=${session.currencyCode}
+            method: POST
+            jsonBody:
+              email: someone@example.com
+              address:
+                streetAddress: "1600 Amphitheatre Parkway"
+                state: CA
+                country: "United States"
+                city: "Mountain View"
+                zipCode: "94043"
+              userCurrency: ${session.currencyCode}
+              creditCard:
+                creditCardCvv: 672
+                creditCardExpirationMonth: 1
+                creditCardExpirationYear: 2030
+                creditCardNumber: "4432-8015-6152-0454"
+              userId: ${session.userId}
+        assert:
+          - expect(_.response.status).toBe(200)
+          - expect(_.jsonBody.items.length).toBe(2)
+          - expect(_.jsonBody.items[0].item.productId).toBe(firstProductId)
+          - expect(_.jsonBody.items[1].item.productId).toBe(secondProductId)

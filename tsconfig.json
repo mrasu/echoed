@@ -15,5 +15,5 @@
     "skipLibCheck": true,
     "noImplicitOverride": true,
   },
-  "exclude": ["dist", "tsup.config.ts", "reporter", "src/create/template"]
+  "exclude": ["dist", "tsup.config.ts", "reporter", "src/create/template", "tmp"]
 }

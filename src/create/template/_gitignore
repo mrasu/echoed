@@ -23,3 +23,6 @@ report
 *.njsproj
 *.sln
 *.sw?
+
+#### Echoed
+scenario_gen

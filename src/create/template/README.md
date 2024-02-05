@@ -18,9 +18,10 @@ Follow these steps to run the example tests and observe Echoed in action:
     make start
     ```
 3. **Open Website**: Check the server is running by opening http://localhost:8080 in your browser.
-4. **Run Test:** In this directory, run the tests.
+4. **Run Test:** In project's root directory, Run the tests after compiling to generate tests from yaml.
     ```sh
-    npm run test
+    cd ../
+    npm run compile && npm run test
     ```
 5. **Wait:** Allow the tests to run and complete.
 6. **View Results:** Open `report/result.html` to view test results.

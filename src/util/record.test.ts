@@ -1,4 +1,4 @@
-import { override } from "@/util/object";
+import { override } from "@/util/record";
 
 type A = {
   a?: number;

@@ -1,5 +1,8 @@
 import { ConfigLoader } from "@/config/configLoader";
 import { PropagationTestConfig } from "@/config/propagationTestConfig";
+import { ScenarioCompileConfig } from "@/config/scenarioCompileConfig";
+
+export const ECHOED_CONFIG_FILE_NAME = ".echoed.yml";
 
 export class Config {
   static load(filepath: string): Config {
@@ -13,6 +16,7 @@ export class Config {
     public readonly debug: boolean,
     public readonly propagationTestConfig: PropagationTestConfig,
     public readonly serviceConfigs: ServiceConfig[],
+    public readonly compileConfig: ScenarioCompileConfig | undefined,
   ) {}
 }
 

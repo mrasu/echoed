@@ -35,6 +35,7 @@
     "@typescript-eslint/parser": "^6.19.0",
     "eslint": "^8.56.0",
     "jest": "^29.7.0",
+    "jest-fetch-mock": "^3.0.3",
     "nodemon": "^3.0.1",
     "protobufjs-cli": "^1.1.2",
     "ts-jest": "^29.1.1",
@@ -46,7 +47,9 @@
   "dependencies": {
     "@apidevtools/swagger-parser": "^10.1.0",
     "async-mutex": "^0.4.0",
+    "commander": "^11.1.0",
     "detect-browser": "^5.0.0",
+    "eta": "^3.2.0",
     "express": "^4.0.0",
     "express-async-handler": "^1.2.0",
     "js-yaml": "^4.0.0",
@@ -74,6 +77,18 @@
     "./jest/nodeEnvironment": {
       "default": "./dist/jest/nodeEnvironment/index.js",
       "types": "./dist/jest/nodeEnvironment/index.d.ts"
+    },
+    "./scenario/gen": {
+      "default": "./dist/scenario/gen/index.js",
+      "types": "./dist/scenario/gen/index.d.ts"
+    },
+    "./scenario/gen/jest/asserter": {
+      "default": "./dist/scenario/gen/jest/asserter/index.js",
+      "types": "./dist/compile/gen/jest/asserter/index.d.ts"
+    },
+    "./scenario/gen/jest/runner": {
+      "default": "./dist/scenario/gen/jest/runner/index.js",
+      "types": "./dist/scenario/gen/jest/runner/index.d.ts"
     }
   }
 }

@@ -1,0 +1,15 @@
+scenarios:
+  - name: Simple test should pass
+    variable:
+      session: ${defaultSession()}
+    steps:
+      - description: Get cart
+        act:
+          runner: fetch
+          argument:
+            endpoint: /cart?sessionId=${session.userId}&currencyCode=${session.currencyCode}
+        assert:
+          - assertStatus:
+              - ${_.response}
+              - 200
+          - expect(_.jsonBody.items.length).toBe(0)

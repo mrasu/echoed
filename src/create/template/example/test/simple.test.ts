@@ -1,9 +1,9 @@
-import { defaultSession } from "../util/session";
+import { createSession } from "../util/session";
 import { waitForSpan } from "echoed";
 
 describe("Simple test", () => {
   it("should pass", async () => {
-    const session = defaultSession();
+    const session = createSession();
 
     const response = await fetch(
       `http://localhost:8080/api/cart?sessionId=${session.userId}&currencyCode=${session.currencyCode}`,
@@ -16,7 +16,7 @@ describe("Simple test", () => {
   });
 
   it("should fail because of different attributes of span", async () => {
-    const session = defaultSession();
+    const session = createSession();
 
     const response = await fetch(
       `http://localhost:8080/api/products?currencyCode${session.currencyCode}`,

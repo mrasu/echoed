@@ -5,7 +5,7 @@ export type Session = {
   currencyCode: string;
 };
 
-export function defaultSession(): Session {
+export function createSession(): Session {
   return {
     userId: v4(),
     currencyCode: "USD",

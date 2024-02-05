@@ -1,4 +1,4 @@
-import { Session, defaultSession } from "../util/session";
+import { Session, createSession } from "../util/session";
 
 describe("Checkout Flow", () => {
   const firstProductId = "OLJCESPC7Z";
@@ -42,7 +42,7 @@ describe("Checkout Flow", () => {
   };
 
   it("should create an order with two items", async () => {
-    const session = defaultSession();
+    const session = createSession();
 
     const firstAddToCartResponse = await addToCart(session, firstProductId, 1);
     expect(firstAddToCartResponse.status).toBe(200);

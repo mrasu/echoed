@@ -6,6 +6,9 @@ export default defineConfig({
     "src/jest/reporter/index.ts",
     "src/jest/nodeEnvironment/index.ts",
     "src/create/bin.ts",
+    "src/scenario/gen/index.ts",
+    "src/scenario/gen/jest/asserter/index.ts",
+    "src/scenario/gen/jest/runner/index.ts",
   ],
   target: "es2022",
   format: ["cjs", "esm"],
@@ -14,6 +17,9 @@ export default defineConfig({
   onSuccess: `
     mkdir -p ./dist/reporter/dist &&
     cp ./reporter/dist/index.html ./dist/reporter/dist/index.html &&
+    rm -rf ./dist/scenario/template &&
+    mkdir -p ./dist/scenario/template &&
+    cp -r ./src/scenario/template ./dist/scenario &&
     rm -rf ./dist/create/template &&
     rm -rf ./dist/create/template_tmp &&
     mkdir -p ./dist/create/template_tmp &&

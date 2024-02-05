@@ -27,3 +27,29 @@ export function override<T extends Record<string, unknown>>(
 
   return ret as T;
 }
+
+export function transformToMap<T, U>(
+  record: Record<string, T> | undefined,
+  transform: (value: T) => U,
+): Map<string, U> {
+  if (!record) return new Map();
+
+  const map = new Map<string, U>();
+  for (const [key, value] of Object.entries(record)) {
+    map.set(key, transform(value));
+  }
+  return map;
+}
+
+export function transformRecord<T, U>(
+  record: Record<string, T> | undefined,
+  transform: (value: T) => U,
+): Record<string, U> | undefined {
+  if (!record) return undefined;
+
+  const map: Record<string, U> = {};
+  for (const [key, value] of Object.entries(record)) {
+    map[key] = transform(value);
+  }
+  return map;
+}

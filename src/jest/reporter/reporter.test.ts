@@ -61,6 +61,7 @@ describe("Reporter", () => {
         },
       }),
       [],
+      undefined,
     );
     return new Reporter(buildGlobalConfig(), config);
   };

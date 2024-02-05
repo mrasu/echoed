@@ -1,11 +1,30 @@
-# Observable Integration Testing using OpenTelemetry on top of Jest.
+<div align="center">
 
-Echoed empowers Integration testing, aka API testing, by providing visualizations of API traces and logs through OpenTelemetry.
+<img src="./docs/img/logo.png" alt="echoed logo" height="300"/>
+
+# Echoed
+
+#### Observable Integration Testing using OpenTelemetry on top of Jest.
+
+</div>
+
+# Table of contents
+
+* [Features](#Features)
+* [How it Works](#How-it-Works)
+* [Screenshots](#Screenshots)
+* [Installation](#Installation)
+* [How to Use](#How-to-Use)
+  * [YAML](#YAML)
+  * [TypeScript](#TypeScript)
+  * [Analyze Coverage](#Analyze-Coverage)
+* [Configuration](#Configuration)
 
 # Features
-Echoed enhances your testing experience with the following features:
+Echoed enhances Integration testing, aka API testing with the following features:
 
 * **Effortless Test Troubleshooting**: Quickly identify issues in failed tests by visualizing OpenTelemetry's traces and logs.
+* **YAML Supported**: Write tests effortlessly using YAML and easily expand functionality through your plugins.
 * **Coverage Analysis**: Gain insights into the coverage of your API endpoints based on OpenAPI or Protocol Buffers specifications.
 * **Detect Propagation Leaks**: Uncover spans that don't propagate OpenTelemetry's context to their children.
 * **Validate Spans**: Validate span's fields, such as SQL or requests going outside.
@@ -13,6 +32,14 @@ Echoed enhances your testing experience with the following features:
 * **IDE Debugging**: Debug your tests in your preferred IDE, leveraging Jest's built-in debugging capabilities.
 * **Code Compatibility**: No need to modify your existing Jest tests.
 * **Parallel Execution**: Boost by executing tests in parallel with Jest.
+
+# How it Works
+
+Echoed starts a local server to gather data through OpenTelemetry when Jest is launched.  
+Throughout the testing process, Echoed captures OpenTelemetry's traces and logs.  
+Once tests finish, Echoed generates an HTML report for the test.
+
+![how it works](./docs/img/how-echoed-works.jpg)
 
 # Screenshots
 
@@ -27,7 +54,6 @@ Explore the screenshots below to see how it looks:
 * List of executed tests  
     ![Screenshot of Echoed's test list](./docs/img/readme-test-list.png)
 
-
 # Installation
 
 Echoed offers two installation methods, choose one that suits your needs:
@@ -37,15 +63,15 @@ Echoed offers two installation methods, choose one that suits your needs:
 1. Initialize a new directory using npx:
     ```bash
     mkdir my_test_directory && cd my_test_directory
-    npx echoed@latest
+    npx echoed@latest create-sample
     ```
 2. Review the example tests and run them by following instructions in the generated `README.md`:
     ```bash
     cat README.md
     ```
-3. Run test:
+3. Run test after compiling YAML tests:
     ```bash
-    npm run test
+    npm run compile && npm run test
     ```
 4. Once you're familiar, remove the `example` directory and begin crafting your own tests:
     ```bash
@@ -54,7 +80,11 @@ Echoed offers two installation methods, choose one that suits your needs:
 
 ## 2. Integrate with Existing Tests
 
-1. Update Jest configuration for Echoed  
+1. Install package:
+    ```bash
+    npm install echoed
+    ```
+2. Update Jest configuration for Echoed  
     Modify your `jest.config.js` to include Echoed in `testEnvironment` and `reporters`:
     ```js
     module.exports = {
@@ -66,7 +96,7 @@ Echoed offers two installation methods, choose one that suits your needs:
       ],
     };
     ```
-2. Create `.echoed.yml`.  
+3. Create `.echoed.yml`.  
     To integrate Echoed, create a configuration file named `.echoed.yml`.  
     The minimal required option is `output`, specifying where to write the result. Refer to the [Configuration](#Configuration) section for other options.  
     
@@ -74,7 +104,7 @@ Echoed offers two installation methods, choose one that suits your needs:
     ```yml
     output: "report/result.html"
     ```
-3. Update your OpenTelemetry endpoint to send data to Echoed.  
+4. Update your OpenTelemetry endpoint to send data to Echoed.  
     If you are using the OpenTelemetry Collector, modify its settings as shown below:
     ```yml
     exporters:
@@ -91,7 +121,58 @@ Echoed offers two installation methods, choose one that suits your needs:
 
 # How to Use
 
-### Make Tests Observable
+## YAML
+
+You can write tests using YAML, and Echoed will convert them into Jest tests.  
+![Compilation flow](./docs/img/scenario-yaml-compile.jpg)
+
+### Create Observable Tests
+
+The YAML below makes a request to `http://localhost:8080/api/cart` and validates the response.
+
+```yaml
+variable:
+  productId: OLJCESPC7Z
+scenarios:
+  - name: Get product detail
+    steps:
+      - description: fetch /products/{id}
+        act:
+          runner: fetch
+          argument:
+            endpoint: /products/${productId}
+        assert:
+          - expect(_.jsonBody.id).toBe(productId)
+```
+
+To execute the test, use the command `npx echoed compile` to transform the YAML into TypeScript, and then run Jest
+
+### Configuration
+
+To configure runners and adjust other options, include `scenario` block in the `.echoed.yml` file, like below:
+
+```yaml
+scenario:
+  compile:
+    env:
+      BASE_ENDPOINT: http://localhost:8080
+    plugin:
+      runner:
+        - name: fetch
+          module: echoed/scenario/gen/jest/runner
+          option:
+            baseEndpoint: ${_env.BASE_ENDPOINT}/api
+            headers:
+              content-type: application/json
+```
+
+For more details, refer to the [documentation](./docs/yamlScenario.md).  
+
+## TypeScript
+
+You can write tests in TypeScript too.
+
+### Make Existing Tests Observable
 
 To generate an HTML report visualizing API traces, no additional code is needed.  
 Simply write your Jest tests as usual.
@@ -179,7 +260,7 @@ describe("Awesome test", () => {
 });
 ```
 
-### Analyze Coverage
+## Analyze Coverage
 
 You can get coverage of your HTTP and gRPC endpoints based on OpenAPI or Protocol Buffers specifications.  
 By configuring the `openapi` or `proto` option in your `.echoed.yml` file, Echoed analyzes the coverage of your tests and generates a report.  
@@ -201,4 +282,4 @@ services:
 # Configuration
 
 Echoed can be configured at `.echoed.yml` in the root of your project.  
-Explore available options [here](./src/config/configFileSchema.ts).
+Explore available options [here](./src/schema/configSchema.ts).

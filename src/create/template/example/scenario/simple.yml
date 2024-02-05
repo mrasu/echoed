@@ -1,0 +1,45 @@
+scenarios:
+  - name: Simple test should pass
+    variable:
+      session: ${createSession()}
+    steps:
+      - description: Get cart
+        act:
+          runner: fetch
+          argument:
+            endpoint: /cart?sessionId=${session.userId}&currencyCode=${session.currencyCode}
+        assert:
+          # assertStatus is imported by default.
+          - assertStatus:
+            - ${_.response}
+            - 200
+          # assertItemLength is custom asserter written at example/util.
+          - assertItemLength:
+            - ${_.jsonBody.items}
+            - 0
+          - expect(_.jsonBody.items.length).toBe(0)
+  - name: Simple test should fail because of different attributes of span
+    variable:
+      session: ${createSession()}
+    steps:
+      - description: List product
+        act:
+          runner: fetch
+          argument:
+            endpoint: /products?currencyCode=${session.currencyCode}
+        assert:
+          - expect(_.response.status).toBe(200)
+      - description: Check Span
+        act:
+          runner: waitForSpan
+          argument:
+            response: ${_steps[-1].response}
+            filter:
+              name: oteldemo.ProductCatalogService/ListProducts
+              resource:
+                attributes:
+                  service.name: productcatalogservice
+              attributes:
+                rpc.method: ListProducts
+        assert:
+          - expect(_.getAttribute("app.products.count").value.intValue).toBe(20)

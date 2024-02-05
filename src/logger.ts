@@ -1,4 +1,4 @@
-import { AnsiGray, AnsiReset, AnsiYellow } from "@/ansi";
+import { AnsiGray, AnsiRed, AnsiReset, AnsiYellow } from "@/ansi";
 
 const tag = "[Echoed]";
 const tagSpace = " ".repeat(tag.length);
@@ -19,14 +19,17 @@ export class Logger {
     if (!this.enabled) return;
 
     console.warn(
-      `${AnsiYellow}${tag} ${message}${AnsiReset}`,
+      `${AnsiYellow}${tag} WARN${AnsiReset} ${message}`,
       ...optionalParams,
     );
   }
   static error(message?: string, ...optionalParams: unknown[]): void {
     if (!this.enabled) return;
 
-    console.error(`${tag} ${message}`, ...optionalParams);
+    console.error(
+      `${AnsiRed}${tag} ERROR${AnsiReset} ${message}`,
+      ...optionalParams,
+    );
   }
 
   static debug(message?: string, ...optionalParams: unknown[]): void {

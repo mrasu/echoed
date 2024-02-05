@@ -2,27 +2,41 @@ import { Comparable } from "@/comparision/comparable";
 import { Eq } from "@/comparision/eq";
 import {
   Config,
+  ECHOED_CONFIG_FILE_NAME,
   OpenApiConfig,
   ProtoConfig,
   ServiceConfig,
 } from "@/config/config";
-import { ConfigFileSchema } from "@/config/configFileSchema";
-import {
-  ConfigFileSchemaZod,
-  PartialConfigFileSchemaZod,
-} from "@/config/configFileSchemaZod";
 import { PropagationTestConfig } from "@/config/propagationTestConfig";
+import {
+  DEFAULT_SCENARIO_COMPILE_OUT_DIR,
+  DEFAULT_SCENARIO_COMPILE_YAML_DIR,
+  ScenarioCompileConfig,
+  ScenarioCompilePluginAsserterConfig,
+  ScenarioCompilePluginConfig,
+  ScenarioCompilePluginImportConfig,
+  ScenarioCompilePluginRunnerConfig,
+} from "@/config/scenarioCompileConfig";
 import { Logger } from "@/logger";
+import { ConfigSchema } from "@/schema/configSchema";
+import {
+  ConfigSchemaZod,
+  PartialConfigSchemaZod,
+} from "@/schema/configSchemaZod";
+import { JsonSchema } from "@/type/jsonZod";
 import { statSync } from "@/util/file";
-import { override } from "@/util/object";
+import { override, transformRecord } from "@/util/record";
+import { formatZodError } from "@/util/zod";
 import fs from "fs";
 import yaml from "js-yaml";
-import { SafeParseReturnType, ZodError } from "zod";
+import { SafeParseReturnType } from "zod";
 
 type YamlValue = string | boolean | number | null;
 
 // value of `overrides` in create/template/.echoed.yml
 const EXAMPLE_TEMPLATE_OVERRIDDEN_CONFIG_PATH = "./example/.echoed.yml";
+
+type scenarioCompile = NonNullable<ConfigSchema["scenario"]>["compile"];
 
 export class ConfigLoader {
   constructor() {}
@@ -32,7 +46,7 @@ export class ConfigLoader {
 
     if (!result.success) {
       throw new Error(
-        `Echoed: invalid configuration: \n${this.formatError(result.error)}`,
+        `Echoed: invalid configuration: \n${formatZodError(result.error)}`,
       );
     }
 
@@ -41,9 +55,9 @@ export class ConfigLoader {
 
   private readFileRecursively(
     filepath: string,
-  ): SafeParseReturnType<ConfigFileSchemaZod, ConfigFileSchemaZod> {
+  ): SafeParseReturnType<ConfigSchemaZod, ConfigSchemaZod> {
     const schemaObject = this.readFile(filepath, false);
-    const config = ConfigFileSchemaZod.safeParse(schemaObject);
+    const config = ConfigSchemaZod.safeParse(schemaObject);
 
     if (!config.success) {
       return config;
@@ -66,12 +80,9 @@ export class ConfigLoader {
 
   private readFileRecursivelyOverridden(
     filepath: string,
-  ): SafeParseReturnType<
-    PartialConfigFileSchemaZod,
-    PartialConfigFileSchemaZod
-  > {
+  ): SafeParseReturnType<PartialConfigSchemaZod, PartialConfigSchemaZod> {
     const schemaObject = this.readFile(filepath, true);
-    const partial = PartialConfigFileSchemaZod.safeParse(schemaObject);
+    const partial = PartialConfigSchemaZod.safeParse(schemaObject);
 
     if (!partial.success) {
       return partial;
@@ -100,7 +111,9 @@ export class ConfigLoader {
       if (overridden && filepath === EXAMPLE_TEMPLATE_OVERRIDDEN_CONFIG_PATH) {
         Logger.warn(`config file not found: ${filepath}`);
         Logger.warn(
-          "When you delete `example` directory, modify `./.echoed.yml` to remove `overrides` section.",
+          "When you delete `example` directory, remove `overrides` section in `" +
+            ECHOED_CONFIG_FILE_NAME +
+            "` too.",
         );
       }
 
@@ -119,22 +132,7 @@ export class ConfigLoader {
     return schemaObject;
   }
 
-  private formatError(error: ZodError<ConfigFileSchemaZod>): string {
-    const v = JSON.stringify(
-      error.format(),
-      (k, v: unknown) => {
-        if (Array.isArray(v)) {
-          if (v.length === 0) return undefined;
-        }
-        return v;
-      },
-      2,
-    );
-
-    return v;
-  }
-
-  loadFromObject(schemaObject: ConfigFileSchema): Config {
+  loadFromObject(schemaObject: ConfigSchema): Config {
     if (schemaObject.output === "") {
       throw new Error("Echoed: invalid report option. `output` is required");
     }
@@ -146,11 +144,12 @@ export class ConfigLoader {
       schemaObject.debug ?? false,
       this.convertPropagationTestConfig(schemaObject.propagationTest),
       this.convertServiceConfigs(schemaObject.services),
+      this.convertScenarioCompileConfig(schemaObject.scenario?.compile),
     );
   }
 
   private convertPropagationTestConfig(
-    t?: ConfigFileSchema["propagationTest"],
+    t?: ConfigSchema["propagationTest"],
   ): PropagationTestConfig {
     const enabled = t?.enabled ?? true;
     const ignore = {
@@ -180,7 +179,7 @@ export class ConfigLoader {
   }
 
   private convertServiceConfigs(
-    services: ConfigFileSchema["services"] | undefined,
+    services: ConfigSchema["services"] | undefined,
   ): ServiceConfig[] {
     if (!services) return [];
 
@@ -196,7 +195,7 @@ export class ConfigLoader {
 
   private convertOpenApiConfig(
     config:
-      | Exclude<ConfigFileSchema["services"], undefined>[number]["openapi"]
+      | Exclude<ConfigSchema["services"], undefined>[number]["openapi"]
       | undefined,
   ): OpenApiConfig | undefined {
     if (!config) return;
@@ -215,7 +214,7 @@ export class ConfigLoader {
 
   private convertProtoConfig(
     config:
-      | Exclude<ConfigFileSchema["services"], undefined>[number]["proto"]
+      | Exclude<ConfigSchema["services"], undefined>[number]["proto"]
       | undefined,
   ): ProtoConfig | undefined {
     if (!config) return;
@@ -230,5 +229,70 @@ export class ConfigLoader {
       filePath: config.filePath,
       services: config.services,
     };
+  }
+
+  private convertScenarioCompileConfig(
+    compile: scenarioCompile | undefined,
+  ): ScenarioCompileConfig | undefined {
+    if (!compile) return;
+
+    return new ScenarioCompileConfig(
+      compile.outDir ?? DEFAULT_SCENARIO_COMPILE_OUT_DIR,
+      compile.cleanOutDir ?? false,
+      compile.yamlDir ?? DEFAULT_SCENARIO_COMPILE_YAML_DIR,
+      compile.retry ?? 0,
+      compile.env ?? {},
+      this.convertScenarioCompilePluginConfig(compile.plugin),
+    );
+  }
+
+  private convertScenarioCompilePluginConfig(
+    compile: NonNullable<scenarioCompile>["plugin"] | undefined,
+  ): ScenarioCompilePluginConfig {
+    if (!compile) return new ScenarioCompilePluginConfig([], [], []);
+
+    const runners = compile.runners?.map(
+      (runner): ScenarioCompilePluginRunnerConfig => {
+        return {
+          module: runner.module,
+          name: runner.name,
+          option: this.parseJSONRecord(runner.option),
+        };
+      },
+    );
+
+    const asserters = compile.asserters?.map(
+      (asserter): ScenarioCompilePluginAsserterConfig => {
+        return {
+          module: asserter.module,
+          name: asserter.name,
+          option: this.parseJSONRecord(asserter.option),
+        };
+      },
+    );
+
+    const commons = compile.commons?.map(
+      (com): ScenarioCompilePluginImportConfig => {
+        return {
+          module: com.module,
+          names: com.names ?? [],
+          default: com.default,
+        };
+      },
+    );
+
+    return new ScenarioCompilePluginConfig(
+      runners ?? [],
+      asserters ?? [],
+      commons ?? [],
+    );
+  }
+
+  private parseJSONRecord(
+    option: Record<string, unknown> | undefined,
+  ): Record<string, JsonSchema> | undefined {
+    if (!option) return;
+
+    return transformRecord(option, (v) => JsonSchema.parse(v));
   }
 }

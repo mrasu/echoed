@@ -1,4 +1,4 @@
-import { Config } from "@/config/config";
+import { Config, ECHOED_CONFIG_FILE_NAME } from "@/config/config";
 import { Reporter } from "@/jest/reporter/reporter";
 import { ReportFile } from "@/report/reportFile";
 import {
@@ -13,7 +13,6 @@ import { Circus } from "@jest/types";
 import path from "path";
 
 const ECHOED_ROOT_DIR = path.resolve(__dirname, "../../");
-const ECHOED_CONFIG_FILE_NAME = ".echoed.yml";
 
 export class JestReporter implements IJestReporter {
   private readonly reporter: Reporter;

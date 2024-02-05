@@ -1,10 +1,10 @@
-import { defaultSession } from "../util/session";
+import { createSession } from "../util/session";
 
 describe("/api/recommendations", () => {
   const productId = "OLJCESPC7Z";
 
   it("should returns four recommended products", async () => {
-    const session = defaultSession();
+    const session = createSession();
     const response = await fetch(
       `http://localhost:8080/api/recommendations?productIds=${productId}&sessionId=${session.userId}&currencyCode=${session.currencyCode}`,
     );
