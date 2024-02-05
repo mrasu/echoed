@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="./docs/img/logo.png" alt="echoed logo" height="300"/>
+<img src="https://github.com/mrasu/echoed/raw/main/docs/img/logo.png" alt="echoed logo" height="300"/>
 
 # Echoed
 
@@ -11,7 +11,7 @@
 # Table of contents
 
 * [Features](#Features)
-* [How it Works](#How-it-Works)
+* [How Echoed Works](#How-Echoed-Works)
 * [Screenshots](#Screenshots)
 * [Installation](#Installation)
 * [How to Use](#How-to-Use)
@@ -33,13 +33,13 @@ Echoed enhances Integration testing, aka API testing with the following features
 * **Code Compatibility**: No need to modify your existing Jest tests.
 * **Parallel Execution**: Boost by executing tests in parallel with Jest.
 
-# How it Works
+# How Echoed Works
 
 Echoed starts a local server to gather data through OpenTelemetry when Jest is launched.  
 Throughout the testing process, Echoed captures OpenTelemetry's traces and logs.  
 Once tests finish, Echoed generates an HTML report for the test.
 
-![how it works](./docs/img/how-echoed-works.jpg)
+![how Echoed works](https://github.com/mrasu/echoed/raw/main/docs/img/howEchoedWorks.jpg)
 
 # Screenshots
 
@@ -47,12 +47,10 @@ Echoed generates HTML that visualizes OpenTelemetry traces for each request in t
 Explore the screenshots below to see how it looks:
 
 * Trace and logs of the Test  
-    ![Screenshot of Echoed's log detail](./docs/img/readme-trace-detail-trace.png)
-    ![Screenshot of Echoed's log detail](./docs/img/readme-trace-detail-log.png)
+    ![Screenshot of Echoed's log detail](https://github.com/mrasu/echoed/raw/main/docs/img/readmeTraceDetailTrace.png)
+    ![Screenshot of Echoed's log detail](https://github.com/mrasu/echoed/raw/main/docs/img/readmeTraceDetailLog.png)
 * Coverage per service  
-    ![Screenshot of Echoed's coverage](./docs/img/readme-coverage.png)
-* List of executed tests  
-    ![Screenshot of Echoed's test list](./docs/img/readme-test-list.png)
+    ![Screenshot of Echoed's coverage](https://github.com/mrasu/echoed/raw/main/docs/img/readmeCoverage.png)
 
 # Installation
 
@@ -124,7 +122,7 @@ Echoed offers two installation methods, choose one that suits your needs:
 ## YAML
 
 You can write tests using YAML, and Echoed will convert them into Jest tests.  
-![Compilation flow](./docs/img/scenario-yaml-compile.jpg)
+![Compilation flow](https://github.com/mrasu/echoed/raw/main/docs/img/scenarioYamlCompile.jpg)
 
 ### Create Observable Tests
 

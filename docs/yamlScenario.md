@@ -10,7 +10,7 @@ You can write tests in YAML, and Echoed will convert them into Jest tests.
 ## Compile
 Executing `npx echoed compile` converts YAML files into Jest tests.
 
-![Compilation flow](./img/scenario-yaml-compile.jpg)
+![Compilation flow](./img/scenarioYamlCompile.jpg)
 
 Note that, because each YAML file is transformed into a corresponding Jest test file, Jest runs tests from the same YAML file serially within the same process.
 
