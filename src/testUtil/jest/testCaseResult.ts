@@ -1,6 +1,6 @@
-import { TestCaseResult } from "@jest/test-result";
 import { DEFAULT_TEST_FULL_NAME } from "@/testUtil/jest/testCaseStartInfo";
 import { DEFAULT_TEST_PATH } from "@/testUtil/jest/test_";
+import { TestCaseResult } from "@jest/test-result";
 
 const DEFAULT_TEST_CASE_RESULT: TestCaseResult = {
   failureDetails: [],

@@ -1,5 +1,5 @@
-import { opentelemetry } from "@/generated/otelpbj";
 import { Kind } from "@/comparision/kind";
+import { opentelemetry } from "@/generated/otelpbj";
 import { z } from "zod";
 
 export const Primitive = z.union([z.string(), z.number(), z.boolean()]);

@@ -1,22 +1,22 @@
+import { Comparable } from "@/comparision/comparable";
+import { Eq } from "@/comparision/eq";
 import {
   Config,
   OpenApiConfig,
   ProtoConfig,
   ServiceConfig,
 } from "@/config/config";
-import { statSync } from "@/util/file";
-import yaml from "js-yaml";
-import fs from "fs";
-import { PropagationTestConfig } from "@/config/propagationTestConfig";
-import { Comparable } from "@/comparision/comparable";
-import { Eq } from "@/comparision/eq";
 import { ConfigFileSchema } from "@/config/configFileSchema";
-import { override } from "@/util/object";
-import { Logger } from "@/logger";
 import {
   ConfigFileSchemaZod,
   PartialConfigFileSchemaZod,
 } from "@/config/configFileSchemaZod";
+import { PropagationTestConfig } from "@/config/propagationTestConfig";
+import { Logger } from "@/logger";
+import { statSync } from "@/util/file";
+import { override } from "@/util/object";
+import fs from "fs";
+import yaml from "js-yaml";
 import { SafeParseReturnType, ZodError } from "zod";
 
 type YamlValue = string | boolean | number | null;

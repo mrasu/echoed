@@ -1,10 +1,10 @@
-import { restoreComparables } from "@/comparision/restore";
 import { Eq } from "@/comparision/eq";
 import { Gt } from "@/comparision/gt";
 import { Gte } from "@/comparision/gte";
 import { Lt } from "@/comparision/lt";
 import { Lte } from "@/comparision/lte";
 import { Reg } from "@/comparision/reg";
+import { restoreComparables } from "@/comparision/restore";
 
 describe("restoreComparables", () => {
   describe("when obj is for eq", () => {

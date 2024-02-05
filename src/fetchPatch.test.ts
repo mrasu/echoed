@@ -1,6 +1,6 @@
 import { patchFetch } from "@/fetchPatch";
-import { Logger } from "@/logger";
 import { IFileLogger } from "@/fileLog/iFileLogger";
+import { Logger } from "@/logger";
 import type { Global } from "@jest/types";
 
 beforeEach(() => {

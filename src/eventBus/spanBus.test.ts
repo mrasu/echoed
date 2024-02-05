@@ -1,10 +1,10 @@
-import { SpanBus, SpanFilterOption, WantSpanEvent } from "@/eventBus/spanBus";
 import { Eq } from "@/comparision/eq";
 import { Reg } from "@/comparision/reg";
+import { SpanBus, SpanFilterOption, WantSpanEvent } from "@/eventBus/spanBus";
 import { DummyBus } from "@/testUtil/eventBus/dummyBus";
+import { Base64String } from "@/type/base64String";
 import { jsonSpan } from "@/type/jsonSpan";
 import { Span } from "@/type/span";
-import { Base64String } from "@/type/base64String";
 
 describe("SpanBus", () => {
   const defaultFilter: SpanFilterOption = {

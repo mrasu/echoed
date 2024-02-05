@@ -1,9 +1,9 @@
 import { Operation } from "@/coverage/openApi/operation";
-import { Method, toMethod } from "@/type/http";
 import {
   OpenAPIPathItemObject,
   PathWildcard,
 } from "@/coverage/openApi/operationTree";
+import { Method, toMethod } from "@/type/http";
 
 type PartialPath = string | symbol;
 

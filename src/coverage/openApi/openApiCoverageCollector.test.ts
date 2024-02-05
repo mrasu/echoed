@@ -1,12 +1,12 @@
+import { HttpOperationCoverage } from "@/coverage/coverageResult";
+import { ServiceCoverageCollectorResult } from "@/coverage/iServiceCoverageCollector";
 import { OpenApiCoverageCollector } from "@/coverage/openApi/openApiCoverageCollector";
-import SwaggerParser from "@apidevtools/swagger-parser";
+import { opentelemetry } from "@/generated/otelpbj";
 import { buildV3Document } from "@/testUtil/openapi/apiV3";
 import { OtelSpan } from "@/type/otelSpan";
-import { ServiceCoverageCollectorResult } from "@/coverage/iServiceCoverageCollector";
-import { HttpOperationCoverage } from "@/coverage/coverageResult";
-import { opentelemetry } from "@/generated/otelpbj";
-import SpanKind = opentelemetry.proto.trace.v1.Span.SpanKind;
 import { toBase64 } from "@/util/byte";
+import SwaggerParser from "@apidevtools/swagger-parser";
+import SpanKind = opentelemetry.proto.trace.v1.Span.SpanKind;
 
 describe("openApiCoverageCollector", () => {
   const buildCollector = async (): Promise<OpenApiCoverageCollector> => {

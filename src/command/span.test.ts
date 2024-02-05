@@ -1,15 +1,15 @@
-import { waitForSpan } from "@/command/span";
-import { setTraceIdToResponse } from "@/traceLoggingFetch";
-import { Eq } from "@/comparision/eq";
-import { Reg } from "@/comparision/reg";
 import { eq, gt, gte, lt, lte } from "@/command/compare";
-import { Gte } from "@/comparision/gte";
-import { Lte } from "@/comparision/lte";
-import { Lt } from "@/comparision/lt";
+import { waitForSpan } from "@/command/span";
+import { Eq } from "@/comparision/eq";
 import { Gt } from "@/comparision/gt";
-import { DummyBus } from "@/testUtil/eventBus/dummyBus";
-import { Base64String } from "@/type/base64String";
+import { Gte } from "@/comparision/gte";
+import { Lt } from "@/comparision/lt";
+import { Lte } from "@/comparision/lte";
+import { Reg } from "@/comparision/reg";
 import { WantSpanEvent } from "@/eventBus/spanBus";
+import { DummyBus } from "@/testUtil/eventBus/dummyBus";
+import { setTraceIdToResponse } from "@/traceLoggingFetch";
+import { Base64String } from "@/type/base64String";
 
 describe("waitForSpan", () => {
   const span = {

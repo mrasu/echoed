@@ -1,7 +1,7 @@
-import { OtelSpan } from "@/type/otelSpan";
 import { Coverage, CoverageResult } from "@/coverage/coverageResult";
 import { IServiceCoverageCollector } from "@/coverage/iServiceCoverageCollector";
 import { UnmeasuredTraceCollector } from "@/coverage/unmeasuredTraceCollector";
+import { OtelSpan } from "@/type/otelSpan";
 import { TwoKeyValuesMap } from "@/util/twoKeyValuesMap";
 
 export class CoverageCollector {

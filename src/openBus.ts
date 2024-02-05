@@ -1,5 +1,5 @@
-import type { Global } from "@jest/types";
 import { FileBus } from "@/eventBus/infra/fileBus";
+import type { Global } from "@jest/types";
 
 export async function openBus(
   busFilePath: string,

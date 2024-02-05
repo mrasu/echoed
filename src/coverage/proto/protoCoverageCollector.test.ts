@@ -1,12 +1,11 @@
 import { ProtoCoverageCollector } from "@/coverage/proto/protoCoverageCollector";
-import { Root, Service as ProtobufService } from "protobufjs";
-import protobuf from "protobufjs";
-import path from "path";
 import { Service } from "@/coverage/proto/service";
-import { OtelSpan } from "@/type/otelSpan";
 import { opentelemetry } from "@/generated/otelpbj";
-import SpanKind = opentelemetry.proto.trace.v1.Span.SpanKind;
+import { OtelSpan } from "@/type/otelSpan";
 import { toBase64 } from "@/util/byte";
+import path from "path";
+import protobuf, { Service as ProtobufService, Root } from "protobufjs";
+import SpanKind = opentelemetry.proto.trace.v1.Span.SpanKind;
 
 const ABSOLUTE_PROTO_PATH = path.resolve(
   path.join(__dirname, "__fixtures__/simple.proto"),

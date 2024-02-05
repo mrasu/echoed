@@ -1,6 +1,6 @@
 import { Comparable } from "@/comparision/comparable";
-import { opentelemetry } from "@/generated/otelpbj";
 import { Kind } from "@/comparision/kind";
+import { opentelemetry } from "@/generated/otelpbj";
 import { z } from "zod";
 
 const KIND = "reg";

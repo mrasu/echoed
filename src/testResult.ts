@@ -1,17 +1,17 @@
 import fs from "fs";
 import path from "path";
 
-import { OtelSpan } from "@/type/otelSpan";
-import { FetchFinishedLog, FetchStartedLog, Log } from "@/types";
-import { TestCaseResult } from "@/testCaseResult";
-import { Logger } from "@/logger";
-import { PropagationTestConfig } from "@/config/propagationTestConfig";
 import { Config } from "@/config/config";
+import { PropagationTestConfig } from "@/config/propagationTestConfig";
 import { FetchInfo } from "@/fetchInfo";
 import { opentelemetry } from "@/generated/otelpbj";
+import { Logger } from "@/logger";
 import { TestCase } from "@/testCase";
-import { omitDirPath } from "@/util/file";
+import { TestCaseResult } from "@/testCaseResult";
 import { OtelLogRecord } from "@/type/otelLogRecord";
+import { OtelSpan } from "@/type/otelSpan";
+import { FetchFinishedLog, FetchStartedLog, Log } from "@/types";
+import { omitDirPath } from "@/util/file";
 import { neverVisit } from "@/util/never";
 
 const SpanKind = opentelemetry.proto.trace.v1.Span.SpanKind;

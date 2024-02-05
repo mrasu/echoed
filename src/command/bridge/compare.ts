@@ -1,12 +1,12 @@
+import { AttributeValueOption, SpanFilterOption } from "@/command/span";
 import { Comparable } from "@/comparision/comparable";
 import { Eq } from "@/comparision/eq";
-import { SpanFilterOption as InternalSpanFilterOption } from "@/eventBus/spanBus";
-import { SpanFilterOption, AttributeValueOption } from "@/command/span";
 import { Gt } from "@/comparision/gt";
 import { Gte } from "@/comparision/gte";
 import { Lt } from "@/comparision/lt";
 import { Lte } from "@/comparision/lte";
 import { Reg } from "@/comparision/reg";
+import { SpanFilterOption as InternalSpanFilterOption } from "@/eventBus/spanBus";
 
 export function convertSpanFilterOption(
   option: SpanFilterOption,

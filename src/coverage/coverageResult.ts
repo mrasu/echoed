@@ -1,5 +1,5 @@
-import { Method } from "@/type/http";
 import { Base64String } from "@/type/base64String";
+import { Method } from "@/type/http";
 
 export class CoverageResult {
   constructor(public readonly coverages: Coverage[]) {}

@@ -2,11 +2,11 @@ import { Comparable } from "@/comparision/comparable";
 import { Eq, JsonEq } from "@/comparision/eq";
 import { Gt, JsonGt } from "@/comparision/gt";
 import { Gte, JsonGte } from "@/comparision/gte";
-import { Lt, JsonLt } from "@/comparision/lt";
-import { Lte, JsonLte } from "@/comparision/lte";
-import { Reg, JsonReg } from "@/comparision/reg";
-import { z } from "zod";
+import { JsonLt, Lt } from "@/comparision/lt";
+import { JsonLte, Lte } from "@/comparision/lte";
+import { JsonReg, Reg } from "@/comparision/reg";
 import { neverVisit } from "@/util/never";
+import { z } from "zod";
 
 const JsonComparable = z.discriminatedUnion("kind", [
   JsonEq,

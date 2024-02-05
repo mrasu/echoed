@@ -1,8 +1,8 @@
-import { opentelemetry } from "@/generated/otelpbj";
-import { isUserAgentInternalProgram } from "@/util/ua";
-import { PropagationTestConfig } from "@/config/propagationTestConfig";
 import { Comparable } from "@/comparision/comparable";
+import { PropagationTestConfig } from "@/config/propagationTestConfig";
+import { opentelemetry } from "@/generated/otelpbj";
 import { hasValue } from "@/util/type";
+import { isUserAgentInternalProgram } from "@/util/ua";
 import IKeyValue = opentelemetry.proto.common.v1.IKeyValue;
 
 const USER_AGENT_ATTRIBUTE_KEYS = new Set(["user-agent", "http.user_agent"]);

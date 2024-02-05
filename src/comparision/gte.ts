@@ -1,6 +1,6 @@
+import { Kind } from "@/comparision/kind";
 import { JsonNumComparable, NumComparable } from "@/comparision/numComparable";
 import Long from "long";
-import { Kind } from "@/comparision/kind";
 import { z } from "zod";
 
 const KIND = "gte";

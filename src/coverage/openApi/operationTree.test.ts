@@ -1,7 +1,7 @@
-import SwaggerParser from "@apidevtools/swagger-parser";
 import { OperationTree } from "@/coverage/openApi/operationTree";
 import { buildV2Document } from "@/testUtil/openapi/apiV2";
 import { buildV3Document } from "@/testUtil/openapi/apiV3";
+import SwaggerParser from "@apidevtools/swagger-parser";
 
 describe("OperationTree", () => {
   describe("buildFromDocument", () => {

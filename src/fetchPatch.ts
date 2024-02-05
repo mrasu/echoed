@@ -1,6 +1,6 @@
-import type { Global } from "@jest/types";
-import { buildTraceLoggingFetch } from "@/traceLoggingFetch";
 import { IFileLogger } from "@/fileLog/iFileLogger";
+import { buildTraceLoggingFetch } from "@/traceLoggingFetch";
+import type { Global } from "@jest/types";
 
 let originalFetch: (
   input: RequestInfo | URL,

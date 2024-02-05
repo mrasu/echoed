@@ -1,7 +1,7 @@
 import { createEmptyFile, statSync } from "@/util/file";
-import fs from "fs";
-import { Mutex } from "async-mutex";
 import { neverVisit } from "@/util/never";
+import { Mutex } from "async-mutex";
+import fs from "fs";
 
 export class FileWatcher {
   private readonly file: string;

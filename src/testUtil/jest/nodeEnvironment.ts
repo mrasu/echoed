@@ -1,7 +1,7 @@
-import { EnvironmentContext } from "@jest/environment";
-import NodeEnvironment from "jest-environment-node";
 import { buildGlobalConfig } from "@/testUtil/jest/globalConfig";
 import { buildProjectConfig } from "@/testUtil/jest/projectConfig";
+import { EnvironmentContext } from "@jest/environment";
+import NodeEnvironment from "jest-environment-node";
 
 const context: EnvironmentContext = {
   console,

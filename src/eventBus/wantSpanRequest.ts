@@ -1,9 +1,9 @@
+import { Comparable } from "@/comparision/comparable";
 import { SpanBus, SpanFilterOption, WantSpanEvent } from "@/eventBus/spanBus";
+import { opentelemetry } from "@/generated/otelpbj";
+import { Base64String } from "@/type/base64String";
 import { OtelSpan } from "@/type/otelSpan";
 import { toBase64 } from "@/util/byte";
-import { opentelemetry } from "@/generated/otelpbj";
-import { Comparable } from "@/comparision/comparable";
-import { Base64String } from "@/type/base64String";
 
 export class WantSpanRequest {
   public readonly bus: SpanBus;

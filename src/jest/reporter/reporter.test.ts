@@ -1,21 +1,21 @@
-import { buildGlobalConfig } from "@/testUtil/jest/globalConfig";
-import { buildAggregatedResult } from "@/testUtil/jest/aggregatedResult";
-import { buildReporterOnStartOptions } from "@/testUtil/jest/reporter";
-import { IReportFile } from "@/report/iReportFile";
+import { Config } from "@/config/config";
+import { PropagationTestConfig } from "@/config/propagationTestConfig";
+import { CoverageResult } from "@/coverage/coverageResult";
 import { Reporter } from "@/jest/reporter/reporter";
+import { TestCaseStartInfo } from "@/jest/reporter/testCase";
 import { Logger } from "@/logger";
+import { IReportFile } from "@/report/iReportFile";
+import { TestCase } from "@/testCase";
 import { TestResult } from "@/testResult";
+import { buildAggregatedResult } from "@/testUtil/jest/aggregatedResult";
+import { buildGlobalConfig } from "@/testUtil/jest/globalConfig";
+import { buildReporterOnStartOptions } from "@/testUtil/jest/reporter";
 import { buildTest, DEFAULT_TEST_PATH } from "@/testUtil/jest/test_";
+import { buildTestCaseResult } from "@/testUtil/jest/testCaseResult";
 import {
   buildTestCaseStartInfo,
   DEFAULT_TEST_FULL_NAME,
 } from "@/testUtil/jest/testCaseStartInfo";
-import { buildTestCaseResult } from "@/testUtil/jest/testCaseResult";
-import { Config } from "@/config/config";
-import { PropagationTestConfig } from "@/config/propagationTestConfig";
-import { CoverageResult } from "@/coverage/coverageResult";
-import { TestCaseStartInfo } from "@/jest/reporter/testCase";
-import { TestCase } from "@/testCase";
 
 class DummyReportFile implements IReportFile {
   testResult: TestResult | undefined;

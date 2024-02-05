@@ -1,8 +1,8 @@
-import fs from "fs";
-import path from "path";
-import os from "os";
 import { FileWatcher } from "@/eventBus/infra/fileWatcher";
 import { sleep } from "@/util/async";
+import fs from "fs";
+import os from "os";
+import path from "path";
 
 describe("FileWatcher", () => {
   let file: string;

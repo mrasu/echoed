@@ -1,11 +1,11 @@
 import { patchFetch, restoreFetch } from "@/fetchPatch";
-import { openBus, closeBus } from "@/openBus";
-import { FileSpace } from "@/fileSpace";
-import type { Global } from "@jest/types";
 import { FileLogger } from "@/fileLog/fileLogger";
+import { IFileLogger } from "@/fileLog/iFileLogger";
+import { FileSpace } from "@/fileSpace";
+import { closeBus, openBus } from "@/openBus";
+import type { Global } from "@jest/types";
 import crypto from "crypto";
 import path from "path";
-import { IFileLogger } from "@/fileLog/iFileLogger";
 
 export class Environment {
   constructor(public testPath: string) {}

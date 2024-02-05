@@ -1,5 +1,5 @@
-import { PropagationTestConfig } from "@/config/propagationTestConfig";
 import { ConfigLoader } from "@/config/configLoader";
+import { PropagationTestConfig } from "@/config/propagationTestConfig";
 
 export class Config {
   static load(filepath: string): Config {

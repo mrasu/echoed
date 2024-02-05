@@ -1,5 +1,5 @@
-import { TestResult } from "@/testResult";
 import { CoverageResult } from "@/coverage/coverageResult";
+import { TestResult } from "@/testResult";
 
 export interface IReportFile {
   generate(

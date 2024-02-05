@@ -1,5 +1,5 @@
-import { Service as protobufService } from "protobufjs";
 import { Method } from "@/coverage/proto/method";
+import { Service as protobufService } from "protobufjs";
 
 export class Service {
   service: protobufService;

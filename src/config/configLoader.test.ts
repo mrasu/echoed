@@ -1,7 +1,7 @@
-import { ConfigLoader } from "@/config/configLoader";
 import { Config, ServiceConfig } from "@/config/config";
-import { PropagationTestConfig } from "@/config/propagationTestConfig";
 import { ConfigFileSchema } from "@/config/configFileSchema";
+import { ConfigLoader } from "@/config/configLoader";
+import { PropagationTestConfig } from "@/config/propagationTestConfig";
 
 describe("ConfigLoader", () => {
   describe("loadFromObject", () => {

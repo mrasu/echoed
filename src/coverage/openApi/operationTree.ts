@@ -1,8 +1,8 @@
-import { OpenAPI, OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from "openapi-types";
-import { normalizePath, removeQueryAndHashFromPath } from "@/util/url";
-import { toMethod } from "@/type/http";
 import { Operation } from "@/coverage/openApi/operation";
 import { OperationNode } from "@/coverage/openApi/operationNode";
+import { toMethod } from "@/type/http";
+import { normalizePath, removeQueryAndHashFromPath } from "@/util/url";
+import { OpenAPI, OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from "openapi-types";
 
 export const PathWildcard = Symbol("pathWildcard");
 

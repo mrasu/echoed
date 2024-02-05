@@ -1,8 +1,8 @@
-import fs from "fs";
-import { appendFileLine, createEmptyFile } from "@/util/file";
-import { Logger } from "@/logger";
 import { FileWatcher } from "@/eventBus/infra/fileWatcher";
 import { IEventBus, WatchCallback } from "@/eventBus/infra/iEventBus";
+import { Logger } from "@/logger";
+import { appendFileLine, createEmptyFile } from "@/util/file";
+import fs from "fs";
 import { z } from "zod";
 
 const eventData = z.object({

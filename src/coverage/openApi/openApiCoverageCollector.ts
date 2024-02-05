@@ -1,20 +1,20 @@
-import { OperationTree } from "@/coverage/openApi/operationTree";
-import { OtelSpan } from "@/type/otelSpan";
-import { removeQueryAndHashFromPath } from "@/util/url";
-import { Method, toMethod } from "@/type/http";
-import { OpenAPI } from "openapi-types";
-import {
-  IServiceCoverageCollector,
-  ServiceCoverageCollectorResult,
-} from "@/coverage/iServiceCoverageCollector";
 import {
   HttpOperationCoverage,
   HttpOperationTraces,
 } from "@/coverage/coverageResult";
+import {
+  IServiceCoverageCollector,
+  ServiceCoverageCollectorResult,
+} from "@/coverage/iServiceCoverageCollector";
+import { OperationTree } from "@/coverage/openApi/operationTree";
 import { opentelemetry } from "@/generated/otelpbj";
-import Span = opentelemetry.proto.trace.v1.Span;
-import { TwoKeyValuesMap } from "@/util/twoKeyValuesMap";
+import { Method, toMethod } from "@/type/http";
+import { OtelSpan } from "@/type/otelSpan";
 import { toBase64 } from "@/util/byte";
+import { TwoKeyValuesMap } from "@/util/twoKeyValuesMap";
+import { removeQueryAndHashFromPath } from "@/util/url";
+import { OpenAPI } from "openapi-types";
+import Span = opentelemetry.proto.trace.v1.Span;
 
 export class OpenApiCoverageCollector implements IServiceCoverageCollector {
   // undocumentedOperations is Map<path, Map<method, OtelSpan[]>>

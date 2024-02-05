@@ -1,8 +1,8 @@
+import { convertSpanFilterOption } from "@/command/bridge/compare";
+import { Compare } from "@/command/compare";
+import { Span } from "@/command/spanType";
 import { SpanBus } from "@/eventBus/spanBus";
 import { getTraceIdFromResponse } from "@/traceLoggingFetch";
-import { Span } from "@/command/spanType";
-import { Compare } from "@/command/compare";
-import { convertSpanFilterOption } from "@/command/bridge/compare";
 
 export type WaitOption = {
   timeoutMs?: number;

@@ -1,5 +1,5 @@
-import { OtelSpan } from "@/type/otelSpan";
 import { opentelemetry } from "@/generated/otelpbj";
+import { OtelSpan } from "@/type/otelSpan";
 
 describe("OtelSpan", () => {
   describe("serviceName", () => {

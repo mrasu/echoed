@@ -1,8 +1,8 @@
-import fs from "fs";
-import path from "path";
-import os from "os";
 import { FileBus } from "@/eventBus/infra/fileBus";
 import { sleep } from "@/util/async";
+import fs from "fs";
+import os from "os";
+import path from "path";
 
 describe("FileBus", () => {
   let file: string;

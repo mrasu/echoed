@@ -1,16 +1,16 @@
-import path from "path";
+import { Config } from "@/config/config";
+import { Reporter } from "@/jest/reporter/reporter";
 import { ReportFile } from "@/report/reportFile";
 import {
   AggregatedResult,
-  Config as JestReporterConfig,
   Reporter as IJestReporter,
+  Config as JestReporterConfig,
   ReporterOnStartOptions,
   SummaryReporterOptions,
 } from "@jest/reporters";
 import { Test, TestCaseResult, TestContext } from "@jest/test-result";
 import { Circus } from "@jest/types";
-import { Reporter } from "@/jest/reporter/reporter";
-import { Config } from "@/config/config";
+import path from "path";
 
 const ECHOED_ROOT_DIR = path.resolve(__dirname, "../../");
 const ECHOED_CONFIG_FILE_NAME = ".echoed.yml";

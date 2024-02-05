@@ -1,17 +1,17 @@
-import express from "express";
-import bodyParser from "body-parser";
-import opentelemetry from "@/generated/otelpbj";
-import http from "http";
-import { sleep } from "@/util/async";
-import { toBase64 } from "@/util/byte";
-import { OtelSpan } from "@/type/otelSpan";
-import { Logger } from "@/logger";
 import { FileBus } from "@/eventBus/infra/fileBus";
-import { Mutex } from "async-mutex";
 import { SpanBus } from "@/eventBus/spanBus";
 import { WantSpanRequest } from "@/eventBus/wantSpanRequest";
+import opentelemetry from "@/generated/otelpbj";
+import { Logger } from "@/logger";
 import { OtelLogRecord } from "@/type/otelLogRecord";
+import { OtelSpan } from "@/type/otelSpan";
+import { sleep } from "@/util/async";
+import { toBase64 } from "@/util/byte";
+import { Mutex } from "async-mutex";
+import bodyParser from "body-parser";
+import express from "express";
 import asyncHandler from "express-async-handler";
+import http from "http";
 
 const TracesData = opentelemetry.opentelemetry.proto.trace.v1.TracesData;
 const LogsData = opentelemetry.opentelemetry.proto.logs.v1.LogsData;

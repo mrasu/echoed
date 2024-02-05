@@ -10,8 +10,8 @@ import {
   jsonSpan,
   jsonStatus,
 } from "@/type/jsonSpan";
-import Long from "long";
 import { decodeBase64 } from "@/util/byte";
+import Long from "long";
 
 export class Span {
   attributes: KeyValue[];

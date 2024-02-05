@@ -1,16 +1,16 @@
-import fs from "fs";
-import path from "path";
-import { OtelSpan } from "@/type/otelSpan";
-import { TestResult } from "@/testResult";
-import { TestCaseResult } from "@/testCaseResult";
 import { Config } from "@/config/config";
-import { IReportFile } from "@/report/iReportFile";
 import {
   CoverageResult,
   HttpCoverage as HttpCoverageResult,
   RpcCoverage as RpcCoverageResult,
 } from "@/coverage/coverageResult";
+import { IReportFile } from "@/report/iReportFile";
+import { TestCaseResult } from "@/testCaseResult";
+import { TestResult } from "@/testResult";
 import { OtelLogRecord } from "@/type/otelLogRecord";
+import { OtelSpan } from "@/type/otelSpan";
+import fs from "fs";
+import path from "path";
 
 type EchoedParam = {
   config: ReportConfig;
