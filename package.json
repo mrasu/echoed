@@ -1,7 +1,7 @@
 {
   "name": "echoed",
-  "version": "0.0.6",
-  "description": "Observable API testing library using OpenTelemetry for Jest.",
+  "version": "0.1.0",
+  "description": "Observable Integration Testing using OpenTelemetry on top of Jest.",
   "bin": "dist/create/bin.js",
   "scripts": {
     "dev": "tsc-watch --onSuccess 'tsup --sourcemap --watch'",
