@@ -7,6 +7,7 @@ import {
   ProtoConfig,
   ServiceConfig,
 } from "@/config/config";
+import { InvalidConfigError } from "@/config/invalidConfigError";
 import { PropagationTestConfig } from "@/config/propagationTestConfig";
 import {
   DEFAULT_SCENARIO_COMPILE_OUT_DIR,
@@ -45,8 +46,8 @@ export class ConfigLoader {
     const result = this.readFileRecursively(filepath);
 
     if (!result.success) {
-      throw new Error(
-        `Echoed: invalid configuration: \n${formatZodError(result.error)}`,
+      throw new InvalidConfigError(
+        `Failed to parse configuration: ${formatZodError(result.error)}`,
       );
     }
 
@@ -117,14 +118,14 @@ export class ConfigLoader {
         );
       }
 
-      throw new Error(
-        `Echoed: ${overriddenTxt}config file not found: ${filepath}`,
+      throw new InvalidConfigError(
+        `${overriddenTxt}config file not found: ${filepath}`,
       );
     }
 
     if (!stat.isFile()) {
-      throw new Error(
-        `Echoed: ${overriddenTxt}config file is not a file: ${filepath}`,
+      throw new InvalidConfigError(
+        `${overriddenTxt}config file is not a file: ${filepath}`,
       );
     }
 
@@ -134,7 +135,9 @@ export class ConfigLoader {
 
   loadFromObject(schemaObject: ConfigSchema): Config {
     if (schemaObject.output === "") {
-      throw new Error("Echoed: invalid report option. `output` is required");
+      throw new InvalidConfigError(
+        "Invalid report option. `output` is required",
+      );
     }
 
     return new Config(

@@ -1,3 +1,4 @@
+import { EchoedFatalError } from "@/echoedFatalError";
 import { getTmpDirFromEnv } from "@/env";
 import { Environment } from "@/jest/nodeEnvironment/environment";
 import type {
@@ -20,7 +21,9 @@ export class JestNodeEnvironment extends NodeEnvironment {
 
     const tmpDir = getTmpDirFromEnv();
     if (!tmpDir) {
-      throw new Error("No directory for Echoed's log. not using reporter?");
+      throw new EchoedFatalError(
+        "No directory for Echoed's log. not using reporter?",
+      );
     }
 
     const workerID = process.env["JEST_WORKER_ID"];

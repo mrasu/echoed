@@ -1,3 +1,4 @@
+import { InvalidConfigError } from "@/config/invalidConfigError";
 import { Operation } from "@/coverage/openApi/operation";
 import { OperationNode } from "@/coverage/openApi/operationNode";
 import { toMethod } from "@/type/http";
@@ -28,7 +29,9 @@ function findBasePath(doc: OpenAPI.Document): string {
       if (server.variables && server.variables[p1]) {
         return server.variables[p1].default;
       }
-      throw new Error(`No variable found for OpenAPI server URL: ${baseUrl}`);
+      throw new InvalidConfigError(
+        `No variable found for OpenAPI server URL: ${baseUrl}`,
+      );
     });
     const basePathName = new URL(url).pathname;
 
@@ -36,7 +39,7 @@ function findBasePath(doc: OpenAPI.Document): string {
     return removeLastSlash(path);
   }
 
-  throw new Error(
+  throw new InvalidConfigError(
     `No basePath found from OpenAPI specification: not using v2, v3, v3.1?`,
   );
 }

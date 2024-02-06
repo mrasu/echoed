@@ -1,3 +1,4 @@
+import { InvalidConfigError } from "@/config/invalidConfigError";
 import { ScenarioCompileConfig } from "@/config/scenarioCompileConfig";
 import { Logger } from "@/logger";
 import { Config } from "@/scenario/compile/config";
@@ -71,7 +72,7 @@ export class YamlScenarioCompiler {
     const fullOutDir = path.resolve(this.compileConfig.outDir);
     const fullCwd = path.resolve(cwd);
     if (!fullOutDir.startsWith(fullCwd)) {
-      throw new Error(
+      throw new InvalidConfigError(
         `outDir must be under cwd if cleaning directory for safety. outDir: ${this.compileConfig.outDir}`,
       );
     }

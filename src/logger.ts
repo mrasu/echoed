@@ -46,6 +46,14 @@ export class Logger {
     console.log(`${tag} ${message}`, ...optionalParams);
   }
 
+  static ln(count: number = 1): void {
+    if (!this.enabled) return;
+
+    for (let i = 0; i < count; i++) {
+      console.log("");
+    }
+  }
+
   static logGrayComment(message?: string, ...optionalParams: unknown[]): void {
     if (!this.enabled) return;
 

@@ -4,6 +4,7 @@ import { CoverageCollector } from "@/coverage/coverageCollector";
 import { IServiceCoverageCollector } from "@/coverage/iServiceCoverageCollector";
 import { OpenApiCoverageCollector } from "@/coverage/openApi/openApiCoverageCollector";
 import { ProtoCoverageCollector } from "@/coverage/proto/protoCoverageCollector";
+import { EchoedFatalError } from "@/echoedFatalError";
 import { setTmpDirToEnv } from "@/env";
 import { FileSpace } from "@/fileSpace";
 import { TestCaseStartInfo } from "@/jest/reporter/testCase";
@@ -127,7 +128,7 @@ export class Reporter {
     reportFile: IReportFile,
   ): Promise<void> {
     if (!this.server) {
-      throw new Error("Echoed: server is not started");
+      throw new EchoedFatalError("Server is not started");
     }
 
     const { capturedSpans, capturedLogs } = await this.server.stopAfter(

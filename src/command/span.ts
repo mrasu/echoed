@@ -1,6 +1,7 @@
 import { convertSpanFilterOption } from "@/command/bridge/compare";
 import { Compare } from "@/command/compare";
 import { Span } from "@/command/spanType";
+import { EchoedFatalError } from "@/echoedFatalError";
 import { SpanBus } from "@/eventBus/spanBus";
 import { getTraceIdFromResponse } from "@/traceLoggingFetch";
 
@@ -24,11 +25,13 @@ export async function waitForSpan(
   options?: WaitOption,
 ): Promise<Span> {
   const bus = globalThis.__ECHOED_BUS__;
-  if (!bus) throw new Error("No bus for Echoed. not using reporter?");
+  if (!bus) {
+    throw new EchoedFatalError("No bus for Echoed. not using reporter?");
+  }
 
   const traceId = getTraceIdFromResponse(res);
   if (!traceId) {
-    throw new Error(
+    throw new EchoedFatalError(
       "Not having Echoed's property in Response. Not the response of fetch?",
     );
   }
