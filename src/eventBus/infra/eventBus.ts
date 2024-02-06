@@ -1,6 +1,6 @@
 export type WatchCallback = (data: unknown) => Promise<void>;
 
-export interface IEventBus {
+export interface EventBus {
   open(): Promise<void>;
   close(): void;
   on(eventName: string, callback: WatchCallback): void;

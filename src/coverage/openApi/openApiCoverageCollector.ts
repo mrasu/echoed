@@ -2,11 +2,11 @@ import {
   HttpOperationCoverage,
   HttpOperationTraces,
 } from "@/coverage/coverageResult";
-import {
-  IServiceCoverageCollector,
-  ServiceCoverageCollectorResult,
-} from "@/coverage/iServiceCoverageCollector";
 import { OperationTree } from "@/coverage/openApi/operationTree";
+import {
+  ServiceCoverageCollector,
+  ServiceCoverageCollectorResult,
+} from "@/coverage/serviceCoverageCollector";
 import { opentelemetry } from "@/generated/otelpbj";
 import { Method, toMethod } from "@/type/http";
 import { OtelSpan } from "@/type/otelSpan";
@@ -16,7 +16,7 @@ import { removeQueryAndHashFromPath } from "@/util/url";
 import { OpenAPI } from "openapi-types";
 import Span = opentelemetry.proto.trace.v1.Span;
 
-export class OpenApiCoverageCollector implements IServiceCoverageCollector {
+export class OpenApiCoverageCollector implements ServiceCoverageCollector {
   // undocumentedOperations is Map<path, Map<method, OtelSpan[]>>
   private undocumentedOperations = new TwoKeyValuesMap<
     string,

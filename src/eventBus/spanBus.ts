@@ -5,7 +5,7 @@ import {
   restoreComparables,
   restoreStringComparable,
 } from "@/comparision/restore";
-import { IEventBus } from "@/eventBus/infra/iEventBus";
+import { EventBus } from "@/eventBus/infra/eventBus";
 import { Base64String } from "@/type/base64String";
 import { jsonSpan } from "@/type/jsonSpan";
 import { OtelSpan } from "@/type/otelSpan";
@@ -62,7 +62,7 @@ type jsonReceiveSpanEvent = {
 };
 
 export class SpanBus {
-  constructor(private readonly bus: IEventBus) {}
+  constructor(private readonly bus: EventBus) {}
 
   listenWantSpanEvent(callback: (event: WantSpanEvent) => Promise<void>): void {
     this.bus.on(WANT_SPAN_EVENT_NAME, async (data: unknown) => {

@@ -1,9 +1,9 @@
 import { AnsiGreen, AnsiRed, AnsiReset } from "@/ansi";
 import { Config, ServiceConfig } from "@/config/config";
 import { CoverageCollector } from "@/coverage/coverageCollector";
-import { IServiceCoverageCollector } from "@/coverage/iServiceCoverageCollector";
 import { OpenApiCoverageCollector } from "@/coverage/openApi/openApiCoverageCollector";
 import { ProtoCoverageCollector } from "@/coverage/proto/protoCoverageCollector";
+import { ServiceCoverageCollector } from "@/coverage/serviceCoverageCollector";
 import { EchoedFatalError } from "@/echoedFatalError";
 import { setTmpDirToEnv } from "@/env";
 import { FileSpace } from "@/fileSpace";
@@ -102,7 +102,7 @@ export class Reporter {
 
   private async buildCoverageCollector(
     service: ServiceConfig,
-  ): Promise<IServiceCoverageCollector | undefined> {
+  ): Promise<ServiceCoverageCollector | undefined> {
     if (service.openapi) {
       const document = await SwaggerParser.parse(service.openapi.filePath);
       return OpenApiCoverageCollector.buildFromDocument(document);

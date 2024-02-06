@@ -1,6 +1,6 @@
 import { HttpOperationCoverage } from "@/coverage/coverageResult";
-import { ServiceCoverageCollectorResult } from "@/coverage/iServiceCoverageCollector";
 import { OpenApiCoverageCollector } from "@/coverage/openApi/openApiCoverageCollector";
+import { ServiceCoverageCollectorResult } from "@/coverage/serviceCoverageCollector";
 import { opentelemetry } from "@/generated/otelpbj";
 import { buildV3Document } from "@/testUtil/openapi/apiV3";
 import { OtelSpan } from "@/type/otelSpan";

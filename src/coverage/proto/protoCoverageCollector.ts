@@ -1,9 +1,9 @@
 import { RpcMethodCoverage, RpcMethodTraces } from "@/coverage/coverageResult";
-import {
-  IServiceCoverageCollector,
-  ServiceCoverageCollectorResult,
-} from "@/coverage/iServiceCoverageCollector";
 import { Service } from "@/coverage/proto/service";
+import {
+  ServiceCoverageCollector,
+  ServiceCoverageCollectorResult,
+} from "@/coverage/serviceCoverageCollector";
 import { opentelemetry } from "@/generated/otelpbj";
 import { OtelSpan } from "@/type/otelSpan";
 import { toBase64 } from "@/util/byte";
@@ -18,7 +18,7 @@ import {
 } from "protobufjs";
 import Span = opentelemetry.proto.trace.v1.Span;
 
-export class ProtoCoverageCollector implements IServiceCoverageCollector {
+export class ProtoCoverageCollector implements ServiceCoverageCollector {
   private services = new Map<string, Service>();
 
   // undocumentedProtoSpans is Map<rpcService, Map<rpcMethod, UndocumentedSpans>>

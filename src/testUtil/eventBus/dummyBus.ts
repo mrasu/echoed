@@ -1,6 +1,6 @@
-import { IEventBus, WatchCallback } from "@/eventBus/infra/iEventBus";
+import { EventBus, WatchCallback } from "@/eventBus/infra/eventBus";
 
-export class DummyBus<T> implements IEventBus {
+export class DummyBus<T> implements EventBus {
   emittedData: [string, T][] = [];
   immediateReturnObject?: unknown = undefined;
 

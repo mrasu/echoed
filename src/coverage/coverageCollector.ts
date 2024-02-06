@@ -1,11 +1,11 @@
 import { Coverage, CoverageResult } from "@/coverage/coverageResult";
-import { IServiceCoverageCollector } from "@/coverage/iServiceCoverageCollector";
+import { ServiceCoverageCollector } from "@/coverage/serviceCoverageCollector";
 import { UnmeasuredTraceCollector } from "@/coverage/unmeasuredTraceCollector";
 import { OtelSpan } from "@/type/otelSpan";
 import { TwoKeyValuesMap } from "@/util/twoKeyValuesMap";
 
 export class CoverageCollector {
-  private readonly serviceCollectors: ServiceMap<IServiceCoverageCollector> =
+  private readonly serviceCollectors: ServiceMap<ServiceCoverageCollector> =
     new ServiceMap();
   private unmeasuredCollector = new ServiceMap<UnmeasuredTraceCollector>();
 
@@ -14,7 +14,7 @@ export class CoverageCollector {
   add(
     serviceName: string,
     serviceNamespace: string | undefined,
-    collector: IServiceCoverageCollector,
+    collector: ServiceCoverageCollector,
   ): void {
     this.serviceCollectors.set(serviceName, serviceNamespace, collector);
   }

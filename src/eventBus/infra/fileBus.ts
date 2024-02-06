@@ -1,5 +1,5 @@
+import { EventBus, WatchCallback } from "@/eventBus/infra/eventBus";
 import { FileWatcher } from "@/eventBus/infra/fileWatcher";
-import { IEventBus, WatchCallback } from "@/eventBus/infra/iEventBus";
 import { Logger } from "@/logger";
 import { appendFileLine, createEmptyFile } from "@/util/file";
 import fs from "fs";
@@ -10,7 +10,7 @@ const eventData = z.object({
   data: z.unknown(),
 });
 
-export class FileBus implements IEventBus {
+export class FileBus implements EventBus {
   private readonly file: string;
   private watcher?: FileWatcher;
 

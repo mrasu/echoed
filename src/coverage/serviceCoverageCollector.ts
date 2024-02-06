@@ -1,7 +1,7 @@
 import { HttpCoverage, RpcCoverage } from "@/coverage/coverageResult";
 import { OtelSpan } from "@/type/otelSpan";
 
-export interface IServiceCoverageCollector {
+export interface ServiceCoverageCollector {
   markVisited(spans: OtelSpan[]): void;
   getCoverage(): ServiceCoverageCollectorResult;
 }
