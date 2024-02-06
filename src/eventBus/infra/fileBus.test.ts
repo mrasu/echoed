@@ -1,4 +1,5 @@
 import { FileBus } from "@/eventBus/infra/fileBus";
+import { MAX_WAIT_MS, waitUntilCalled } from "@/testUtil/async";
 import { sleep } from "@/util/async";
 import fs from "fs";
 import os from "os";
@@ -31,7 +32,7 @@ describe("FileBus", () => {
       await bus.open();
       bus.on("testEvent", callback);
       await bus.emit("testEvent", { test: "testData" });
-      await sleep(10);
+      await waitUntilCalled(callback);
 
       expect(callback.mock.calls).toEqual([[{ test: "testData" }]]);
     });
@@ -44,7 +45,7 @@ describe("FileBus", () => {
         await bus.open();
 
         bus.on("testEvent", callback);
-        await sleep(10);
+        await waitUntilCalled(callback);
 
         expect(callback.mock.calls.length).toBe(0);
       });
@@ -58,7 +59,7 @@ describe("FileBus", () => {
         bus.on("testEvent", callback);
         await bus.emit("testEvent", { test: "testData1" });
         await bus.emit("testEvent", { test: "testData2" });
-        await sleep(10);
+        await waitUntilCalled(callback, 2);
 
         expect(callback.mock.calls).toEqual([
           [{ test: "testData1" }],
@@ -76,7 +77,8 @@ describe("FileBus", () => {
         bus.on("testEvent", callback1);
         bus.on("testEvent", callback2);
         await bus.emit("testEvent", { test: "testData" });
-        await sleep(10);
+        await waitUntilCalled(callback1);
+        await waitUntilCalled(callback2);
 
         expect(callback1.mock.calls).toEqual([[{ test: "testData" }]]);
         expect(callback2.mock.calls).toEqual([[{ test: "testData" }]]);
@@ -100,7 +102,7 @@ describe("FileBus", () => {
       };
 
       await bus.open();
-      const result = bus.onOnce("testEvent", 10, callback);
+      const result = bus.onOnce("testEvent", MAX_WAIT_MS, callback);
       await bus.emit("testEvent", { test: "testData" });
       const data = await result;
 
@@ -124,7 +126,7 @@ describe("FileBus", () => {
       await bus.open();
       bus.on("testEvent", callback);
       await bus.emit("testEvent", { test: "testData1" });
-      await sleep(10);
+      await waitUntilCalled(callback);
       bus.off("testEvent", callback);
       await bus.emit("testEvent", { test: "testData2" });
       await sleep(10);

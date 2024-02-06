@@ -1,4 +1,5 @@
 import { FileWatcher } from "@/eventBus/infra/fileWatcher";
+import { MAX_WAIT_MS, waitUntilCalled } from "@/testUtil/async";
 import { sleep } from "@/util/async";
 import fs from "fs";
 import os from "os";
@@ -27,7 +28,7 @@ describe("FileWatcher", () => {
         await watcher.open(callback);
 
         await fs.promises.appendFile(file, "test");
-        await sleep(10);
+        await waitUntilCalled(callback);
 
         expect(callback.mock.calls).toEqual([["test"]]);
       });
@@ -39,9 +40,9 @@ describe("FileWatcher", () => {
           await watcher.open(callback);
 
           await fs.promises.appendFile(file, "test1");
-          await sleep(10);
+          await waitUntilCalled(callback);
           await fs.promises.appendFile(file, "test2");
-          await sleep(10);
+          await waitUntilCalled(callback, 2);
 
           expect(callback.mock.calls).toEqual([["test1"], ["test2"]]);
         });
@@ -51,7 +52,7 @@ describe("FileWatcher", () => {
     describe("when file is written before open", () => {
       beforeEach(async () => {
         await fs.promises.appendFile(file, "existing text");
-        await sleep(10);
+        await sleep(MAX_WAIT_MS);
       });
 
       it("should call callback without existing text", async () => {
@@ -60,7 +61,7 @@ describe("FileWatcher", () => {
         await watcher.open(callback);
 
         await fs.promises.appendFile(file, "test1");
-        await sleep(10);
+        await waitUntilCalled(callback);
 
         expect(callback.mock.calls).toEqual([["test1"]]);
       });
