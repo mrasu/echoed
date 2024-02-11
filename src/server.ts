@@ -1,6 +1,7 @@
 import { FileBus } from "@/eventBus/infra/fileBus";
 import { SpanBus } from "@/eventBus/spanBus";
 import { WantSpanRequest } from "@/eventBus/wantSpanRequest";
+import { IFile } from "@/fs/IFile";
 import opentelemetry from "@/generated/otelpbj";
 import { Logger } from "@/logger";
 import { OtelLogRecord } from "@/type/otelLogRecord";
@@ -25,13 +26,13 @@ export class Server {
   private capturedSpans: Map<string, OtelSpan[]> = new Map();
   private capturedLogs: Map<string, OtelLogRecord[]> = new Map();
 
-  static async start(port: number, busFiles: string[]): Promise<Server> {
+  static async start(port: number, busFiles: IFile[]): Promise<Server> {
     const server = new Server();
     await server.start(port, busFiles);
     return server;
   }
 
-  private async start(port: number, busFiles: string[]): Promise<void> {
+  private async start(port: number, busFiles: IFile[]): Promise<void> {
     const server = await this.startHttpServer(port);
     const buses = await this.startBus(busFiles);
 
@@ -39,7 +40,7 @@ export class Server {
     this.buses = buses;
   }
 
-  private async startBus(busFiles: string[]): Promise<FileBus[]> {
+  private async startBus(busFiles: IFile[]): Promise<FileBus[]> {
     const buses: FileBus[] = busFiles.map((file) => new FileBus(file));
 
     for (const bus of buses) {

@@ -1,36 +1,26 @@
-import { EventBus, WatchCallback } from "@/eventBus/infra/eventBus";
+import { FileBus } from "@/eventBus/infra/fileBus";
+import { MockFile } from "@/testUtil/fs/mockFile";
+import { MockFileWatcher } from "@/testUtil/fs/mockFileWatcher";
 
-export class DummyBus<T> implements EventBus {
-  emittedData: [string, T][] = [];
-  immediateReturnObject?: unknown = undefined;
+type EventData<T> = {
+  event: string;
+  data: T;
+};
 
-  private watchingEvents = new Map<string, WatchCallback>();
-
-  async open(): Promise<void> {}
-  close(): void {}
-  on(eventName: string, callback: WatchCallback): void {
-    this.watchingEvents.set(eventName, callback);
+export class DummyBus<T> extends FileBus {
+  constructor() {
+    const watcher = new MockFileWatcher();
+    const file = MockFile.buildWithWatcher(watcher);
+    super(file);
   }
 
-  onOnce<R>(
-    _eventName: string,
-    _timeoutMs: number,
-    _fn: (data: unknown) => Promise<R | undefined>,
-  ): Promise<R> {
-    if (this.immediateReturnObject) {
-      return Promise.resolve(this.immediateReturnObject as R);
-    }
-
-    return Promise.resolve(undefined as R);
+  get mockWatcher(): MockFileWatcher {
+    return this.watcher as MockFileWatcher;
   }
 
-  async emit(eventName: string, data: T): Promise<void> {
-    this.emittedData.push([eventName, data]);
-    for (const [key, callback] of this.watchingEvents) {
-      if (key === eventName) {
-        // call JSON.stringify and parse to emulate file writing and reading
-        await callback(JSON.parse(JSON.stringify(data)));
-      }
-    }
+  emittedData(): EventData<T>[] {
+    return this.mockWatcher.foundTexts.map((text) => {
+      return JSON.parse(text) as EventData<T>;
+    });
   }
 }

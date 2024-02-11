@@ -1,5 +1,6 @@
 import { EchoedFatalError } from "@/echoedFatalError";
 import { getTmpDirFromEnv } from "@/env";
+import { buildFsContainerForApp } from "@/fs/fsContainer";
 import { Environment } from "@/jest/nodeEnvironment/environment";
 import type {
   EnvironmentContext,
@@ -19,8 +20,8 @@ export class JestNodeEnvironment extends NodeEnvironment {
   override async setup(): Promise<void> {
     await super.setup();
 
-    const tmpDir = getTmpDirFromEnv();
-    if (!tmpDir) {
+    const tmpDirPath = getTmpDirFromEnv();
+    if (!tmpDirPath) {
       throw new EchoedFatalError(
         "No directory for Echoed's log. not using reporter?",
       );
@@ -28,6 +29,8 @@ export class JestNodeEnvironment extends NodeEnvironment {
 
     const workerID = process.env["JEST_WORKER_ID"];
 
+    const fsContainer = buildFsContainerForApp();
+    const tmpDir = fsContainer.newDirectory(tmpDirPath);
     await this.env.setup(this.global, tmpDir, workerID!);
   }
 

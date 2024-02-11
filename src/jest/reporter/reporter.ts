@@ -7,6 +7,8 @@ import { ServiceCoverageCollector } from "@/coverage/serviceCoverageCollector";
 import { EchoedFatalError } from "@/echoedFatalError";
 import { setTmpDirToEnv } from "@/env";
 import { FileSpace } from "@/fileSpace";
+import { IFile } from "@/fs/IFile";
+import { FsContainer } from "@/fs/fsContainer";
 import { TestCaseStartInfo } from "@/jest/reporter/testCase";
 import { Logger } from "@/logger";
 import { IReportFile } from "@/report/iReportFile";
@@ -24,7 +26,6 @@ import {
 import { Test, TestCaseResult, TestContext } from "@jest/test-result";
 import { Circus } from "@jest/types";
 import { Mutex } from "async-mutex";
-import fs from "fs";
 import os from "os";
 import path from "path";
 import protobuf from "protobufjs";
@@ -59,14 +60,18 @@ export class Reporter {
   private knownTestCount = 0;
   collectedTestCaseElements: Map<string, TestCase[]> = new Map();
 
-  constructor(globalConfig: JestReporterConfig.GlobalConfig, config: Config) {
+  constructor(
+    fsContainer: FsContainer,
+    globalConfig: JestReporterConfig.GlobalConfig,
+    config: Config,
+  ) {
     this.jestRootDir = globalConfig.rootDir;
     this.maxWorkers = globalConfig.maxWorkers;
 
     Logger.setShowDebug(config.debug);
 
-    const tmpdir = fs.mkdtempSync(path.join(os.tmpdir(), "echoed-"));
-    setTmpDirToEnv(tmpdir);
+    const tmpdir = fsContainer.mkdtempSync(path.join(os.tmpdir(), "echoed-"));
+    setTmpDirToEnv(tmpdir.path);
 
     this.fileSpace = new FileSpace(tmpdir);
     this.fileSpace.ensureDirectoryExistence();
@@ -83,9 +88,9 @@ export class Reporter {
 
     Logger.log("Starting server...");
 
-    const busFiles: string[] = [];
+    const busFiles: IFile[] = [];
     for (let i = 0; i < this.maxWorkers; i++) {
-      busFiles.push(this.fileSpace.eventBusFilePath((i + 1).toString()));
+      busFiles.push(this.fileSpace.createBusFile((i + 1).toString()));
     }
 
     this.server = await Server.start(this.config.serverPort, busFiles);
@@ -146,7 +151,7 @@ export class Reporter {
     );
     const coverageResult = this.coverageCollector.getCoverage();
 
-    const outputPath = await reportFile.generate(testResult, coverageResult);
+    const outFile = await reportFile.generate(testResult, coverageResult);
 
     if (this.config.propagationTestConfig.enabled) {
       const passed = this.logPropagationTestResult(testResult);
@@ -156,7 +161,7 @@ export class Reporter {
     }
 
     Logger.log(
-      `Report file is generated at ${AnsiGreen}${outputPath}${AnsiReset}`,
+      `Report file is generated at ${AnsiGreen}${outFile.path}${AnsiReset}`,
     );
   }
 

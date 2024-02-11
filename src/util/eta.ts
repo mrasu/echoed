@@ -1,8 +1,9 @@
+import { IDirectory } from "@/fs/iDirectory";
 import { Eta } from "eta";
 
-export const buildNoEscapeEta = (views: string): Eta => {
+export const buildNoEscapeEta = (viewsDirectory: IDirectory): Eta => {
   return new Eta({
-    views: views,
+    views: viewsDirectory.path,
     autoEscape: false,
     cache: true,
   });

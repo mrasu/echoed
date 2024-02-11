@@ -1,3 +1,4 @@
+import { IFile } from "@/fs/IFile";
 import { Config } from "@/scenario/compile/config";
 import { InvalidScenarioError } from "@/scenario/compile/invalidScenarioError";
 import {
@@ -6,13 +7,12 @@ import {
 } from "@/scenario/compile/scenarioBook";
 import { ScenarioYamlSchema } from "@/schema/scenarioYamlSchema";
 import { formatZodError } from "@/util/zod";
-import fs from "fs";
 import yaml from "js-yaml";
 import { z } from "zod";
 
 export class ScenarioYamlLoader {
-  async load(config: Config, filepath: string): Promise<ScenarioBook> {
-    const fileText = await fs.promises.readFile(filepath);
+  async load(config: Config, file: IFile): Promise<ScenarioBook> {
+    const fileText = await file.read();
     const ymlObject = yaml.load(fileText.toString());
     const scenarioYamlSchema = ScenarioBookSchema.safeParse(ymlObject);
 

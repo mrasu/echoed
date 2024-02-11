@@ -1,21 +1,21 @@
-import fs from "fs";
-import path from "path";
+import { IFile } from "@/fs/IFile";
+import { IDirectory } from "@/fs/iDirectory";
 
 export class FileSpace {
-  readonly testLogDir: string;
-  private readonly busEventDir: string;
+  readonly testLogDir: IDirectory;
+  private readonly busEventDir: IDirectory;
 
-  constructor(dir: string) {
-    this.testLogDir = path.join(dir, "test");
-    this.busEventDir = path.join(dir, "busEvent");
+  constructor(dir: IDirectory) {
+    this.testLogDir = dir.newDir("test");
+    this.busEventDir = dir.newDir("busEvent");
   }
 
   ensureDirectoryExistence(): void {
-    fs.mkdirSync(this.testLogDir, { recursive: true });
-    fs.mkdirSync(this.busEventDir, { recursive: true });
+    this.testLogDir.mkdirSync();
+    this.busEventDir.mkdirSync();
   }
 
-  eventBusFilePath(jestWorkerID: string): string {
-    return path.join(this.busEventDir, `bus-${jestWorkerID}.jsonl`);
+  createBusFile(jestWorkerID: string): IFile {
+    return this.busEventDir.newFile(`bus-${jestWorkerID}.jsonl`);
   }
 }

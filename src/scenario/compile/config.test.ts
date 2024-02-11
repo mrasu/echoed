@@ -10,13 +10,14 @@ import {
 } from "@/scenario/compile/pluginConfig";
 import { RunnerConfig } from "@/scenario/compile/runnerConfig";
 import { RunnerOption } from "@/scenario/compile/runnerOption";
+import { MockDirectory } from "@/testUtil/fs/mockDirectory";
 
 describe("Config", () => {
   describe("parse", () => {
     const minimumCompileConfig: ScenarioCompileConfig = {
-      outDir: "out",
+      outDir: new MockDirectory("out"),
       cleanOutDir: true,
-      yamlDir: "yaml",
+      yamlDir: new MockDirectory("yaml"),
       retry: 0,
       env: {},
       plugin: {

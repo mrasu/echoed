@@ -1,12 +1,15 @@
 import { Config } from "@/config/config";
 import { PropagationTestConfig } from "@/config/propagationTestConfig";
 import { CoverageResult } from "@/coverage/coverageResult";
+import { IFile } from "@/fs/IFile";
 import { Reporter } from "@/jest/reporter/reporter";
 import { TestCaseStartInfo } from "@/jest/reporter/testCase";
 import { Logger } from "@/logger";
 import { IReportFile } from "@/report/iReportFile";
 import { TestCase } from "@/testCase";
 import { TestResult } from "@/testResult";
+import { MockFile } from "@/testUtil/fs/mockFile";
+import { buildMockFsContainer } from "@/testUtil/fs/mockFsContainer";
 import { buildAggregatedResult } from "@/testUtil/jest/aggregatedResult";
 import { buildGlobalConfig } from "@/testUtil/jest/globalConfig";
 import { buildReporterOnStartOptions } from "@/testUtil/jest/reporter";
@@ -22,10 +25,10 @@ class DummyReportFile implements IReportFile {
   generate(
     testResult: TestResult,
     _coverageResult: CoverageResult,
-  ): Promise<string> {
+  ): Promise<IFile> {
     this.testResult = testResult;
 
-    return Promise.resolve("");
+    return Promise.resolve(new MockFile(true));
   }
 }
 
@@ -47,7 +50,7 @@ describe("Reporter", () => {
 
   const buildReporter = (): Reporter => {
     const config = new Config(
-      "result/report.html",
+      new MockFile(true),
       13333,
       0,
       false,
@@ -63,7 +66,8 @@ describe("Reporter", () => {
       [],
       undefined,
     );
-    return new Reporter(buildGlobalConfig(), config);
+    const fsContainer = buildMockFsContainer();
+    return new Reporter(fsContainer, buildGlobalConfig(), config);
   };
 
   const startReporter = async (): Promise<Reporter> => {

@@ -1,10 +1,10 @@
 import { IFileLogger } from "@/fileLog/iFileLogger";
-import { appendFileLine } from "@/util/file";
+import { IFile } from "@/fs/IFile";
 
 export class FileLogger implements IFileLogger {
-  constructor(private filepath: string) {}
+  constructor(private file: IFile) {}
 
   async appendFileLine(text: string): Promise<void> {
-    await appendFileLine(this.filepath, text);
+    await this.file.appendLine(text);
   }
 }

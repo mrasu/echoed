@@ -1,11 +1,12 @@
 import { FileBus } from "@/eventBus/infra/fileBus";
+import { IFile } from "@/fs/IFile";
 import type { Global } from "@jest/types";
 
 export async function openBus(
-  busFilePath: string,
+  bufFile: IFile,
   global: Global.Global,
 ): Promise<FileBus> {
-  const bus = new FileBus(busFilePath);
+  const bus = new FileBus(bufFile);
   global.__ECHOED_BUS__ = bus;
 
   await bus.open();

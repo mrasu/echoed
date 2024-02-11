@@ -1,36 +1,21 @@
-import { FileSpace } from "@/fileSpace";
 import { Environment } from "@/jest/nodeEnvironment/environment";
+import { MockDirectory } from "@/testUtil/fs/mockDirectory";
 import { buildNodeEnvironment } from "@/testUtil/jest/nodeEnvironment";
-import fs from "fs";
-import os from "os";
-import path from "path";
 
+const DUMMY_TMP_DIR = "echoed-";
 const WORKER_ID = "1";
 
 describe("Environment", () => {
-  let tmpdir: string;
-
   let defers: (() => void)[] = [];
 
-  beforeEach(async () => {
+  beforeEach(() => {
     defers = [];
-
-    tmpdir = await fs.promises.mkdtemp(path.join(os.tmpdir(), "echoed-"));
-    const fileSpace = new FileSpace(tmpdir);
-    fileSpace.ensureDirectoryExistence();
-    await fs.promises.writeFile(
-      fileSpace.eventBusFilePath(WORKER_ID),
-      "",
-      "utf-8",
-    );
   });
 
-  afterEach(async () => {
+  afterEach(() => {
     for (const defer of defers) {
       defer();
     }
-
-    await fs.promises.rm(tmpdir, { recursive: true });
   });
 
   it("should patch fetch and restore after teardown", async () => {
@@ -40,7 +25,11 @@ describe("Environment", () => {
     const originalFetch = global.fetch;
 
     const environment = new Environment("/path/to/example.test.js");
-    await environment.setup(global, tmpdir, WORKER_ID);
+    await environment.setup(
+      global,
+      new MockDirectory(DUMMY_TMP_DIR),
+      WORKER_ID,
+    );
     defers.push(() => {
       environment.teardown(global);
     });
@@ -60,7 +49,11 @@ describe("Environment", () => {
     expect(global.__ECHOED_BUS__).not.toBeDefined();
 
     const environment = new Environment("/path/to/example.test.js");
-    await environment.setup(global, tmpdir, WORKER_ID);
+    await environment.setup(
+      global,
+      new MockDirectory(DUMMY_TMP_DIR),
+      WORKER_ID,
+    );
     defers.push(() => {
       environment.teardown(global);
     });

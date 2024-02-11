@@ -1,5 +1,7 @@
 import { Config, ECHOED_CONFIG_FILE_NAME } from "@/config/config";
 import { EchoedError } from "@/echoedError";
+import { FsContainer, buildFsContainerForApp } from "@/fs/fsContainer";
+import { LocalFile } from "@/fs/localFile";
 import { Reporter } from "@/jest/reporter/reporter";
 import { Logger } from "@/logger";
 import { ReportFile } from "@/report/reportFile";
@@ -19,17 +21,22 @@ const ECHOED_ROOT_DIR = path.resolve(__dirname, "../../");
 export class JestReporter implements IJestReporter {
   private readonly reporter: Reporter;
   private readonly config: Config;
+  private readonly fsContainer: FsContainer;
 
   constructor(
     globalConfig: JestReporterConfig.GlobalConfig,
     _option: SummaryReporterOptions,
   ) {
+    this.fsContainer = buildFsContainerForApp();
+
     try {
-      const filepath = path.join(process.cwd(), ECHOED_CONFIG_FILE_NAME);
-      const config = Config.load(filepath);
+      const configFilepath = path.join(process.cwd(), ECHOED_CONFIG_FILE_NAME);
+      const configFile = new LocalFile(configFilepath);
+      const config = Config.load(this.fsContainer, configFile);
 
       this.config = config;
-      this.reporter = new Reporter(globalConfig, this.config);
+
+      this.reporter = new Reporter(this.fsContainer, globalConfig, this.config);
     } catch (e) {
       this.throwError(e);
     }
@@ -52,7 +59,10 @@ export class JestReporter implements IJestReporter {
     contexts: Set<TestContext>,
     results: AggregatedResult,
   ): Promise<void> {
-    const reportFile = new ReportFile(this.config, ECHOED_ROOT_DIR);
+    const reportFile = new ReportFile(
+      this.config,
+      this.fsContainer.newDirectory(ECHOED_ROOT_DIR),
+    );
 
     await this.run(async () => {
       await this.reporter.onRunComplete(contexts, results, reportFile);

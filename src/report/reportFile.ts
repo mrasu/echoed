@@ -4,13 +4,13 @@ import {
   HttpCoverage as HttpCoverageResult,
   RpcCoverage as RpcCoverageResult,
 } from "@/coverage/coverageResult";
+import { IFile } from "@/fs/IFile";
+import { IDirectory } from "@/fs/iDirectory";
 import { IReportFile } from "@/report/iReportFile";
 import { TestCaseResult } from "@/testCaseResult";
 import { TestResult } from "@/testResult";
 import { OtelLogRecord } from "@/type/otelLogRecord";
 import { OtelSpan } from "@/type/otelSpan";
-import fs from "fs";
-import path from "path";
 
 type EchoedParam = {
   config: ReportConfig;
@@ -113,18 +113,17 @@ const REPORT_HTML_TEMPLATE_PATH_FROM_ROOT_DIR = "reporter/dist/index.html";
 export class ReportFile implements IReportFile {
   constructor(
     private config: Config,
-    private echoedRootDir: string,
+    private echoedRootDir: IDirectory,
   ) {}
 
   async generate(
     testResult: TestResult,
     coverageResult: CoverageResult,
-  ): Promise<string> {
-    const reportHtmlPath = path.resolve(
-      this.echoedRootDir,
+  ): Promise<IFile> {
+    const reportHtmlFile = this.echoedRootDir.newFile(
       REPORT_HTML_TEMPLATE_PATH_FROM_ROOT_DIR,
     );
-    const htmlContent = await fs.promises.readFile(reportHtmlPath, "utf-8");
+    const htmlContent = await reportHtmlFile.read();
 
     const echoedParam = this.createEchoedParam(testResult, coverageResult);
 
@@ -141,10 +140,8 @@ export class ReportFile implements IReportFile {
     );
 
     const outputPath = this.config.output;
-    await fs.promises.mkdir(path.dirname(outputPath), {
-      recursive: true,
-    });
-    await fs.promises.writeFile(outputPath, fileContent, "utf-8");
+    await outputPath.ensureDir();
+    await outputPath.write(fileContent);
 
     return outputPath;
   }

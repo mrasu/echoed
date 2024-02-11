@@ -1,24 +1,16 @@
 import { FileBus } from "@/eventBus/infra/fileBus";
-import { MAX_WAIT_MS, waitUntilCalled } from "@/testUtil/async";
-import { sleep } from "@/util/async";
-import fs from "fs";
-import os from "os";
-import path from "path";
+import { MAX_WAIT_MS } from "@/testUtil/async";
+import { MockFile } from "@/testUtil/fs/mockFile";
+import { MockFileWatcher } from "@/testUtil/fs/mockFileWatcher";
 
 describe("FileBus", () => {
-  let file: string;
-  beforeEach(() => {
-    const tmpdir = fs.mkdtempSync(path.join(os.tmpdir(), "echoed-"));
-    file = path.join(tmpdir, "eventBus.jsonl");
-  });
-
-  afterEach(async () => {
-    await fs.promises.unlink(file);
-  });
+  let file: MockFile;
 
   describe("on", () => {
     let bus: FileBus;
     beforeEach(() => {
+      const watcher = new MockFileWatcher();
+      file = MockFile.buildWithWatcher(watcher);
       bus = new FileBus(file);
     });
 
@@ -32,7 +24,6 @@ describe("FileBus", () => {
       await bus.open();
       bus.on("testEvent", callback);
       await bus.emit("testEvent", { test: "testData" });
-      await waitUntilCalled(callback);
 
       expect(callback.mock.calls).toEqual([[{ test: "testData" }]]);
     });
@@ -45,7 +36,6 @@ describe("FileBus", () => {
         await bus.open();
 
         bus.on("testEvent", callback);
-        await waitUntilCalled(callback);
 
         expect(callback.mock.calls.length).toBe(0);
       });
@@ -59,7 +49,6 @@ describe("FileBus", () => {
         bus.on("testEvent", callback);
         await bus.emit("testEvent", { test: "testData1" });
         await bus.emit("testEvent", { test: "testData2" });
-        await waitUntilCalled(callback, 2);
 
         expect(callback.mock.calls).toEqual([
           [{ test: "testData1" }],
@@ -77,8 +66,6 @@ describe("FileBus", () => {
         bus.on("testEvent", callback1);
         bus.on("testEvent", callback2);
         await bus.emit("testEvent", { test: "testData" });
-        await waitUntilCalled(callback1);
-        await waitUntilCalled(callback2);
 
         expect(callback1.mock.calls).toEqual([[{ test: "testData" }]]);
         expect(callback2.mock.calls).toEqual([[{ test: "testData" }]]);
@@ -89,6 +76,8 @@ describe("FileBus", () => {
   describe("onOnce", () => {
     let bus: FileBus;
     beforeEach(() => {
+      const watcher = new MockFileWatcher();
+      file = MockFile.buildWithWatcher(watcher);
       bus = new FileBus(file);
     });
 
@@ -113,6 +102,8 @@ describe("FileBus", () => {
   describe("off", () => {
     let bus: FileBus;
     beforeEach(() => {
+      const watcher = new MockFileWatcher();
+      file = MockFile.buildWithWatcher(watcher);
       bus = new FileBus(file);
     });
 
@@ -126,18 +117,20 @@ describe("FileBus", () => {
       await bus.open();
       bus.on("testEvent", callback);
       await bus.emit("testEvent", { test: "testData1" });
-      await waitUntilCalled(callback);
       bus.off("testEvent", callback);
       await bus.emit("testEvent", { test: "testData2" });
-      await sleep(10);
 
       expect(callback.mock.calls).toEqual([[{ test: "testData1" }]]);
     });
   });
 
   describe("emit", () => {
-    const readEvents = async (file: string): Promise<unknown[]> => {
-      const txt = await fs.promises.readFile(file, "utf-8");
+    beforeEach(() => {
+      const watcher = new MockFileWatcher();
+      file = MockFile.buildWithWatcher(watcher);
+    });
+
+    const readEvents = (txt: string): unknown[] => {
       const events = txt
         .split("\n")
         .filter((a) => a)
@@ -149,7 +142,7 @@ describe("FileBus", () => {
       const bus = new FileBus(file);
       await bus.emit("testEvent", { test: "testData" });
 
-      const events = await readEvents(file);
+      const events = readEvents(file.writtenText!);
       expect(events).toEqual([
         {
           event: "testEvent",
@@ -161,10 +154,11 @@ describe("FileBus", () => {
     describe("when submitting multiple times", () => {
       it("should write events to file", async () => {
         const bus = new FileBus(file);
+        await bus.open();
         await bus.emit("testEvent1", { test: "testData1" });
         await bus.emit("testEvent2", { test: "testData2" });
 
-        const events = await readEvents(file);
+        const events = readEvents(file.writtenText!);
         expect(events).toEqual([
           {
             event: "testEvent1",

@@ -1,0 +1,9 @@
+scenarios:
+  - name: Simple scenario
+    steps:
+      - act:
+          runner: fetch
+          argument:
+            endpoint: /simple
+        assert:
+          - expect(_).toBe("in simple")

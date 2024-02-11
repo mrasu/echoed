@@ -1,26 +1,28 @@
-import { createEmptyFile, statSync } from "@/util/file";
+import { EchoedFatalError } from "@/echoedFatalError";
+import { IFile } from "@/fs/IFile";
+import { IFileWatcher } from "@/fs/IFileWatcher";
 import { neverVisit } from "@/util/never";
 import { Mutex } from "async-mutex";
 import fs from "fs";
 
-export class FileWatcher {
-  private readonly file: string;
+export class FileWatcher implements IFileWatcher {
+  private readonly file: IFile;
   private fsWatcher?: fs.FSWatcher;
   private mutex = new Mutex();
   private lastFilePosition = 0;
   private callback?: (addedText: string) => Promise<void>;
 
-  constructor(file: string) {
+  constructor(file: IFile) {
     this.file = file;
   }
 
   async open(callback: (_: string) => Promise<void>): Promise<void> {
-    const stat = statSync(this.file);
+    const stat = this.file.statSync();
     const position = stat?.size || 0;
     if (!stat) {
-      await createEmptyFile(this.file);
+      await this.file.createEmptyWithDir();
     }
-    const fsWatcher = fs.watch(this.file, (eventType) => {
+    const fsWatcher = fs.watch(this.file.path, (eventType) => {
       void this.receiveFSEvent(eventType);
     });
 
@@ -58,14 +60,18 @@ export class FileWatcher {
   }
 
   private async readChangedText(): Promise<string | undefined> {
-    const stat = await fs.promises.stat(this.file);
+    const stat = this.file.statSync();
+    if (!stat) {
+      throw new EchoedFatalError("Watching file disappeared");
+    }
+
     if (stat.size <= this.lastFilePosition) {
       return;
     }
     const previousPosition = this.lastFilePosition;
     this.lastFilePosition = stat.size;
 
-    const stream = fs.createReadStream(this.file, {
+    const stream = fs.createReadStream(this.file.path, {
       start: previousPosition,
       end: stat.size - 1,
       encoding: "utf-8",

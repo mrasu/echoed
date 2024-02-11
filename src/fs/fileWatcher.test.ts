@@ -1,4 +1,5 @@
-import { FileWatcher } from "@/eventBus/infra/fileWatcher";
+import { FileWatcher } from "@/fs/fileWatcher";
+import { LocalFile } from "@/fs/localFile";
 import { MAX_WAIT_MS, waitUntilCalled } from "@/testUtil/async";
 import { sleep } from "@/util/async";
 import fs from "fs";
@@ -6,18 +7,20 @@ import os from "os";
 import path from "path";
 
 describe("FileWatcher", () => {
-  let file: string;
+  let tmpdirPath: string;
+  let file: LocalFile;
   let watcher: FileWatcher;
+
   beforeEach(() => {
-    const tmpdir = fs.mkdtempSync(path.join(os.tmpdir(), "echoed-"));
-    file = path.join(tmpdir, "eventBus.jsonl");
+    tmpdirPath = fs.mkdtempSync(path.join(os.tmpdir(), "echoed-"));
+    file = new LocalFile(path.join(tmpdirPath, "eventBus.jsonl"));
 
     watcher = new FileWatcher(file);
   });
 
   afterEach(async () => {
     watcher.close();
-    await fs.promises.unlink(file);
+    await fs.promises.rm(tmpdirPath, { recursive: true, force: true });
   });
 
   describe("open", () => {
@@ -27,7 +30,7 @@ describe("FileWatcher", () => {
 
         await watcher.open(callback);
 
-        await fs.promises.appendFile(file, "test");
+        await file.append("test");
         await waitUntilCalled(callback);
 
         expect(callback.mock.calls).toEqual([["test"]]);
@@ -39,9 +42,9 @@ describe("FileWatcher", () => {
 
           await watcher.open(callback);
 
-          await fs.promises.appendFile(file, "test1");
+          await file.append("test1");
           await waitUntilCalled(callback);
-          await fs.promises.appendFile(file, "test2");
+          await file.append("test2");
           await waitUntilCalled(callback, 2);
 
           expect(callback.mock.calls).toEqual([["test1"], ["test2"]]);
@@ -51,7 +54,7 @@ describe("FileWatcher", () => {
 
     describe("when file is written before open", () => {
       beforeEach(async () => {
-        await fs.promises.appendFile(file, "existing text");
+        await file.append("existing text");
         await sleep(MAX_WAIT_MS);
       });
 
@@ -60,7 +63,7 @@ describe("FileWatcher", () => {
 
         await watcher.open(callback);
 
-        await fs.promises.appendFile(file, "test1");
+        await file.append("test1");
         await waitUntilCalled(callback);
 
         expect(callback.mock.calls).toEqual([["test1"]]);

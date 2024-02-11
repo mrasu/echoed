@@ -3,8 +3,6 @@ import { Reg } from "@/comparision/reg";
 import { SpanBus, SpanFilterOption, WantSpanEvent } from "@/eventBus/spanBus";
 import { DummyBus } from "@/testUtil/eventBus/dummyBus";
 import { Base64String } from "@/type/base64String";
-import { jsonSpan } from "@/type/jsonSpan";
-import { Span } from "@/type/span";
 
 describe("SpanBus", () => {
   const defaultFilter: SpanFilterOption = {
@@ -19,26 +17,25 @@ describe("SpanBus", () => {
     },
   };
 
-  const span = {
-    traceId: Uint8Array.from([1, 2, 3]),
-    spanId: Uint8Array.from([11, 12, 13]),
-    parentSpanId: Uint8Array.from([21, 22, 23]),
-    attributes: [],
-  };
-
   describe("listenWantSpanEvent", () => {
     let bus: SpanBus;
-    beforeEach(() => {
-      const dummyBus = new DummyBus();
-      dummyBus.immediateReturnObject = span;
-      bus = new SpanBus(dummyBus);
+    beforeEach(async () => {
+      const mockBus = new DummyBus();
+      await mockBus.open();
+      bus = new SpanBus(mockBus);
     });
 
     it("should call callback when event is emitted", async () => {
       const callback = jest.fn();
       bus.listenWantSpanEvent(callback);
 
-      await bus.requestWantSpan(new Base64String("trace-id"), defaultFilter, 0);
+      await expect(async () => {
+        await bus.requestWantSpan(
+          new Base64String("trace-id"),
+          defaultFilter,
+          0,
+        );
+      }).rejects.toThrow("timeout");
 
       const expected: WantSpanEvent = {
         wantId: expect.any(String) as string,
@@ -51,29 +48,38 @@ describe("SpanBus", () => {
 
   describe("requestWantSpan", () => {
     let bus: SpanBus;
+    let mockBus: DummyBus<WantSpanEvent>;
 
-    const span: jsonSpan = {
-      traceId: "1234",
-      spanId: "abcd",
-      parentSpanId: "a",
-      attributes: [],
-    };
+    beforeEach(async () => {
+      mockBus = new DummyBus();
+      await mockBus.open();
 
-    beforeEach(() => {
-      const dummyBus = new DummyBus();
-      dummyBus.immediateReturnObject = span;
-
-      bus = new SpanBus(dummyBus);
+      bus = new SpanBus(mockBus);
     });
 
-    it("should return Span", async () => {
-      const returnedSpan = await bus.requestWantSpan(
-        new Base64String("trace-id"),
-        defaultFilter,
-        0,
-      );
+    it("should emit request", async () => {
+      await expect(async () => {
+        await bus.requestWantSpan(
+          new Base64String("trace-id"),
+          defaultFilter,
+          0,
+        );
+      }).rejects.toThrow("timeout");
 
-      expect(returnedSpan).toStrictEqual(new Span(span));
+      const emittedData = mockBus.emittedData();
+      expect(emittedData.length).toBe(1);
+      expect(emittedData[0].data.base64TraceId).toBe("trace-id");
+      expect(emittedData[0].data.filter).toStrictEqual({
+        name: new Eq("dummyName").toJSON(),
+        attributes: {
+          dummyKey: new Eq(1234).toJSON(),
+        },
+        resource: {
+          attributes: {
+            dummyResourceKey: new Reg(/abc/i).toJSON(),
+          },
+        },
+      });
     });
   });
 });

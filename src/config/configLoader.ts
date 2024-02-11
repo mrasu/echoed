@@ -18,6 +18,8 @@ import {
   ScenarioCompilePluginImportConfig,
   ScenarioCompilePluginRunnerConfig,
 } from "@/config/scenarioCompileConfig";
+import { IFile } from "@/fs/IFile";
+import { FsContainer } from "@/fs/fsContainer";
 import { Logger } from "@/logger";
 import { ConfigSchema } from "@/schema/configSchema";
 import {
@@ -25,10 +27,8 @@ import {
   PartialConfigSchemaZod,
 } from "@/schema/configSchemaZod";
 import { JsonSchema } from "@/type/jsonZod";
-import { statSync } from "@/util/file";
 import { override, transformRecord } from "@/util/record";
 import { formatZodError } from "@/util/zod";
-import fs from "fs";
 import yaml from "js-yaml";
 import { SafeParseReturnType } from "zod";
 
@@ -40,10 +40,10 @@ const EXAMPLE_TEMPLATE_OVERRIDDEN_CONFIG_PATH = "./example/.echoed.yml";
 type scenarioCompile = NonNullable<ConfigSchema["scenario"]>["compile"];
 
 export class ConfigLoader {
-  constructor() {}
+  constructor(private readonly fsContainer: FsContainer) {}
 
-  loadFromFile(filepath: string): Config {
-    const result = this.readFileRecursively(filepath);
+  loadFromFile(file: IFile): Config {
+    const result = this.readFileRecursively(file);
 
     if (!result.success) {
       throw new InvalidConfigError(
@@ -55,9 +55,9 @@ export class ConfigLoader {
   }
 
   private readFileRecursively(
-    filepath: string,
+    file: IFile,
   ): SafeParseReturnType<ConfigSchemaZod, ConfigSchemaZod> {
-    const schemaObject = this.readFile(filepath, false);
+    const schemaObject = this.readFile(file, false);
     const config = ConfigSchemaZod.safeParse(schemaObject);
 
     if (!config.success) {
@@ -68,7 +68,9 @@ export class ConfigLoader {
 
     if (configData.overrides) {
       for (const filepath of configData.overrides) {
-        const overridden = this.readFileRecursivelyOverridden(filepath);
+        const overridden = this.readFileRecursivelyOverridden(
+          this.fsContainer.newFile(filepath),
+        );
         if (!overridden.success) {
           return overridden;
         }
@@ -80,9 +82,9 @@ export class ConfigLoader {
   }
 
   private readFileRecursivelyOverridden(
-    filepath: string,
+    file: IFile,
   ): SafeParseReturnType<PartialConfigSchemaZod, PartialConfigSchemaZod> {
-    const schemaObject = this.readFile(filepath, true);
+    const schemaObject = this.readFile(file, true);
     const partial = PartialConfigSchemaZod.safeParse(schemaObject);
 
     if (!partial.success) {
@@ -93,7 +95,9 @@ export class ConfigLoader {
 
     if (partialData.overrides) {
       for (const filepath of partialData.overrides) {
-        const overridden = this.readFileRecursivelyOverridden(filepath);
+        const overridden = this.readFileRecursivelyOverridden(
+          this.fsContainer.newFile(filepath),
+        );
         if (!overridden.success) {
           return overridden;
         }
@@ -104,13 +108,13 @@ export class ConfigLoader {
     return { success: true, data: partialData };
   }
 
-  private readFile(filepath: string, overridden: boolean): unknown {
+  private readFile(file: IFile, overridden: boolean): unknown {
     const overriddenTxt = overridden ? "overridden " : "";
 
-    const stat = statSync(filepath);
+    const stat = file.statSync();
     if (!stat) {
-      if (overridden && filepath === EXAMPLE_TEMPLATE_OVERRIDDEN_CONFIG_PATH) {
-        Logger.warn(`config file not found: ${filepath}`);
+      if (overridden && file.path === EXAMPLE_TEMPLATE_OVERRIDDEN_CONFIG_PATH) {
+        Logger.warn(`config file not found: ${file.path}`);
         Logger.warn(
           "When you delete `example` directory, remove `overrides` section in `" +
             ECHOED_CONFIG_FILE_NAME +
@@ -119,17 +123,17 @@ export class ConfigLoader {
       }
 
       throw new InvalidConfigError(
-        `${overriddenTxt}config file not found: ${filepath}`,
+        `${overriddenTxt}config file not found: ${file.path}`,
       );
     }
 
     if (!stat.isFile()) {
       throw new InvalidConfigError(
-        `${overriddenTxt}config file is not a file: ${filepath}`,
+        `${overriddenTxt}config file is not a file: ${file.path}`,
       );
     }
 
-    const schemaObject = yaml.load(fs.readFileSync(filepath, "utf-8"));
+    const schemaObject = yaml.load(file.readSync());
     return schemaObject;
   }
 
@@ -141,7 +145,7 @@ export class ConfigLoader {
     }
 
     return new Config(
-      schemaObject.output,
+      this.fsContainer.newFile(schemaObject.output),
       schemaObject.serverPort ?? 3000,
       schemaObject.serverStopAfter ?? 20,
       schemaObject.debug ?? false,
@@ -240,9 +244,13 @@ export class ConfigLoader {
     if (!compile) return;
 
     return new ScenarioCompileConfig(
-      compile.outDir ?? DEFAULT_SCENARIO_COMPILE_OUT_DIR,
+      this.fsContainer.newDirectory(
+        compile.outDir ?? DEFAULT_SCENARIO_COMPILE_OUT_DIR,
+      ),
       compile.cleanOutDir ?? false,
-      compile.yamlDir ?? DEFAULT_SCENARIO_COMPILE_YAML_DIR,
+      this.fsContainer.newDirectory(
+        compile.yamlDir ?? DEFAULT_SCENARIO_COMPILE_YAML_DIR,
+      ),
       compile.retry ?? 0,
       compile.env ?? {},
       this.convertScenarioCompilePluginConfig(compile.plugin),

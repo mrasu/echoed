@@ -1,3 +1,4 @@
+import { LocalFile } from "@/fs/localFile";
 import { Act } from "@/scenario/compile/act";
 import { Assert } from "@/scenario/compile/assert";
 import { Asserter } from "@/scenario/compile/asserter";
@@ -26,7 +27,7 @@ describe("ScenarioYamlLoader", () => {
       const loader = new ScenarioYamlLoader();
       const scenarioBook = await loader.load(
         config,
-        path.join(__dirname, "testdata/scenario.yml"),
+        new LocalFile(path.join(__dirname, "testdata/scenario.yml")),
       );
 
       expect(scenarioBook).toEqual(
@@ -82,7 +83,7 @@ describe("ScenarioYamlLoader", () => {
         await expect(async () => {
           await loader.load(
             config,
-            path.join(__dirname, "testdata/invalidScenario.yml"),
+            new LocalFile(path.join(__dirname, "testdata/invalidScenario.yml")),
           );
         }).rejects.toThrow(InvalidScenarioError);
       });

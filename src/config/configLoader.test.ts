@@ -3,8 +3,13 @@ import { ConfigLoader } from "@/config/configLoader";
 import { PropagationTestConfig } from "@/config/propagationTestConfig";
 import { ScenarioCompileConfig } from "@/config/scenarioCompileConfig";
 import { ConfigSchema } from "@/schema/configSchema";
+import { MockDirectory } from "@/testUtil/fs/mockDirectory";
+import { MockFile } from "@/testUtil/fs/mockFile";
+import { buildMockFsContainer } from "@/testUtil/fs/mockFsContainer";
 
 describe("ConfigLoader", () => {
+  const fsContainer = buildMockFsContainer();
+
   describe("loadFromObject", () => {
     describe("when services section exists", () => {
       const buildDefaultSchemaObject = (
@@ -16,9 +21,9 @@ describe("ConfigLoader", () => {
         };
       };
 
-      const buildConfig = (serviceConfigs: ServiceConfig[]): Config => {
+      const buildExpectedConfig = (serviceConfigs: ServiceConfig[]): Config => {
         return new Config(
-          "dummy",
+          new MockFile(true, "dummy"),
           3000,
           20,
           false,
@@ -38,7 +43,7 @@ describe("ConfigLoader", () => {
 
       describe("when only name exists", () => {
         it("should load name", () => {
-          const config = new ConfigLoader().loadFromObject(
+          const config = new ConfigLoader(fsContainer).loadFromObject(
             buildDefaultSchemaObject([
               {
                 name: "service",
@@ -46,7 +51,7 @@ describe("ConfigLoader", () => {
             ]),
           );
           expect(config).toEqual(
-            buildConfig([
+            buildExpectedConfig([
               {
                 name: "service",
               },
@@ -57,7 +62,7 @@ describe("ConfigLoader", () => {
 
       describe("when namespace exists", () => {
         it("should load namespace too", () => {
-          const config = new ConfigLoader().loadFromObject(
+          const config = new ConfigLoader(fsContainer).loadFromObject(
             buildDefaultSchemaObject([
               {
                 name: "service",
@@ -66,7 +71,7 @@ describe("ConfigLoader", () => {
             ]),
           );
           expect(config).toEqual(
-            buildConfig([
+            buildExpectedConfig([
               {
                 name: "service",
                 namespace: "awesome-namespace",
@@ -78,7 +83,7 @@ describe("ConfigLoader", () => {
 
       describe("when multiple services exist", () => {
         it("should load multiple config", () => {
-          const config = new ConfigLoader().loadFromObject(
+          const config = new ConfigLoader(fsContainer).loadFromObject(
             buildDefaultSchemaObject([
               {
                 name: "service1",
@@ -91,7 +96,7 @@ describe("ConfigLoader", () => {
             ]),
           );
           expect(config).toEqual(
-            buildConfig([
+            buildExpectedConfig([
               {
                 name: "service1",
                 namespace: undefined,
@@ -115,7 +120,7 @@ describe("ConfigLoader", () => {
 
       describe("when openapi is string", () => {
         it("should load openapi with filename", () => {
-          const config = new ConfigLoader().loadFromObject(
+          const config = new ConfigLoader(fsContainer).loadFromObject(
             buildDefaultSchemaObject([
               {
                 name: "service",
@@ -124,7 +129,7 @@ describe("ConfigLoader", () => {
             ]),
           );
           expect(config).toEqual(
-            buildConfig([
+            buildExpectedConfig([
               {
                 name: "service",
                 openapi: {
@@ -138,7 +143,7 @@ describe("ConfigLoader", () => {
 
       describe("when openapi is object", () => {
         it("should load openapi with filename", () => {
-          const config = new ConfigLoader().loadFromObject(
+          const config = new ConfigLoader(fsContainer).loadFromObject(
             buildDefaultSchemaObject([
               {
                 name: "service",
@@ -150,7 +155,7 @@ describe("ConfigLoader", () => {
             ]),
           );
           expect(config).toEqual(
-            buildConfig([
+            buildExpectedConfig([
               {
                 name: "service",
                 openapi: {
@@ -165,7 +170,7 @@ describe("ConfigLoader", () => {
 
       describe("when proto is string", () => {
         it("should load proto with filename", () => {
-          const config = new ConfigLoader().loadFromObject(
+          const config = new ConfigLoader(fsContainer).loadFromObject(
             buildDefaultSchemaObject([
               {
                 name: "service",
@@ -174,7 +179,7 @@ describe("ConfigLoader", () => {
             ]),
           );
           expect(config).toEqual(
-            buildConfig([
+            buildExpectedConfig([
               {
                 name: "service",
                 proto: {
@@ -188,7 +193,7 @@ describe("ConfigLoader", () => {
 
       describe("when proto is object", () => {
         it("should load proto with filename", () => {
-          const config = new ConfigLoader().loadFromObject(
+          const config = new ConfigLoader(fsContainer).loadFromObject(
             buildDefaultSchemaObject([
               {
                 name: "service",
@@ -200,7 +205,7 @@ describe("ConfigLoader", () => {
             ]),
           );
           expect(config).toEqual(
-            buildConfig([
+            buildExpectedConfig([
               {
                 name: "service",
                 proto: {
@@ -226,13 +231,13 @@ describe("ConfigLoader", () => {
         };
       };
 
-      const buildCompileConfig = (
+      const buildExpectedCompileConfig = (
         compileConfig?: Partial<ScenarioCompileConfig>,
       ): ScenarioCompileConfig => {
         return new ScenarioCompileConfig(
-          compileConfig?.outDir ?? "scenario_gen",
+          compileConfig?.outDir ?? new MockDirectory("scenario_gen"),
           compileConfig?.cleanOutDir ?? false,
-          compileConfig?.yamlDir ?? "scenario",
+          compileConfig?.yamlDir ?? new MockDirectory("scenario"),
           compileConfig?.retry ?? 0,
           compileConfig?.env ?? {},
           {
@@ -245,7 +250,7 @@ describe("ConfigLoader", () => {
 
       describe("when config is undefined", () => {
         it("should load no CompileConfig", () => {
-          const config = new ConfigLoader().loadFromObject(
+          const config = new ConfigLoader(fsContainer).loadFromObject(
             buildSchemaObject(undefined),
           );
 
@@ -255,73 +260,77 @@ describe("ConfigLoader", () => {
 
       describe("when config is empty", () => {
         it("should load default CompileConfig", () => {
-          const config = new ConfigLoader().loadFromObject(
+          const config = new ConfigLoader(fsContainer).loadFromObject(
             buildSchemaObject({}),
           );
 
-          expect(config.compileConfig).toEqual(buildCompileConfig({}));
+          expect(config.compileConfig).toEqual(buildExpectedCompileConfig({}));
         });
       });
 
       describe("when outDir exists", () => {
         it("should set outDir", () => {
-          const config = new ConfigLoader().loadFromObject(
+          const config = new ConfigLoader(fsContainer).loadFromObject(
             buildSchemaObject({
               outDir: "dummy_out",
             }),
           );
 
           expect(config.compileConfig).toEqual(
-            buildCompileConfig({ outDir: "dummy_out" }),
+            buildExpectedCompileConfig({
+              outDir: new MockDirectory("dummy_out"),
+            }),
           );
         });
       });
 
       describe("when cleanOutDir exists", () => {
         it("should set cleanOutDir", () => {
-          const config = new ConfigLoader().loadFromObject(
+          const config = new ConfigLoader(fsContainer).loadFromObject(
             buildSchemaObject({
               cleanOutDir: true,
             }),
           );
 
           expect(config.compileConfig).toEqual(
-            buildCompileConfig({ cleanOutDir: true }),
+            buildExpectedCompileConfig({ cleanOutDir: true }),
           );
         });
       });
 
       describe("when yamlDir exists", () => {
         it("should set yamlDir", () => {
-          const config = new ConfigLoader().loadFromObject(
+          const config = new ConfigLoader(fsContainer).loadFromObject(
             buildSchemaObject({
               yamlDir: "dummy_yaml_dir",
             }),
           );
 
           expect(config.compileConfig).toEqual(
-            buildCompileConfig({ yamlDir: "dummy_yaml_dir" }),
+            buildExpectedCompileConfig({
+              yamlDir: new MockDirectory("dummy_yaml_dir"),
+            }),
           );
         });
       });
 
       describe("when retry exists", () => {
         it("should set retry", () => {
-          const config = new ConfigLoader().loadFromObject(
+          const config = new ConfigLoader(fsContainer).loadFromObject(
             buildSchemaObject({
               retry: 123,
             }),
           );
 
           expect(config.compileConfig).toEqual(
-            buildCompileConfig({ retry: 123 }),
+            buildExpectedCompileConfig({ retry: 123 }),
           );
         });
       });
 
       describe("when env exists", () => {
         it("should set env", () => {
-          const config = new ConfigLoader().loadFromObject(
+          const config = new ConfigLoader(fsContainer).loadFromObject(
             buildSchemaObject({
               env: {
                 DUMMY: "dummy",
@@ -331,7 +340,7 @@ describe("ConfigLoader", () => {
           );
 
           expect(config.compileConfig).toEqual(
-            buildCompileConfig({
+            buildExpectedCompileConfig({
               env: {
                 DUMMY: "dummy",
                 UNDEFINED: null,
@@ -344,7 +353,7 @@ describe("ConfigLoader", () => {
       describe("when plugin exists", () => {
         describe("when runner exists", () => {
           it("should set runner", () => {
-            const config = new ConfigLoader().loadFromObject(
+            const config = new ConfigLoader(fsContainer).loadFromObject(
               buildSchemaObject({
                 plugin: {
                   runners: [
@@ -358,7 +367,7 @@ describe("ConfigLoader", () => {
             );
 
             expect(config.compileConfig).toEqual(
-              buildCompileConfig({
+              buildExpectedCompileConfig({
                 plugin: {
                   runners: [
                     {
@@ -376,7 +385,7 @@ describe("ConfigLoader", () => {
 
           describe("when option exists", () => {
             it("should set option", () => {
-              const config = new ConfigLoader().loadFromObject(
+              const config = new ConfigLoader(fsContainer).loadFromObject(
                 buildSchemaObject({
                   plugin: {
                     runners: [
@@ -394,7 +403,7 @@ describe("ConfigLoader", () => {
               );
 
               expect(config.compileConfig).toEqual(
-                buildCompileConfig({
+                buildExpectedCompileConfig({
                   plugin: {
                     runners: [
                       {
@@ -417,7 +426,7 @@ describe("ConfigLoader", () => {
 
         describe("when asserter exists", () => {
           it("should set asserter", () => {
-            const config = new ConfigLoader().loadFromObject(
+            const config = new ConfigLoader(fsContainer).loadFromObject(
               buildSchemaObject({
                 plugin: {
                   asserters: [
@@ -431,7 +440,7 @@ describe("ConfigLoader", () => {
             );
 
             expect(config.compileConfig).toEqual(
-              buildCompileConfig({
+              buildExpectedCompileConfig({
                 plugin: {
                   runners: [],
                   asserters: [
@@ -449,7 +458,7 @@ describe("ConfigLoader", () => {
 
           describe("when option exists", () => {
             it("should set option", () => {
-              const config = new ConfigLoader().loadFromObject(
+              const config = new ConfigLoader(fsContainer).loadFromObject(
                 buildSchemaObject({
                   plugin: {
                     asserters: [
@@ -467,7 +476,7 @@ describe("ConfigLoader", () => {
               );
 
               expect(config.compileConfig).toEqual(
-                buildCompileConfig({
+                buildExpectedCompileConfig({
                   plugin: {
                     runners: [],
                     asserters: [
@@ -491,7 +500,7 @@ describe("ConfigLoader", () => {
         describe("when import exists", () => {
           describe("when names exists", () => {
             it("should set names", () => {
-              const config = new ConfigLoader().loadFromObject(
+              const config = new ConfigLoader(fsContainer).loadFromObject(
                 buildSchemaObject({
                   plugin: {
                     commons: [
@@ -505,7 +514,7 @@ describe("ConfigLoader", () => {
               );
 
               expect(config.compileConfig).toEqual(
-                buildCompileConfig({
+                buildExpectedCompileConfig({
                   plugin: {
                     runners: [],
                     asserters: [],
@@ -524,7 +533,7 @@ describe("ConfigLoader", () => {
 
           describe("when default exists", () => {
             it("should set default", () => {
-              const config = new ConfigLoader().loadFromObject(
+              const config = new ConfigLoader(fsContainer).loadFromObject(
                 buildSchemaObject({
                   plugin: {
                     commons: [
@@ -538,7 +547,7 @@ describe("ConfigLoader", () => {
               );
 
               expect(config.compileConfig).toEqual(
-                buildCompileConfig({
+                buildExpectedCompileConfig({
                   plugin: {
                     runners: [],
                     asserters: [],

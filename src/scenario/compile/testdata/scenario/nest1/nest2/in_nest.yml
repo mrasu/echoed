@@ -1,0 +1,10 @@
+scenarios:
+  - name: Scenario in nest
+    steps:
+      - description: Execute fetch
+        act:
+          runner: fetch
+          argument:
+            endpoint: /in_nest
+        assert:
+          - expect(_).toBe("in nest")

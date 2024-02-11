@@ -1,9 +1,8 @@
-import fs from "fs";
-import path from "path";
-
 import { Config } from "@/config/config";
 import { PropagationTestConfig } from "@/config/propagationTestConfig";
 import { FetchInfo } from "@/fetchInfo";
+import { IFile } from "@/fs/IFile";
+import { IDirectory } from "@/fs/iDirectory";
 import { opentelemetry } from "@/generated/otelpbj";
 import { Logger } from "@/logger";
 import { TestCase } from "@/testCase";
@@ -70,7 +69,7 @@ export class TestResult {
 
   static async collect(
     testRootDir: string,
-    tmpLogDir: string,
+    tmpLogDir: IDirectory,
     capturedSpans: Map<string, OtelSpan[]>,
     capturedLogs: Map<string, OtelLogRecord[]>,
     config: Config,
@@ -116,7 +115,7 @@ export class TestResult {
 class TestCaseLogCollector {
   constructor(
     private testRootDir: string,
-    private tmpLogDir: string,
+    private tmpLogDir: IDirectory,
   ) {}
 
   async collect(
@@ -128,12 +127,10 @@ class TestCaseLogCollector {
   }
 
   private async readLogs(): Promise<Log[]> {
-    const logFiles = await fs.promises.readdir(this.tmpLogDir);
+    const logFiles = await this.tmpLogDir.readdir();
 
     const rawLogs = logFiles
-      .map((file: string) =>
-        fs.readFileSync(path.join(this.tmpLogDir, file), "utf-8").split("\n"),
-      )
+      .map((file: IFile) => file.readSync().split("\n"))
       .flat();
 
     const logs: Log[] = [];
@@ -285,7 +282,7 @@ class TestCaseSeeker {
   /**
    * seekCorrespondingTestCase returns a TestCase that corresponds to the given fetchLog.
    *
-   * When multiple TestCase started the same time, the last testCase is returned.
+   * When multiple TestCase started at the same time, the last testCase is returned.
    * This comes from below assumptions,
    * * Fetch takes longer than one millisecond
    * * Test doesn't finish in the same millisecond.

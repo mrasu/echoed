@@ -1,16 +1,18 @@
 import { ConfigLoader } from "@/config/configLoader";
 import { PropagationTestConfig } from "@/config/propagationTestConfig";
 import { ScenarioCompileConfig } from "@/config/scenarioCompileConfig";
+import { IFile } from "@/fs/IFile";
+import { FsContainer } from "@/fs/fsContainer";
 
 export const ECHOED_CONFIG_FILE_NAME = ".echoed.yml";
 
 export class Config {
-  static load(filepath: string): Config {
-    return new ConfigLoader().loadFromFile(filepath);
+  static load(fsContainer: FsContainer, file: IFile): Config {
+    return new ConfigLoader(fsContainer).loadFromFile(file);
   }
 
   constructor(
-    public readonly output: string,
+    public readonly output: IFile,
     public readonly serverPort: number,
     public readonly serverStopAfter: number,
     public readonly debug: boolean,

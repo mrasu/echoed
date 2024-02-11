@@ -12,17 +12,10 @@ import { setTraceIdToResponse } from "@/traceLoggingFetch";
 import { Base64String } from "@/type/base64String";
 
 describe("waitForSpan", () => {
-  const span = {
-    traceId: Uint8Array.from([1, 2, 3]),
-    spanId: Uint8Array.from([11, 12, 13]),
-    parentSpanId: Uint8Array.from([21, 22, 23]),
-    attributes: [],
-  };
-
   let bus: DummyBus<WantSpanEvent>;
-  beforeEach(() => {
+  beforeEach(async () => {
     bus = new DummyBus();
-    bus.immediateReturnObject = span;
+    await bus.open();
     globalThis.__ECHOED_BUS__ = bus;
   });
 
@@ -39,18 +32,21 @@ describe("waitForSpan", () => {
   describe("when filtering by name", () => {
     it("should emit data to Bus with filtered by name", async () => {
       const res = buildResponse(new Base64String("dummy-trace-id"));
-      await waitForSpan(
-        res,
-        {
-          name: "dummy/name",
-        },
-        { timeoutMs: 0 },
-      );
+      await expect(async () => {
+        await waitForSpan(
+          res,
+          {
+            name: "dummy/name",
+          },
+          { timeoutMs: 0 },
+        );
+      }).rejects.toThrow("timeout");
 
-      expect(bus.emittedData.length).toBe(1);
-      expect(bus.emittedData[0][1].base64TraceId).toBe("dummy-trace-id");
-      expect(bus.emittedData[0][1].filter).toStrictEqual({
-        name: new Eq("dummy/name"),
+      const emittedData = bus.emittedData();
+      expect(emittedData.length).toBe(1);
+      expect(emittedData[0].data.base64TraceId).toBe("dummy-trace-id");
+      expect(emittedData[0].data.filter).toStrictEqual({
+        name: new Eq("dummy/name").toJSON(),
         attributes: {},
         resource: {
           attributes: {},
@@ -62,24 +58,26 @@ describe("waitForSpan", () => {
   describe("when filtering by attributes", () => {
     it("should emit data to Bus with filtered by attributes", async () => {
       const res = buildResponse(new Base64String("dummy-trace-id"));
-      await waitForSpan(
-        res,
-        {
-          attributes: {
-            dummyStr: "dummy-value",
-            dummyReg: /abc/i,
+      await expect(async () => {
+        await waitForSpan(
+          res,
+          {
+            attributes: {
+              dummyStr: "dummy-value",
+              dummyReg: /abc/i,
+            },
           },
-        },
-        { timeoutMs: 0 },
-      );
+          { timeoutMs: 0 },
+        );
+      }).rejects.toThrow("timeout");
 
-      expect(bus.emittedData.length).toBe(1);
-      expect(bus.emittedData[0][1].base64TraceId).toBe("dummy-trace-id");
-      expect(bus.emittedData[0][1].filter).toStrictEqual({
-        name: undefined,
+      const emittedData = bus.emittedData();
+      expect(emittedData.length).toBe(1);
+      expect(emittedData[0].data.base64TraceId).toBe("dummy-trace-id");
+      expect(emittedData[0].data.filter).toStrictEqual({
         attributes: {
-          dummyStr: new Eq("dummy-value"),
-          dummyReg: new Reg(/abc/i),
+          dummyStr: new Eq("dummy-value").toJSON(),
+          dummyReg: new Reg(/abc/i).toJSON(),
         },
         resource: {
           attributes: {},
@@ -91,28 +89,32 @@ describe("waitForSpan", () => {
   describe("when filtering by resource's attributes", () => {
     it("should emit data to Bus with filtered by resource's attributes", async () => {
       const res = buildResponse(new Base64String("dummy-trace-id"));
-      await waitForSpan(
-        res,
-        {
-          resource: {
-            attributes: {
-              dummyStr: "dummy-value",
-              dummyReg: /abc/i,
+
+      await expect(async () => {
+        await waitForSpan(
+          res,
+          {
+            resource: {
+              attributes: {
+                dummyStr: "dummy-value",
+                dummyReg: /abc/i,
+              },
             },
           },
-        },
-        { timeoutMs: 0 },
-      );
+          { timeoutMs: 0 },
+        );
+      }).rejects.toThrow("timeout");
 
-      expect(bus.emittedData.length).toBe(1);
-      expect(bus.emittedData[0][1].base64TraceId).toBe("dummy-trace-id");
-      expect(bus.emittedData[0][1].filter).toStrictEqual({
-        name: undefined,
+      const emittedData = bus.emittedData();
+      expect(emittedData.length).toBe(1);
+      expect(emittedData.length).toBe(1);
+      expect(emittedData[0].data.base64TraceId).toBe("dummy-trace-id");
+      expect(emittedData[0].data.filter).toStrictEqual({
         attributes: {},
         resource: {
           attributes: {
-            dummyStr: new Eq("dummy-value"),
-            dummyReg: new Reg(/abc/i),
+            dummyStr: new Eq("dummy-value").toJSON(),
+            dummyReg: new Reg(/abc/i).toJSON(),
           },
         },
       });
@@ -122,21 +124,24 @@ describe("waitForSpan", () => {
   describe("when using eq", () => {
     it("should emit data to Bus with eq filter", async () => {
       const res = buildResponse(new Base64String("dummy-trace-id"));
-      await waitForSpan(
-        res,
-        {
-          attributes: {
-            key: eq("value"),
-          },
-        },
-        { timeoutMs: 0 },
-      );
 
-      expect(bus.emittedData.length).toBe(1);
-      expect(bus.emittedData[0][1].filter).toStrictEqual({
-        name: undefined,
+      await expect(async () => {
+        await waitForSpan(
+          res,
+          {
+            attributes: {
+              key: eq("value"),
+            },
+          },
+          { timeoutMs: 0 },
+        );
+      }).rejects.toThrow("timeout");
+
+      const emittedData = bus.emittedData();
+      expect(emittedData.length).toBe(1);
+      expect(emittedData[0].data.filter).toStrictEqual({
         attributes: {
-          key: new Eq("value"),
+          key: new Eq("value").toJSON(),
         },
         resource: {
           attributes: {},
@@ -148,21 +153,24 @@ describe("waitForSpan", () => {
   describe("when using RegExp", () => {
     it("should emit data to Bus with Reg filter", async () => {
       const res = buildResponse(new Base64String("dummy-trace-id"));
-      await waitForSpan(
-        res,
-        {
-          attributes: {
-            key: /abc/i,
-          },
-        },
-        { timeoutMs: 0 },
-      );
 
-      expect(bus.emittedData.length).toBe(1);
-      expect(bus.emittedData[0][1].filter).toStrictEqual({
-        name: undefined,
+      await expect(async () => {
+        await waitForSpan(
+          res,
+          {
+            attributes: {
+              key: /abc/i,
+            },
+          },
+          { timeoutMs: 0 },
+        );
+      }).rejects.toThrow("timeout");
+
+      const emittedData = bus.emittedData();
+      expect(emittedData.length).toBe(1);
+      expect(emittedData[0].data.filter).toStrictEqual({
         attributes: {
-          key: new Reg(/abc/i),
+          key: new Reg(/abc/i).toJSON(),
         },
         resource: {
           attributes: {},
@@ -174,27 +182,30 @@ describe("waitForSpan", () => {
   describe("when using number comparator", () => {
     it("should emit data to Bus with number comparison filter", async () => {
       const res = buildResponse(new Base64String("dummy-trace-id"));
-      await waitForSpan(
-        res,
-        {
-          attributes: {
-            keyGt: gt(1),
-            keyGte: gte(2),
-            keyLt: lt(3),
-            keyLte: lte(4),
-          },
-        },
-        { timeoutMs: 0 },
-      );
 
-      expect(bus.emittedData.length).toBe(1);
-      expect(bus.emittedData[0][1].filter).toStrictEqual({
-        name: undefined,
+      await expect(async () => {
+        await waitForSpan(
+          res,
+          {
+            attributes: {
+              keyGt: gt(1),
+              keyGte: gte(2),
+              keyLt: lt(3),
+              keyLte: lte(4),
+            },
+          },
+          { timeoutMs: 0 },
+        );
+      }).rejects.toThrow("timeout");
+
+      const emittedData = bus.emittedData();
+      expect(emittedData.length).toBe(1);
+      expect(emittedData[0].data.filter).toStrictEqual({
         attributes: {
-          keyGt: new Gt(1),
-          keyGte: new Gte(2),
-          keyLt: new Lt(3),
-          keyLte: new Lte(4),
+          keyGt: new Gt(1).toJSON(),
+          keyGte: new Gte(2).toJSON(),
+          keyLt: new Lt(3).toJSON(),
+          keyLte: new Lte(4).toJSON(),
         },
         resource: {
           attributes: {},

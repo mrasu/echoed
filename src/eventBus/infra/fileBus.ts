@@ -1,8 +1,7 @@
 import { EventBus, WatchCallback } from "@/eventBus/infra/eventBus";
-import { FileWatcher } from "@/eventBus/infra/fileWatcher";
+import { IFile } from "@/fs/IFile";
+import { IFileWatcher } from "@/fs/IFileWatcher";
 import { Logger } from "@/logger";
-import { appendFileLine, createEmptyFile } from "@/util/file";
-import fs from "fs";
 import { z } from "zod";
 
 const eventData = z.object({
@@ -11,18 +10,17 @@ const eventData = z.object({
 });
 
 export class FileBus implements EventBus {
-  private readonly file: string;
-  private watcher?: FileWatcher;
+  private readonly file: IFile;
+  protected watcher?: IFileWatcher;
 
   private watchingEvents: Map<string, WatchCallback[]> = new Map();
 
-  constructor(file: string) {
+  constructor(file: IFile) {
     this.file = file;
   }
 
   async open(): Promise<void> {
-    const watcher = new FileWatcher(this.file);
-    await watcher.open(async (text) => {
+    const watcher = await this.file.startWatching(async (text) => {
       await this.handleTextAdded(text);
     });
 
@@ -112,11 +110,11 @@ export class FileBus implements EventBus {
   }
 
   public async emit(eventName: string, data: unknown): Promise<void> {
-    if (!fs.existsSync(this.file)) {
-      await createEmptyFile(this.file);
+    if (!this.file.existsSync()) {
+      await this.file.createEmptyWithDir();
     }
 
     const eventData = JSON.stringify({ event: eventName, data });
-    await appendFileLine(this.file, eventData);
+    await this.file.appendLine(eventData);
   }
 }

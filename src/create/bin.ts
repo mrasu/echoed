@@ -4,6 +4,9 @@ import { AnsiGreen, AnsiReset } from "@/ansi";
 import { Config, ECHOED_CONFIG_FILE_NAME } from "@/config/config";
 import { Creator } from "@/create/create";
 import { EchoedError } from "@/echoedError";
+import { buildFsContainerForApp } from "@/fs/fsContainer";
+import { LocalDirectory } from "@/fs/localDirectory";
+import { LocalFile } from "@/fs/localFile";
 import { Logger } from "@/logger";
 import { YamlScenarioCompiler } from "@/scenario/compile/yamlScenarioCompiler";
 import { program } from "commander";
@@ -63,8 +66,10 @@ Refer ${AnsiGreen}README.md${AnsiReset} to run the tests.
 
 async function runCompile(): Promise<void> {
   const cwd = process.cwd();
-  const configPath = path.join(cwd, ECHOED_CONFIG_FILE_NAME);
-  const config = Config.load(configPath);
+  const configFile = new LocalFile(path.join(cwd, ECHOED_CONFIG_FILE_NAME));
+
+  const fsContainer = buildFsContainerForApp();
+  const config = Config.load(fsContainer, configFile);
   Logger.setShowDebug(config.debug);
 
   if (!config.compileConfig) {
@@ -75,9 +80,9 @@ async function runCompile(): Promise<void> {
   }
 
   const compiler = new YamlScenarioCompiler(
-    ECHOED_ROOT_DIR,
+    new LocalDirectory(ECHOED_ROOT_DIR),
     config.compileConfig,
   );
 
-  await compiler.compileAll(cwd);
+  await compiler.compileAll(new LocalDirectory(cwd));
 }

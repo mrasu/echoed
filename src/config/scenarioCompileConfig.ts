@@ -1,3 +1,4 @@
+import { IDirectory } from "@/fs/iDirectory";
 import { JsonSchema } from "@/type/jsonZod";
 
 export const DEFAULT_SCENARIO_COMPILE_OUT_DIR = "scenario_gen";
@@ -5,9 +6,9 @@ export const DEFAULT_SCENARIO_COMPILE_YAML_DIR = "scenario";
 
 export class ScenarioCompileConfig {
   constructor(
-    public readonly outDir: string,
+    public readonly outDir: IDirectory,
     public readonly cleanOutDir: boolean,
-    public readonly yamlDir: string,
+    public readonly yamlDir: IDirectory,
     public readonly retry: number,
     public readonly env: Record<string, string | null>,
     public readonly plugin: ScenarioCompilePluginConfig,
