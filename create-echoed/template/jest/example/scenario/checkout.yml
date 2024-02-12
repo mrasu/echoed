@@ -45,7 +45,7 @@ scenarios:
                 ],
                 userId: session.userId,
               })
-      - description: Add another product to cart
+      - description: Checkout
         act:
           runner: fetch
           argument:

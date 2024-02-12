@@ -1,7 +1,7 @@
 import { createSession } from "../util/session";
 import { waitForSpan } from "echoed";
 
-describe("Simple test", () => {
+describe("Manual test", () => {
   it("should pass", async () => {
     const session = createSession();
 
