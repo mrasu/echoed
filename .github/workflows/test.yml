@@ -12,3 +12,16 @@ jobs:
       - run: npm ci
       - run: npm run check
       - run: npm run test
+  test-create-echoed:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./create-echoed
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ../.node-version
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run check

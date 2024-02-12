@@ -34,7 +34,7 @@ import { SafeParseReturnType } from "zod";
 
 type YamlValue = string | boolean | number | null;
 
-// value of `overrides` in create/template/.echoed.yml
+// value of `overrides` in create-echoed/template/.echoed.yml
 const EXAMPLE_TEMPLATE_OVERRIDDEN_CONFIG_PATH = "./example/.echoed.yml";
 
 type scenarioCompile = NonNullable<ConfigSchema["scenario"]>["compile"];

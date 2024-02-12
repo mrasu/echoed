@@ -64,7 +64,7 @@
     "type": "git",
     "url": "https://github.com/mrasu/echoed.git"
   },
-  "bin": "dist/create/bin.js",
+  "bin": "dist/cli/bin.js",
   "files": [
     "dist",
     "package.json",

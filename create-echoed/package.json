@@ -1,0 +1,46 @@
+{
+  "name": "create-echoed",
+  "author": "mrasu",
+  "version": "0.0.1",
+  "license": "MIT",
+  "description": "A CLI for creating new Echoed project",
+  "scripts": {
+    "dev": "tsc-watch --onSuccess 'tsup --sourcemap --watch'",
+    "build": "tsc && rm -rf ./dist && tsup",
+    "check": "eslint . && prettier --check src"
+  },
+  "keywords": [
+    "opentelemetry",
+    "observability",
+    "test",
+    "integration",
+    "api",
+    "echoed"
+  ],
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^6.19.0",
+    "@typescript-eslint/parser": "^6.19.0",
+    "eslint": "^8.56.0",
+    "prettier": "3.1.0",
+    "prettier-plugin-organize-imports": "^3.2.4",
+    "ts-node": "^10.9.1",
+    "tsc-watch": "^6.0.4",
+    "tsconfig-paths": "^4.2.0",
+    "tsup": "^8.0.1"
+  },
+  "dependencies": {
+    "commander": "^11.1.0",
+    "typescript": "^5.0.0"
+  },
+  "homepage": "https://github.com/mrasu/echoed/blob/main/create",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mrasu/echoed.git",
+    "directory": "create-echoed"
+  },
+  "bin": "dist/bin.js",
+  "files": [
+    "dist",
+    "package.json"
+  ]
+}

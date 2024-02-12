@@ -6,7 +6,7 @@ module.exports = {
   parser: "@typescript-eslint/parser",
   plugins: ["@typescript-eslint"],
   root: true,
-  ignorePatterns: ["/*", "!/src", "src/generated/", "src/opentelemetry-proto"],
+  ignorePatterns: ["/*", "!/src"],
   rules: {
     "@typescript-eslint/no-unused-vars": [
       "error",
