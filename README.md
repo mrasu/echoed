@@ -61,7 +61,7 @@ Echoed offers two installation methods, choose one that suits your needs:
 1. Initialize a new directory using npx:
     ```bash
     mkdir my_test_directory && cd my_test_directory
-    npx create echoed@latest
+    npm create echoed@latest
     ```
 2. Review the example tests and run them by following instructions in the generated `README.md`:
     ```bash
