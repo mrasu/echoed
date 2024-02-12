@@ -1,4 +1,4 @@
-## Unreleased
+## 0.1.1
 ### Added
 - Create "create-echoed" package to reduce size of "echoed" package
 
