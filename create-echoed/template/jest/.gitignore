@@ -25,3 +25,6 @@ dist-ssr
 
 # Ignore package-lock.json because it includes `npm link`ed packages which rererence local files
 package-lock.json
+
+# Reset ignore in example directory to use the example's .gitignore
+!example/**

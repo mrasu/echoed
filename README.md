@@ -56,12 +56,12 @@ Explore the screenshots below to see how it looks:
 
 Echoed offers two installation methods, choose one that suits your needs:
 
-## 1. Create a New Directory with Example Tests
+## Option 1. Create a New Directory with Example Tests
 
 1. Initialize a new directory using npx:
     ```bash
     mkdir my_test_directory && cd my_test_directory
-    npx echoed@latest create-sample
+    npx create echoed@latest
     ```
 2. Review the example tests and run them by following instructions in the generated `README.md`:
     ```bash
@@ -76,7 +76,7 @@ Echoed offers two installation methods, choose one that suits your needs:
     rm -rf ./example
     ```
 
-## 2. Integrate with Existing Tests
+## Option 2. Integrate with Existing Tests
 
 1. Install package:
     ```bash

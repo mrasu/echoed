@@ -93,7 +93,7 @@ scenarios:
           - expect(_.getAttribute("app.product.quantity").value.intValue).toBe(itemQuantity)
 ```
 
-For more examples, refer to [example/scenario](../src/create/template/example/scenario) directory.
+For more examples, refer to [example/scenario](../create-echoed/template/jest/example/scenario) directory.
 
 ### Syntax
 

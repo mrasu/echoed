@@ -13,7 +13,7 @@
       "@/*": ["./src/*"]
     },
     "skipLibCheck": true,
-    "noImplicitOverride": true
+    "noImplicitOverride": true,
   },
-  "include": ["src/**/*"]
+  "exclude": ["dist", "tsup.config.ts", "template", "tmp"]
 }
