@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://github.com/mrasu/echoed/raw/main/docs/img/logo.png" alt="echoed logo" height="300"/>
+<img src="https://github.com/mrasu/echoed/raw/main/docs/img/logo.svg" alt="echoed logo" height="300"/>
 
 # Echoed
 
