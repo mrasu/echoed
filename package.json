@@ -16,7 +16,7 @@
     "protos:generate:ts": "pbts -o src/generated/otelpbj.d.ts src/generated/otelpbj.js",
     "submodule": "git submodule sync --recursive && git submodule update --init --recursive",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest",
-    "check": "eslint . && prettier --check src"
+    "check": "tsc --noEmit && eslint . && prettier --check src"
   },
   "keywords": [
     "opentelemetry",
