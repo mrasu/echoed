@@ -25,6 +25,9 @@ scenario:
         - names:
             - createSession
           module: "@/example/util/session"
+        - names:
+            - CartRedis
+          module: "@/example/util/cartRedis"
 
 services:
   - name: frontend

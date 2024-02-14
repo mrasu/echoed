@@ -39,18 +39,27 @@ For more complex scenario, you can include additional options:
 retry: 3 # <- You can retry failed tests.
 variable:
   productId: OLJCESPC7Z # <- You can define variables for corresponding scope.
+  db: ${connectDB()} # <- You can call plugin with ${...}.
 runners:
   - runner: fetch # <- You can override option of runners.
     option:
       baseEndpoint: ${_env.BASE_ENDPOINT}/api
       headers:
         content-type: application/json
+hook:
+  beforeEach: # <- You can run a function before each scenario. (beforeAll, afterEach, afterAll are available too.)
+    bind:
+      productName: ${db.insertProduct()} # <- You can use `bind` in hook
+  afterEach:
+    - db.cleanup()
 scenarios:
   - name: Adding item to cart
     variable:
       session: ${createSession()} # <- You can use the returned value of function or variable with ${...}.
     steps:
       - description: Add a product to cart
+        arrange:
+          - db.createUser(session.userId) # <- You can establish preconditions with `arrange`.
         act:
           runner: fetch # <- You can use built-in runner or create custom one. This `fetch` executes HTTP request to `/cart` with query.
           argument:
@@ -117,6 +126,9 @@ argument:
 
 When you use `${}` within a string, it gets replaced with the value of the variable. 
 
+#### `hook`
+**hook** is used to define functions that are called before or after each scenario or whole scenarios in YAML.
+
 #### `scenarios`
 **scenarios** represent a collection of scenarios that define what tests are to be executed.   
 
@@ -129,6 +141,9 @@ Each `scenarios` comprises the following elements:
 **scenarios.steps** are used to define a collection of steps that specify the actions to be taken.
 
 Each `steps` in a scenarios consists of the following elements:
+
+#### `arrange`
+**scenarios.steps.arrange** is used to establish preconditions before `act`.
 
 #### `act`
 **scenarios.steps.act** defines the action the test performs, such as an HTTP request.
@@ -148,10 +163,12 @@ For a full list, refer to [scenarioYamlSchema.ts](../src/schema/scenarioYamlSche
 
 In YAML, there are several predefined variables that you can use:
 
-* `_`: Represents the result of `act` in the current step.
+* `_`: Represents the result of `act` in the current step. (in `arrange`, `_` is to reference the result of the current `arrange`.)
 * `_steps`: Represents the result of `act` in steps.  
   You can access it by index, for example, `_steps[-1]` or `_steps[2]`. A negative index indicates the relative position from the current step, while a positive index signifies the absolute position starting with zero.
 * `_env`: Represents the environment variables defined in the configuration.
+* `_arranges`: Represents the result of `arrange` in the current step in `arrange` section.  
+  You can access it by index as same as `_steps`.
 
 ## Configuration
 

@@ -1,9 +1,14 @@
 import { LocalFile } from "@/fs/localFile";
 import { Act } from "@/scenario/compile/act";
+import { ActRunner } from "@/scenario/compile/actRunner";
+import { Arrange } from "@/scenario/compile/arrange";
+import { ArrangeRunner } from "@/scenario/compile/arrangeRunner";
 import { Assert } from "@/scenario/compile/assert";
 import { Asserter } from "@/scenario/compile/asserter";
+import { Hook } from "@/scenario/compile/hook";
 import { InvalidScenarioError } from "@/scenario/compile/invalidScenarioError";
 import { RawString } from "@/scenario/compile/rawString";
+import { RunnerContainer } from "@/scenario/compile/runnerContainer";
 import { RunnerOption } from "@/scenario/compile/runnerOption";
 import { Scenario } from "@/scenario/compile/scenario";
 import { ScenarioBook } from "@/scenario/compile/scenarioBook";
@@ -30,7 +35,7 @@ describe("ScenarioYamlLoader", () => {
         new LocalFile(path.join(__dirname, "testdata/scenario.yml")),
       );
 
-      expect(scenarioBook).toEqual(
+      expect(scenarioBook).toStrictEqual(
         new ScenarioBook(
           [
             new Scenario(
@@ -41,13 +46,33 @@ describe("ScenarioYamlLoader", () => {
                 new Step(
                   "Get cart",
                   new Map(),
+                  [
+                    new Arrange(
+                      undefined,
+                      new ArrangeRunner(
+                        new RunnerContainer(
+                          "fetch",
+                          TsVariable.parse({
+                            endpoint: "arrange",
+                          }),
+                          new RunnerOption(new Map()),
+                        ),
+                        new Map(),
+                      ),
+                      undefined,
+                    ),
+                  ],
                   new Act(
-                    "fetch",
-                    TsVariable.parse({
-                      endpoint:
-                        "/cart?sessionId=${session.userId}&currencyCode=${session.currencyCode}",
-                    }),
-                    new RunnerOption(new Map()),
+                    new ActRunner(
+                      new RunnerContainer(
+                        "fetch",
+                        TsVariable.parse({
+                          endpoint:
+                            "/cart?sessionId=${session.userId}&currencyCode=${session.currencyCode}",
+                        }),
+                        new RunnerOption(new Map()),
+                      ),
+                    ),
                   ),
                   [
                     new Assert(
@@ -70,6 +95,7 @@ describe("ScenarioYamlLoader", () => {
           ],
           [],
           new Map(),
+          new Hook(),
           undefined,
         ),
       );

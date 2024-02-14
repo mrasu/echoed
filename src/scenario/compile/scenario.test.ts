@@ -79,7 +79,7 @@ describe("Scenario", () => {
           name: "my scenario",
           skip: false,
           variable: new Map(),
-          steps: [new Step("my step", new Map(), undefined, [], new Map())],
+          steps: [new Step("my step", new Map(), [], undefined, [], new Map())],
         });
       });
     });
@@ -90,6 +90,7 @@ describe("Scenario", () => {
       new Step(
         "step1",
         new Map(),
+        [],
         undefined,
         [],
         new Map([
@@ -100,6 +101,7 @@ describe("Scenario", () => {
       new Step(
         "step2",
         new Map(),
+        [],
         undefined,
         [],
         new Map([["buz", TsVariable.parse("buz")]]),

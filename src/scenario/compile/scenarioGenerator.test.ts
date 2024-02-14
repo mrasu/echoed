@@ -1,6 +1,7 @@
 import { LocalDirectory } from "@/fs/localDirectory";
 import { Config } from "@/scenario/compile/config";
 import { EnvConfig } from "@/scenario/compile/envConfig";
+import { Hook } from "@/scenario/compile/hook";
 import { PluginConfig } from "@/scenario/compile/pluginConfig";
 import { ScenarioBook } from "@/scenario/compile/scenarioBook";
 import { ScenarioGenerator } from "@/scenario/compile/scenarioGenerator";
@@ -21,7 +22,7 @@ describe("ScenarioGenerator", () => {
         new PluginConfig([], [], []),
       );
       const scenarioGenerator = new ScenarioGenerator(etaInstance, config);
-      const scenarioBook = new ScenarioBook([], [], new Map(), 0);
+      const scenarioBook = new ScenarioBook([], [], new Map(), new Hook(), 0);
       const fileContents = new MockFileContents();
       const outFile = new MockFile(true, "outFile", fileContents);
 

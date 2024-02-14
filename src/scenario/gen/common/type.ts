@@ -1,4 +1,10 @@
 /**
+ * ArrangeResult represents the result of the arrange
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type ArrangeResult = any;
+
+/**
  * ArrangeResult represents the result of the act
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

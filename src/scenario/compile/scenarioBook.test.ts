@@ -1,3 +1,6 @@
+import { Hook } from "@/scenario/compile/hook";
+import { HookExecutor } from "@/scenario/compile/hookExecutor";
+import { RawString } from "@/scenario/compile/rawString";
 import { RunnerOption } from "@/scenario/compile/runnerOption";
 import { Scenario } from "@/scenario/compile/scenario";
 import { ScenarioBook } from "@/scenario/compile/scenarioBook";
@@ -15,12 +18,9 @@ describe("ScenarioBook", () => {
           scenarios: [],
         });
 
-        expect(scenarioBook).toEqual({
-          scenarios: [],
-          runnerOptions: [],
-          variable: new Map(),
-          retry: undefined,
-        });
+        expect(scenarioBook).toStrictEqual(
+          new ScenarioBook([], [], new Map(), new Hook(), undefined),
+        );
       });
     });
 
@@ -39,15 +39,18 @@ describe("ScenarioBook", () => {
           ],
         });
 
-        expect(scenarioBook).toEqual({
-          scenarios: [
-            new Scenario("scenario1", new Map(), false, []),
-            new Scenario("scenario2", new Map(), false, []),
-          ],
-          runnerOptions: [],
-          variable: new Map(),
-          retry: undefined,
-        });
+        expect(scenarioBook).toStrictEqual(
+          new ScenarioBook(
+            [
+              new Scenario("scenario1", new Map(), false, []),
+              new Scenario("scenario2", new Map(), false, []),
+            ],
+            [],
+            new Map(),
+            new Hook(),
+            undefined,
+          ),
+        );
       });
     });
 
@@ -71,21 +74,24 @@ describe("ScenarioBook", () => {
           ],
         });
 
-        expect(scenarioBook).toEqual({
-          scenarios: [],
-          runnerOptions: [
-            new ScenarioRunnerConfig(
-              "foo",
-              new RunnerOption(new Map([["bar", TsVariable.parse("baz")]])),
-            ),
-            new ScenarioRunnerConfig(
-              "baz",
-              new RunnerOption(new Map([["qux", new TsVariable(1)]])),
-            ),
-          ],
-          variable: new Map(),
-          retry: undefined,
-        });
+        expect(scenarioBook).toStrictEqual(
+          new ScenarioBook(
+            [],
+            [
+              new ScenarioRunnerConfig(
+                "foo",
+                new RunnerOption(new Map([["bar", TsVariable.parse("baz")]])),
+              ),
+              new ScenarioRunnerConfig(
+                "baz",
+                new RunnerOption(new Map([["qux", new TsVariable(1)]])),
+              ),
+            ],
+            new Map(),
+            new Hook(),
+            undefined,
+          ),
+        );
       });
     });
 
@@ -99,15 +105,52 @@ describe("ScenarioBook", () => {
           },
         });
 
-        expect(scenarioBook).toEqual({
+        expect(scenarioBook).toStrictEqual(
+          new ScenarioBook(
+            [],
+            [],
+            new Map([
+              ["foo", TsVariable.parse("bar")],
+              ["buz", TsVariable.parse({ a: 1 })],
+            ]),
+            new Hook(),
+            undefined,
+          ),
+        );
+      });
+    });
+
+    describe("when hook is defined", () => {
+      it("should set variable", () => {
+        const scenarioBook = ScenarioBook.parse(config, {
           scenarios: [],
-          runnerOptions: [],
-          variable: new Map([
-            ["foo", TsVariable.parse("bar")],
-            ["buz", TsVariable.parse({ a: 1 })],
-          ]),
-          retry: undefined,
+          hook: {
+            beforeAll: ["foo"],
+            afterAll: [{ bind: { bar: 1 } }],
+            beforeEach: ["buz"],
+            afterEach: ["qux"],
+          },
         });
+
+        expect(scenarioBook).toStrictEqual(
+          new ScenarioBook(
+            [],
+            [],
+            new Map(),
+            new Hook(
+              [new HookExecutor(new RawString("foo"))],
+              [
+                new HookExecutor(
+                  undefined,
+                  new Map([["bar", new TsVariable(1)]]),
+                ),
+              ],
+              [new HookExecutor(new RawString("buz"))],
+              [new HookExecutor(new RawString("qux"))],
+            ),
+            undefined,
+          ),
+        );
       });
     });
 
@@ -118,12 +161,9 @@ describe("ScenarioBook", () => {
           retry: 111,
         });
 
-        expect(scenarioBook).toEqual({
-          scenarios: [],
-          runnerOptions: [],
-          variable: new Map(),
-          retry: 111,
-        });
+        expect(scenarioBook).toStrictEqual(
+          new ScenarioBook([], [], new Map(), new Hook(), 111),
+        );
       });
     });
   });

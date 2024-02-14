@@ -64,10 +64,17 @@ export class PluginConfig {
 
   getUsedRunners(scenarioBook: ScenarioBook): RunnerConfig[] {
     const usedRunners = new Set<string>();
+
     for (const scenario of scenarioBook.scenarios) {
       for (const step of scenario.steps) {
-        if (step.act?.name) {
-          usedRunners.add(step.act.name);
+        for (const arrange of step.arranges) {
+          if (arrange.runner?.name) {
+            usedRunners.add(arrange.runner.name);
+          }
+        }
+
+        if (step.act?.runner.name) {
+          usedRunners.add(step.act.runner.name);
         }
       }
     }

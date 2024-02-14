@@ -30,6 +30,91 @@ export type ScenarioYamlSchema = {
   }[];
 
   /**
+   * Hook to run before/after the scenario
+   * Default: no hook
+   */
+  hook?: {
+    /**
+     * Hooks to run before any of the scenarios.
+     * Default: no hook
+     *
+     * The execution order is the same with defined.
+     */
+    beforeAll?: (
+      /**
+       * Plain text will be treated as TypeScript as-is.
+       *
+       * For example, when yaml is:
+       * ```yml
+       * beforeAll:
+       *   - await db.clean()
+       *   - await db.setup()
+       * ```
+       *
+       * It is equivalent to:
+       * ```ts
+       * beforeAll(async () => {
+       *   await db.clean();
+       *   await db.setup();
+       * })
+       * ```
+       */
+      | string
+      | {
+          /**
+           * Record's values will be stored as variables and can be accessed with record's key in other places.
+           */
+          bind: Record<string, AnyValue>;
+        }
+    )[];
+
+    /**
+     * Hooks to run after all the scenarios.
+     * Default: no hook
+     *
+     * The execution order is the same with defined.
+     *
+     * Refer `beforeAll` for its value.
+     */
+    afterAll?: (
+      | string
+      | {
+          bind: Record<string, AnyValue>;
+        }
+    )[];
+
+    /**
+     * Hooks to run before each of the scenarios.
+     * Default: no hook
+     *
+     * The execution order is the same with defined.
+     *
+     * Refer `beforeAll` for its value.
+     */
+    beforeEach?: (
+      | string
+      | {
+          bind: Record<string, AnyValue>;
+        }
+    )[];
+
+    /**
+     * Hooks to run after each of the scenarios.
+     * Default: no hook
+     *
+     * The execution order is the same with defined.
+     *
+     * Refer `beforeAll` for its value.
+     */
+    afterEach?: (
+      | string
+      | {
+          bind: Record<string, AnyValue>;
+        }
+    )[];
+  };
+
+  /**
    * Scenarios
    */
   scenarios: {
@@ -65,6 +150,50 @@ export type ScenarioYamlSchema = {
        * Default: no variable
        */
       variable?: Record<string, AnyValue>;
+
+      /**
+       * Actions to establish act's preconditions
+       * Default: no arrange
+       */
+      arrange?: (
+          /**
+           * Plain text will be treated as TypeScript as-is.
+           */
+        | string
+        | {
+            /**
+             * Name of the runner
+             */
+            runner: string;
+
+            /**
+             * Argument to pass to the runner
+             */
+            argument?: AnyValue;
+
+            /**
+             * Value to override runner's default option
+             * Default: no override
+             *
+             * Only keys listed here will be overridden.
+             * Other keys will follow runner's default option.
+             */
+            option?: Record<string, AnyValue>;
+
+            /**
+             * Store variables to reference in the current step
+             *
+             * You can use `_` for the result of the runner and `_prepares` for the result of the previous arranges.
+             */
+            bind?: Record<string, AnyValue>;
+          }
+        | {
+            /**
+             * Store variables to reference in the current step
+             */
+            bind: Record<string, AnyValue>;
+          }
+      )[];
 
       /**
        * Action to run

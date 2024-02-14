@@ -47,17 +47,16 @@ describe("ScenarioContext", () => {
     });
   });
 
-  describe("arrangeContext", () => {
-    it("should return arrange context", () => {
-      const ctx = new ScenarioContext("scenarioName");
+  describe("currentStepIndex", () => {
+    let ctx: ScenarioContext;
+    beforeEach(() => {
+      ctx = new ScenarioContext("scenarioName");
       ctx.stepNext();
+      ctx.stepNext();
+    });
 
-      const arrangeContext = ctx.arrangeContext;
-      expect(arrangeContext).toEqual({
-        kind: "arrange",
-        scenarioName: "scenarioName",
-        currentStepIndex: 0,
-      });
+    it("should return current index", () => {
+      expect(ctx.currentStepIndex).toBe(1);
     });
   });
 

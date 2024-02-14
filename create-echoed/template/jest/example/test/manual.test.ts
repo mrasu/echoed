@@ -15,7 +15,7 @@ describe("Manual test", () => {
     expect(body.items.length).toBe(0);
   });
 
-  it("should fail because of different attributes of span", async () => {
+  it("should get Span", async () => {
     const session = createSession();
 
     const response = await fetch(
@@ -37,6 +37,6 @@ describe("Manual test", () => {
     const rpcSystem = span.attributes.find(
       (attr) => attr.key === "app.products.count",
     );
-    expect(rpcSystem?.value?.intValue).toBe(20);
+    expect(rpcSystem?.value?.intValue).toBe(10);
   });
 });

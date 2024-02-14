@@ -1,0 +1,33 @@
+<%=it.hookType%>(async () => {
+  __hookBindVariables["<%=it.hookType%>"] = {};
+
+  <% it.hook[it.hookType].forEach(function(hookExecutor, hookIndex) { %>
+    __hookBindVariables["<%=it.hookType%>"] = await __gen.wrapHook(__hookBindVariables["<%=it.hookType%>"], async () => {
+      // <%=it.hookType%> (<%=hookIndex%>)
+
+      const __boundVariables = {
+        <% it.hook.hookTypesBefore(it.hookType).forEach(function(bindType) { %>
+          ...__hookBindVariables["<%=bindType%>"],
+        <% }) %>
+        ...__hookBindVariables["<%=it.hookType%>"],
+      };
+      const {
+        <% Array.from(it.hook.getBoundVariablesBefore(it.hookType, hookIndex)).forEach(function(varName) { %>
+           <%=varName %>,
+        <% }) %>
+      } = __boundVariables;
+
+      <% if (hookExecutor.rawString) {%>
+        <%= hookExecutor.rawString.toTsLine() %>;
+        return {}
+      <% } else { %>
+        return {
+          <% Array.from(hookExecutor.bind.entries()).forEach(function([key, value]) { %>
+            "<%= key %>": <%= value.toTsLine() %>,
+          <% }) %>
+        };
+      <% } %>
+    })
+
+  <% }) %>
+})

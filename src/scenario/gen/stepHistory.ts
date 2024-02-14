@@ -1,4 +1,5 @@
 import { ActResult } from "@/scenario/gen/common/type";
+import { buildRelativeIndexableArray } from "@/util/proxy";
 
 type StepContent = {
   actResult: ActResult;
@@ -37,29 +38,8 @@ export class StepHistory {
   }
 
   private buildActResultHistoryProxy(): ActResultHistory {
-    const copy: ActResultHistory = this.stepContents.map(
-      (c): ActResult => c.actResult,
-    );
+    const copy = this.stepContents.map((c): ActResult => c.actResult);
 
-    const proxiedResponse = new Proxy(copy, {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      get: (target, p, receiver): any => {
-        if (typeof p == "symbol") {
-          return Reflect.get(target, p, receiver);
-        }
-        const index = Number(p);
-        if (isNaN(index)) {
-          return Reflect.get(target, p, receiver);
-        }
-
-        if (index >= 0) {
-          return target[index];
-        } else {
-          return target[target.length - 1 + index];
-        }
-      },
-    });
-
-    return proxiedResponse;
+    return buildRelativeIndexableArray(copy) as ActResultHistory;
   }
 }

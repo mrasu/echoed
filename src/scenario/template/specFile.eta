@@ -12,8 +12,9 @@
     2. setup environment variables, _env (env cannot use variables. must use constant value)
     3. define variables
     4. setup options
-    5. run (arrange -> act -> assert)
-    6. bind variables to use in later
+    5. register hooks
+    6. run (arrange -> act -> assert)
+    7. bind variables to use in later
 */ %>
 
 import * as __gen from "echoed/scenario/gen"
@@ -71,6 +72,29 @@ const __asserterOption = {
   <% }) %>
 }
 
+let __hookBindVariables: Record<string, Record<string, any>> = {
+  beforeAll: {},
+  afterAll: {},
+  beforeEach: {},
+  afterEach: {},
+};
+
+<% if (it.scenarioBook.hook.beforeAll) { %>
+  <%~ include("hook", {hookType: "beforeAll", hook: it.scenarioBook.hook}) %>
+<% } %>
+
+<% if (it.scenarioBook.hook.afterAll) { %>
+  <%~ include("hook", {hookType: "afterAll", hook: it.scenarioBook.hook}) %>
+<% } %>
+
+<% if (it.scenarioBook.hook.beforeEach) { %>
+  <%~ include("hook", {hookType: "beforeEach", hook: it.scenarioBook.hook}) %>
+<% } %>
+
+<% if (it.scenarioBook.hook.afterEach) { %>
+  <%~ include("hook", {hookType: "afterEach", hook: it.scenarioBook.hook}) %>
+<% } %>
+
 <% let retryCount = it.scenarioBook.getRetryCount(it.config) %>
 <% if (retryCount > 0) {%>
   jest.retryTimes(<%= retryCount %>, {logErrorsBeforeRetry: true})
@@ -78,6 +102,13 @@ const __asserterOption = {
 
 <% it.scenarioBook.scenarios.forEach(function(scenario) { %>
   test<%=scenario.skip ? ".skip": ""%>(`<%= scenario.escapedName %>`, async () => {
+    const __hookBindVariablesForStep = {...__hookBindVariables["beforeAll"], ...__hookBindVariables["beforeEach"]};
+    const {
+      <% Array.from(it.scenarioBook.hook.getBoundVariablesBefore("afterEach", 0)).forEach(function(varName) { %>
+         <%=varName %>,
+      <% }) %>
+    } = __hookBindVariablesForStep;
+
     const __ctx = new __gen.ScenarioContext(`<%= scenario.escapedName %>`);
 
     <% Array.from(scenario.variable.entries()).forEach(function([key, value]) { %>
@@ -101,18 +132,78 @@ const __asserterOption = {
           const <%=key%> = <%= value.toTsLine() %>;
         <% }) %>
 
+        <% if(step.arranges.length > 0) { %>
+          let __arrangeBindVariables: Record<string, any> = {};
+
+          {
+            let [_, _arranges, __arrangeCtx]: any = __gen.ArrangeContext.start(__ctx);
+
+            <% step.arranges.forEach(function(arrange, arrangeIndex) { %>
+              __arrangeBindVariables = await __gen.wrapArrange(__arrangeBindVariables, async () => {
+                // Arrange (<%=arrangeIndex%>)
+
+                [_, _arranges] = __arrangeCtx.next();
+                const {
+                  <% step.getArrangeBoundVariablesBefore(arrangeIndex).forEach(function(varName) { %>
+                     <%=varName %>,
+                  <% }) %>
+                } = __arrangeBindVariables;
+
+                <% if (arrange.rawString) {%>
+                  <%= arrange.rawString.toTsLine() %>;
+                  return {}
+                <% } else if (arrange.runner) { %>
+                  const __runnerArgument = <%= arrange.runner.argument ? arrange.runner.argument.toTsLine(): undefined %>;
+                  const __arrangeOption = {
+                    <% Array.from(arrange.runner.option.entries()).forEach(function([key, value]) {%>
+                      "<%= key %>": <%= value.toTsLine() %>,
+                    <% })%>
+                  };
+
+                  const __arrangeResult = await <%= arrange.runner.name %>(
+                    __arrangeCtx.context,
+                    __runnerArgument,
+                    {...__runnerOption["<%= arrange.runner.name %>"], ...__arrangeOption}
+                  );
+
+                  [_, _arranges] = __arrangeCtx.setResult(__arrangeResult);
+
+                  return {
+                    <% Array.from(arrange.runner.bind.entries()).forEach(function([key, value]) { %>
+                      "<%= key %>": <%= value.toTsLine() %>,
+                    <% }) %>
+                  };
+                <% } else { %>
+                  return {
+                    <% Array.from(arrange.bind.entries()).forEach(function([key, value]) { %>
+                      "<%= key %>": <%= value.toTsLine() %>,
+                    <% }) %>
+                  };
+                <% } %>
+              })
+
+            <% }) %>
+          }
+
+          const {
+            <% step.getArrangeBoundVariables().forEach(function(varName) { %>
+               <%=varName %>,
+            <% }) %>
+          } = __arrangeBindVariables;
+        <% } %>
+
         <% if(step.act) { %>
-          const __runnerArgument = <%= step.act.argument ? step.act.argument.toTsLine(): undefined %>;
+          const __runnerArgument = <%= step.act.runner.argument ? step.act.runner.argument.toTsLine(): undefined %>;
           const __actOption = {
-            <% Array.from(step.act.option.entries()).forEach(function([key, value]) {%>
+            <% Array.from(step.act.runner.option.entries()).forEach(function([key, value]) {%>
               "<%= key %>": <%= value.toTsLine() %>,
             <% })%>
           };
 
-          const __actResult = await <%= step.act.name %>(
+          const __actResult = await <%= step.act.runner.name %>(
             __ctx.actContext,
             __runnerArgument,
-            {...__runnerOption["<%= step.act.name %>"], ...__actOption}
+            {...__runnerOption["<%= step.act.runner.name %>"], ...__actOption}
           );
 
           [_, _steps] = __ctx.setActResult(__actResult);

@@ -11,6 +11,11 @@ type EchoedContextBase = {
 
 export type EchoedArrangeContext = EchoedContextBase & {
   kind: "arrange";
+
+  /**
+   * index starts from 0
+   */
+  currentArrangeIndex: number;
 };
 
 export type EchoedActContext = EchoedContextBase & {

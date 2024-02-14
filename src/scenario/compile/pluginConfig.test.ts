@@ -1,4 +1,7 @@
 import { Act } from "@/scenario/compile/act";
+import { ActRunner } from "@/scenario/compile/actRunner";
+import { Arrange } from "@/scenario/compile/arrange";
+import { ArrangeRunner } from "@/scenario/compile/arrangeRunner";
 import { Assert } from "@/scenario/compile/assert";
 import { Asserter } from "@/scenario/compile/asserter";
 import { AsserterConfig } from "@/scenario/compile/asserterConfig";
@@ -10,6 +13,7 @@ import {
 } from "@/scenario/compile/pluginConfig";
 import { RawString } from "@/scenario/compile/rawString";
 import { RunnerConfig } from "@/scenario/compile/runnerConfig";
+import { RunnerContainer } from "@/scenario/compile/runnerContainer";
 import { RunnerOption } from "@/scenario/compile/runnerOption";
 import { Scenario } from "@/scenario/compile/scenario";
 import { Step } from "@/scenario/compile/step";
@@ -192,9 +196,13 @@ describe("PluginConfig", () => {
     const createStep = (runnerName: string): Step => {
       return buildStep({
         act: new Act(
-          runnerName,
-          new TsVariable(null),
-          new RunnerOption(new Map()),
+          new ActRunner(
+            new RunnerContainer(
+              runnerName,
+              new TsVariable(null),
+              new RunnerOption(new Map()),
+            ),
+          ),
         ),
       });
     };
@@ -208,6 +216,42 @@ describe("PluginConfig", () => {
           ]),
           new Scenario("scenario2", new Map(), false, [
             createStep(usedRunners[2].name),
+          ]),
+        ],
+      });
+
+      it("should return used runners", () => {
+        expect(pluginConfig.getUsedRunners(scenarioBook)).toEqual(usedRunners);
+      });
+    });
+
+    describe("when scenario invokes runners in arrange", () => {
+      const createArrangeStep = (runnerName: string): Step => {
+        return buildStep({
+          arranges: [
+            new Arrange(
+              undefined,
+              new ArrangeRunner(
+                new RunnerContainer(
+                  runnerName,
+                  new TsVariable(null),
+                  new RunnerOption(new Map()),
+                ),
+                new Map(),
+              ),
+            ),
+          ],
+        });
+      };
+
+      const scenarioBook = buildScenarioBook({
+        scenarios: [
+          new Scenario("scenario1", new Map(), false, [
+            createArrangeStep(usedRunners[0].name),
+            createArrangeStep(usedRunners[1].name),
+          ]),
+          new Scenario("scenario2", new Map(), false, [
+            createArrangeStep(usedRunners[2].name),
           ]),
         ],
       });

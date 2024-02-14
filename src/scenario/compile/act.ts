@@ -1,35 +1,21 @@
+import { ActRunner } from "@/scenario/compile/actRunner";
 import { Config } from "@/scenario/compile/config";
-import { InvalidScenarioError } from "@/scenario/compile/invalidScenarioError";
-import { RunnerOption } from "@/scenario/compile/runnerOption";
-import { TsVariable } from "@/scenario/compile/tsVariable";
-import { JsonSchema } from "@/type/jsonZod";
+import {
+  RunnerContainer,
+  RunnerContainerSchema,
+} from "@/scenario/compile/runnerContainer";
 import { z } from "zod";
 
-export const ActSchema = z.object({
-  runner: z.string(),
-  argument: JsonSchema.optional(),
-  option: z.record(JsonSchema).optional(),
-});
+export const ActSchema = RunnerContainerSchema;
 export type ActSchema = z.infer<typeof ActSchema>;
 
 export class Act {
-  static parse(config: Config, act: ActSchema): Act | undefined {
-    const name = act.runner;
-    if (!config.plugin.hasRunner(name)) {
-      throw new InvalidScenarioError(
-        `Unregistered runner found. Make sure the runner is registered in the configuration: ${name}`,
-      );
-    }
+  static parse(config: Config, act: ActSchema): Act {
+    const runnerContainer = RunnerContainer.parse(config, act);
+    const actRunner = new ActRunner(runnerContainer);
 
-    const argument = act.argument ? TsVariable.parse(act.argument) : undefined;
-    const option = RunnerOption.parse(act.option);
-
-    return new Act(name, argument, option);
+    return new Act(actRunner);
   }
 
-  constructor(
-    public readonly name: string,
-    public readonly argument: TsVariable | undefined,
-    public readonly option: RunnerOption,
-  ) {}
+  constructor(public readonly runner: ActRunner) {}
 }

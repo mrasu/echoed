@@ -3,8 +3,10 @@ import { AsserterConfig } from "@/scenario/compile/asserterConfig";
 import { CommonPluginConfig } from "@/scenario/compile/commonPluginConfig";
 import { Config } from "@/scenario/compile/config";
 import { EnvConfig } from "@/scenario/compile/envConfig";
+import { Hook } from "@/scenario/compile/hook";
 import { PluginConfig } from "@/scenario/compile/pluginConfig";
 import { RunnerConfig } from "@/scenario/compile/runnerConfig";
+import { RunnerContainer } from "@/scenario/compile/runnerContainer";
 import { RunnerOption } from "@/scenario/compile/runnerOption";
 import { Scenario } from "@/scenario/compile/scenario";
 import { ScenarioBook } from "@/scenario/compile/scenarioBook";
@@ -60,6 +62,7 @@ export const buildScenarioBook = (
     ],
     opt?.runnerOptions ?? [],
     opt?.variable ?? new Map<string, TsVariable>(),
+    opt?.hook ?? new Hook(),
     opt?.retry ?? undefined,
   );
 };
@@ -68,8 +71,15 @@ export const buildStep = (opt?: Partial<Step>): Step => {
   return new Step(
     opt?.description ?? "scenario",
     opt?.variable ?? new Map<string, TsVariable>(),
+    opt?.arranges ?? [],
     opt?.act ??
-      new Act("runner", new TsVariable(null), new RunnerOption(new Map())),
+      new Act(
+        new RunnerContainer(
+          "runner",
+          new TsVariable(null),
+          new RunnerOption(new Map()),
+        ),
+      ),
     opt?.asserts ?? [],
     opt?.bind ?? new Map<string, TsVariable>(),
   );

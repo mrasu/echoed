@@ -4,6 +4,10 @@ scenarios:
       session: ${defaultSession()}
     steps:
       - description: Get cart
+        arrange:
+          - runner: fetch
+            argument:
+              endpoint: arrange
         act:
           runner: fetch
           argument:
