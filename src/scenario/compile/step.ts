@@ -36,8 +36,8 @@ export class Step {
     public readonly bind: Map<string, TsVariable>,
   ) {}
 
-  boundVariables(): IterableIterator<string> {
-    return this.bind.keys();
+  boundVariables(): string[] {
+    return [...this.bind.keys()];
   }
 
   getArrangeBoundVariablesBefore(current: number): string[] {

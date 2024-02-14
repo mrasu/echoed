@@ -97,7 +97,7 @@ describe("Arrange", () => {
       );
 
       it("should return bound variables", () => {
-        expect([...arrange.boundVariables()].sort()).toEqual(["buz", "foo"]);
+        expect(arrange.boundVariables().sort()).toEqual(["buz", "foo"]);
       });
     });
 
@@ -105,7 +105,7 @@ describe("Arrange", () => {
       const arrange = new Arrange(undefined, undefined, variables);
 
       it("should return bound variables", () => {
-        expect([...arrange.boundVariables()].sort()).toEqual(["buz", "foo"]);
+        expect(arrange.boundVariables().sort()).toEqual(["buz", "foo"]);
       });
     });
   });

@@ -184,7 +184,7 @@ describe("Step", () => {
         ]),
       });
 
-      expect([...step.boundVariables()]).toEqual(["foo", "buz"]);
+      expect(step.boundVariables()).toEqual(["foo", "buz"]);
     });
   });
 

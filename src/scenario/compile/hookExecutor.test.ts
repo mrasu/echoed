@@ -48,7 +48,7 @@ describe("HookExecutor", () => {
       const hookExecutor = new HookExecutor(new RawString("foo()"));
 
       it("should return empty", () => {
-        expect([...hookExecutor.boundVariables()]).toEqual([]);
+        expect(hookExecutor.boundVariables()).toEqual([]);
       });
     });
 
@@ -56,10 +56,7 @@ describe("HookExecutor", () => {
       const hookExecutor = new HookExecutor(undefined, variables);
 
       it("should return bound variables", () => {
-        expect([...hookExecutor.boundVariables()].sort()).toEqual([
-          "buz",
-          "foo",
-        ]);
+        expect(hookExecutor.boundVariables().sort()).toEqual(["buz", "foo"]);
       });
     });
   });

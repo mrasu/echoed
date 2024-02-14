@@ -104,7 +104,7 @@ let __hookBindVariables: Record<string, Record<string, any>> = {
   test<%=scenario.skip ? ".skip": ""%>(`<%= scenario.escapedName %>`, async () => {
     const __hookBindVariablesForStep = {...__hookBindVariables["beforeAll"], ...__hookBindVariables["beforeEach"]};
     const {
-      <% Array.from(it.scenarioBook.hook.getBoundVariablesBefore("afterEach", 0)).forEach(function(varName) { %>
+      <% it.scenarioBook.hook.getBoundVariablesBefore("afterEach", 0).forEach(function(varName) { %>
          <%=varName %>,
       <% }) %>
     } = __hookBindVariablesForStep;

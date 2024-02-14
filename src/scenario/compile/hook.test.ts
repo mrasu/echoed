@@ -129,7 +129,7 @@ describe("Hook", () => {
         it("should return empty", () => {
           const boundVariables = hook.getBoundVariablesBefore("beforeAll", 0);
 
-          expect(Array.from(boundVariables)).toStrictEqual([]);
+          expect(boundVariables).toStrictEqual([]);
         });
       });
 
@@ -137,7 +137,7 @@ describe("Hook", () => {
         it("should return variables", () => {
           const boundVariables = hook.getBoundVariablesBefore("beforeAll", 1);
 
-          expect(Array.from(boundVariables)).toStrictEqual(["beforeAll0"]);
+          expect(boundVariables).toStrictEqual(["beforeAll0"]);
         });
       });
     });
@@ -147,7 +147,7 @@ describe("Hook", () => {
         it("should return variables", () => {
           const boundVariables = hook.getBoundVariablesBefore("afterAll", 0);
 
-          expect(Array.from(boundVariables)).toStrictEqual([
+          expect(boundVariables).toStrictEqual([
             "beforeAll0",
             "beforeAll1",
             "beforeEach0",
@@ -162,7 +162,7 @@ describe("Hook", () => {
         it("should return variables", () => {
           const boundVariables = hook.getBoundVariablesBefore("afterAll", 1);
 
-          expect(Array.from(boundVariables)).toStrictEqual([
+          expect(boundVariables).toStrictEqual([
             "beforeAll0",
             "beforeAll1",
             "beforeEach0",
@@ -180,10 +180,7 @@ describe("Hook", () => {
         it("should return variables", () => {
           const boundVariables = hook.getBoundVariablesBefore("beforeEach", 0);
 
-          expect(Array.from(boundVariables)).toStrictEqual([
-            "beforeAll0",
-            "beforeAll1",
-          ]);
+          expect(boundVariables).toStrictEqual(["beforeAll0", "beforeAll1"]);
         });
       });
 
@@ -191,7 +188,7 @@ describe("Hook", () => {
         it("should return variables", () => {
           const boundVariables = hook.getBoundVariablesBefore("beforeEach", 1);
 
-          expect(Array.from(boundVariables)).toStrictEqual([
+          expect(boundVariables).toStrictEqual([
             "beforeAll0",
             "beforeAll1",
             "beforeEach0",
@@ -205,7 +202,7 @@ describe("Hook", () => {
         it("should return variables", () => {
           const boundVariables = hook.getBoundVariablesBefore("afterEach", 0);
 
-          expect(Array.from(boundVariables)).toStrictEqual([
+          expect(boundVariables).toStrictEqual([
             "beforeAll0",
             "beforeAll1",
             "beforeEach0",
@@ -218,7 +215,7 @@ describe("Hook", () => {
         it("should return variables", () => {
           const boundVariables = hook.getBoundVariablesBefore("afterEach", 1);
 
-          expect(Array.from(boundVariables)).toStrictEqual([
+          expect(boundVariables).toStrictEqual([
             "beforeAll0",
             "beforeAll1",
             "beforeEach0",

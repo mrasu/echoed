@@ -46,7 +46,9 @@ export class Arrange {
     public readonly bind?: Map<string, TsVariable>,
   ) {}
 
-  boundVariables(): IterableIterator<string> {
-    return this.runner?.boundVariables() ?? this.bind?.keys() ?? [].values();
+  boundVariables(): string[] {
+    if (this.runner) return this.runner.boundVariables();
+    if (this.bind) return [...this.bind.keys()];
+    return [];
   }
 }

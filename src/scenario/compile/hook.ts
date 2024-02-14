@@ -64,7 +64,7 @@ export class Hook {
   getBoundVariablesBefore(
     currentHookType: HookType,
     currentHookIndex: number,
-  ): IterableIterator<string> {
+  ): string[] {
     const variables = new Set<string>();
     for (const t of ORDERED_HOOK_TYPES) {
       const isCurrentType = t === currentHookType;
@@ -82,6 +82,6 @@ export class Hook {
       if (isCurrentType) break;
     }
 
-    return variables.values();
+    return [...variables.values()];
   }
 }

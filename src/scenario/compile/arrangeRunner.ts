@@ -9,7 +9,7 @@ export class ArrangeRunner extends RunnerContainer {
     super(container.name, container.argument, container.option);
   }
 
-  boundVariables(): IterableIterator<string> {
-    return this.bind.keys();
+  boundVariables(): string[] {
+    return [...this.bind.keys()];
   }
 }

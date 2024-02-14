@@ -27,7 +27,7 @@ export class HookExecutor {
     public readonly bind?: Map<string, TsVariable>,
   ) {}
 
-  boundVariables(): IterableIterator<string> {
-    return this.bind?.keys() ?? [].values();
+  boundVariables(): string[] {
+    return [...(this.bind?.keys() ?? [].values())];
   }
 }
