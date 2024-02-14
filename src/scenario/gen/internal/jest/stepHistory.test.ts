@@ -1,4 +1,4 @@
-import { StepHistory } from "@/scenario/gen/stepHistory";
+import { StepHistory } from "@/scenario/gen/internal/jest/stepHistory";
 
 describe("StepHistory", () => {
   describe("currentStepIndex", () => {

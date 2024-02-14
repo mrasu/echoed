@@ -1,5 +1,5 @@
 import { RunnerResult } from "@/scenario/gen/common/type";
-import { ActResultHistory } from "@/scenario/gen/stepHistory";
+import { ActResultHistory } from "@/scenario/gen/internal/jest/stepHistory";
 import { buildRelativeIndexableArray } from "@/util/proxy";
 
 export type ArrangeResultHistory = RunnerResult[];

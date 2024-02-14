@@ -1,5 +1,5 @@
-import { ArrangeContext } from "@/scenario/gen/arrangeContext";
-import { ScenarioContext } from "@/scenario/gen/scenarioContext";
+import { ArrangeContext } from "@/scenario/gen/internal/jest/arrangeContext";
+import { ScenarioContext } from "@/scenario/gen/internal/jest/scenarioContext";
 
 describe("ArrangeContext", () => {
   describe("start", () => {

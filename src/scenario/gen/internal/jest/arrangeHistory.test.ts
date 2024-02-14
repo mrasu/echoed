@@ -1,4 +1,4 @@
-import { ArrangeHistory } from "@/scenario/gen/arrangeHistory";
+import { ArrangeHistory } from "@/scenario/gen/internal/jest/arrangeHistory";
 
 describe("ArrangeHistory", () => {
   describe("currentArrangeIndex", () => {

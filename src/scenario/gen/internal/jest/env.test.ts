@@ -1,4 +1,4 @@
-import { buildEnv } from "@/scenario/gen/env";
+import { buildEnv } from "@/scenario/gen/internal/jest/env";
 
 describe("buildEnv", () => {
   describe("when environment variable is set", () => {

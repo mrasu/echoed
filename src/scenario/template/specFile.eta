@@ -17,7 +17,7 @@
     7. bind variables to use in later
 */ %>
 
-import * as __gen from "echoed/scenario/gen"
+import * as __gen from "echoed/scenario/gen/internal/jest"
 <% it.config.plugin.runners.forEach(function(runner) { %>
   import { <%= runner.name %> } from "<%= runner.module %>"
 <% }) %>

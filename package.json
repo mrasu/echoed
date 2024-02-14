@@ -83,9 +83,9 @@
       "default": "./dist/jest/nodeEnvironment/index.js",
       "types": "./dist/jest/nodeEnvironment/index.d.ts"
     },
-    "./scenario/gen": {
-      "default": "./dist/scenario/gen/index.js",
-      "types": "./dist/scenario/gen/index.d.ts"
+    "./scenario/gen/internal/jest": {
+      "default": "./dist/scenario/gen/internal/jest/index.js",
+      "types": "./dist/scenario/gen/internal/jest/index.d.ts"
     },
     "./scenario/gen/jest/asserter": {
       "default": "./dist/scenario/gen/jest/asserter/index.js",

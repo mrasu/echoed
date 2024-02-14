@@ -6,7 +6,7 @@ export default defineConfig({
     "src/cli/bin.ts",
     "src/jest/reporter/index.ts",
     "src/jest/nodeEnvironment/index.ts",
-    "src/scenario/gen/index.ts",
+    "src/scenario/gen/internal/jest/index.ts",
     "src/scenario/gen/jest/asserter/index.ts",
     "src/scenario/gen/jest/runner/index.ts",
   ],

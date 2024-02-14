@@ -1,4 +1,4 @@
-import { ScenarioContext } from "@/scenario/gen/scenarioContext";
+import { ScenarioContext } from "@/scenario/gen/internal/jest/scenarioContext";
 
 describe("ScenarioContext", () => {
   describe("stepNext", () => {

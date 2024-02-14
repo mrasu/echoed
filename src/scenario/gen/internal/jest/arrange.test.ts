@@ -1,9 +1,9 @@
-import { wrapHook } from "@/scenario/gen/hook";
+import { wrapArrange } from "@/scenario/gen/internal/jest/arrange";
 
-describe("wrapHook", () => {
+describe("wrapArrange", () => {
   it("should return merged variables", async () => {
     const initial = { hello: "world" };
-    const actual = await wrapHook(initial, async () => {
+    const actual = await wrapArrange(initial, async () => {
       return Promise.resolve({ foo: "bar" });
     });
 

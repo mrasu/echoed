@@ -1,10 +1,10 @@
+import { EchoedArrangeContext } from "@/scenario/gen/common/context";
+import { RunnerResult } from "@/scenario/gen/common/type";
 import {
   ArrangeHistory,
   ArrangeResultHistory,
-} from "@/scenario/gen/arrangeHistory";
-import { EchoedArrangeContext } from "@/scenario/gen/common/context";
-import { RunnerResult } from "@/scenario/gen/common/type";
-import { ScenarioContext } from "@/scenario/gen/scenarioContext";
+} from "@/scenario/gen/internal/jest/arrangeHistory";
+import { ScenarioContext } from "@/scenario/gen/internal/jest/scenarioContext";
 
 export class ArrangeContext {
   private readonly scenarioContext: ScenarioContext;

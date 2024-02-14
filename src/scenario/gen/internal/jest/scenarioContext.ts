@@ -3,7 +3,10 @@ import {
   EchoedAssertContext,
 } from "@/scenario/gen/common/context";
 import { RunnerResult } from "@/scenario/gen/common/type";
-import { ActResultHistory, StepHistory } from "@/scenario/gen/stepHistory";
+import {
+  ActResultHistory,
+  StepHistory,
+} from "@/scenario/gen/internal/jest/stepHistory";
 
 export class ScenarioContext {
   readonly scenarioName: string;
