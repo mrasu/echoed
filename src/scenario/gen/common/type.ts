@@ -1,20 +1,14 @@
 /**
- * ArrangeResult represents the result of the arrange
+ * ArrangeResult represents the result of the runner
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type ArrangeResult = any;
+export type RunnerResult = any;
 
 /**
- * ArrangeResult represents the result of the act
+ * ArrangeArgument represents the argument for the runner
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type ActResult = any;
-
-/**
- * ArrangeArgument represents the argument for the act
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type ActArgument = any;
+export type RunnerArgument = any;
 
 /**
  * AssertArgument represents the argument for the asserter

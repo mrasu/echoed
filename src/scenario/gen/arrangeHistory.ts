@@ -1,8 +1,8 @@
-import { ActResult, ArrangeResult } from "@/scenario/gen/common/type";
+import { RunnerResult } from "@/scenario/gen/common/type";
 import { ActResultHistory } from "@/scenario/gen/stepHistory";
 import { buildRelativeIndexableArray } from "@/util/proxy";
 
-export type ArrangeResultHistory = ArrangeResult[];
+export type ArrangeResultHistory = RunnerResult[];
 
 export class ArrangeHistory {
   private results: ArrangeResultHistory = [];
@@ -22,7 +22,7 @@ export class ArrangeHistory {
     return this.buildArrangeResultHistoryProxy();
   }
 
-  setResult(response: ActResult): [ActResult, ActResultHistory] {
+  setResult(response: RunnerResult): [RunnerResult, ActResultHistory] {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     this.results[this.currentArrangeIndex] = response;
     return [response, this.buildArrangeResultHistoryProxy()];

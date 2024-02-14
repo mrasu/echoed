@@ -5,7 +5,7 @@ import { EchoedContext } from "@/scenario/gen/common/context";
 import { Option } from "@/scenario/gen/common/type";
 import { Runner } from "@/scenario/gen/jest/runner/runner";
 
-type Argument = {
+type WaitForSpanArgument = {
   /**
    * Response object from request
    * This will be used to extract OpenTelemetry's TraceId used for the request
@@ -32,7 +32,7 @@ export type WaitForSpanResponse = Span & {
  */
 const wrappedWaitForSpan = async (
   _ctx: EchoedContext,
-  argument: Argument,
+  argument: WaitForSpanArgument,
   _option: Option,
 ): Promise<WaitForSpanResponse> => {
   const span = await waitForSpan(

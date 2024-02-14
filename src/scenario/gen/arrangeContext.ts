@@ -3,7 +3,7 @@ import {
   ArrangeResultHistory,
 } from "@/scenario/gen/arrangeHistory";
 import { EchoedArrangeContext } from "@/scenario/gen/common/context";
-import { ArrangeResult } from "@/scenario/gen/common/type";
+import { RunnerResult } from "@/scenario/gen/common/type";
 import { ScenarioContext } from "@/scenario/gen/scenarioContext";
 
 export class ArrangeContext {
@@ -21,13 +21,11 @@ export class ArrangeContext {
     this.scenarioContext = scenarioContext;
   }
 
-  next(): [ArrangeResult, ArrangeResultHistory] {
+  next(): [RunnerResult, ArrangeResultHistory] {
     return [undefined, this.arrangeResultHistory.next()];
   }
 
-  setResult(
-    arrangeResult: ArrangeResult,
-  ): [ArrangeResult, ArrangeResultHistory] {
+  setResult(arrangeResult: RunnerResult): [RunnerResult, ArrangeResultHistory] {
     return this.arrangeResultHistory.setResult(arrangeResult);
   }
 

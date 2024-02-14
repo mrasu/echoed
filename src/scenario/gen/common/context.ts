@@ -1,4 +1,4 @@
-import { ActResult } from "@/scenario/gen/common/type";
+import { RunnerResult } from "@/scenario/gen/common/type";
 
 type EchoedContextBase = {
   scenarioName: string;
@@ -24,7 +24,7 @@ export type EchoedActContext = EchoedContextBase & {
 
 export type EchoedAssertContext = EchoedContextBase & {
   kind: "assert";
-  actResult: ActResult;
+  actResult: RunnerResult;
 };
 
 export type EchoedContext = EchoedActContext | EchoedArrangeContext;

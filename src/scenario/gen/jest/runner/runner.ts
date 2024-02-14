@@ -1,10 +1,14 @@
 import { EchoedContext } from "@/scenario/gen/common/context";
-import { ActArgument, ActResult, Option } from "@/scenario/gen/common/type";
+import {
+  Option,
+  RunnerArgument,
+  RunnerResult,
+} from "@/scenario/gen/common/type";
 
 export interface Runner {
   (
     ctx: EchoedContext,
-    argument: ActArgument,
+    argument: RunnerArgument,
     option: Option,
-  ): Promise<Record<string, ActResult>>;
+  ): Promise<Record<string, RunnerResult>>;
 }

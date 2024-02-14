@@ -2,7 +2,7 @@ import {
   EchoedActContext,
   EchoedAssertContext,
 } from "@/scenario/gen/common/context";
-import { ActResult } from "@/scenario/gen/common/type";
+import { RunnerResult } from "@/scenario/gen/common/type";
 import { ActResultHistory, StepHistory } from "@/scenario/gen/stepHistory";
 
 export class ScenarioContext {
@@ -17,7 +17,7 @@ export class ScenarioContext {
     return [undefined, this.stepHistory.next()];
   }
 
-  setActResult(actResult: ActResult): [ActResult, ActResultHistory] {
+  setActResult(actResult: RunnerResult): [RunnerResult, ActResultHistory] {
     return this.stepHistory.setActResult(actResult);
   }
 

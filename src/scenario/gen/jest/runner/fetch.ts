@@ -2,7 +2,7 @@ import { EchoedContext } from "@/scenario/gen/common/context";
 import { Runner } from "@/scenario/gen/jest/runner/runner";
 import { joinUrl } from "@/util/url";
 
-type Argument = {
+type FetchArgument = {
   /**
    * Endpoint to fetch
    * When baseEndpoint is set in Option, argument's endpoint will be combined with baseEndpoint
@@ -44,7 +44,7 @@ type Argument = {
   init?: RequestInit;
 };
 
-type Option = {
+type FetchOption = {
   /**
    * When baseEndpoint is set, argument's endpoint will be combined with baseEndpoint
    * Note that whether endpoint is finished with slash or not, last part of baseEndpoint is considered as directory
@@ -90,8 +90,8 @@ export type FetchResponse = {
  */
 const wrappedFetch = async (
   _ctx: EchoedContext,
-  argument: Argument,
-  option: Option,
+  argument: FetchArgument,
+  option: FetchOption,
 ): Promise<FetchResponse> => {
   const { endpoint, method, jsonBody, txtBody, headers, init } = argument;
 
@@ -125,7 +125,7 @@ const wrappedFetch = async (
   };
 };
 
-const buildEndpoint = (option: Option, endpoint: string): string => {
+const buildEndpoint = (option: FetchOption, endpoint: string): string => {
   if (!option.baseEndpoint) return endpoint;
 
   return joinUrl(option.baseEndpoint, endpoint);

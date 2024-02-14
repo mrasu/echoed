@@ -1,11 +1,11 @@
-import { ActResult } from "@/scenario/gen/common/type";
+import { RunnerResult } from "@/scenario/gen/common/type";
 import { buildRelativeIndexableArray } from "@/util/proxy";
 
 type StepContent = {
-  actResult: ActResult;
+  actResult: RunnerResult;
 };
 
-export type ActResultHistory = ActResult[];
+export type ActResultHistory = RunnerResult[];
 
 export class StepHistory {
   private readonly stepContents: StepContent[] = [];
@@ -14,7 +14,7 @@ export class StepHistory {
     return this.stepContents.length - 1;
   }
 
-  get actResult(): ActResult {
+  get actResult(): RunnerResult {
     if (this.currentStepIndex === -1) {
       return undefined;
     }
@@ -31,14 +31,14 @@ export class StepHistory {
     return this.buildActResultHistoryProxy();
   }
 
-  setActResult(response: ActResult): [ActResult, ActResultHistory] {
+  setActResult(response: RunnerResult): [RunnerResult, ActResultHistory] {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     this.stepContents[this.currentStepIndex].actResult = response;
     return [response, this.buildActResultHistoryProxy()];
   }
 
   private buildActResultHistoryProxy(): ActResultHistory {
-    const copy = this.stepContents.map((c): ActResult => c.actResult);
+    const copy = this.stepContents.map((c): RunnerResult => c.actResult);
 
     return buildRelativeIndexableArray(copy) as ActResultHistory;
   }
