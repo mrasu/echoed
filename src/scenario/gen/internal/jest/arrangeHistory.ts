@@ -11,19 +11,17 @@ export class ArrangeHistory {
     return this.results.length - 1;
   }
 
-  restart(): ArrangeResultHistory {
-    this.results = [];
-    return this.buildArrangeResultHistoryProxy();
-  }
-
   next(): ArrangeResultHistory {
     this.results.push(undefined);
 
     return this.buildArrangeResultHistoryProxy();
   }
 
+  get resultHistory(): ArrangeResultHistory {
+    return this.buildArrangeResultHistoryProxy();
+  }
+
   setResult(response: RunnerResult): [RunnerResult, ActResultHistory] {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     this.results[this.currentArrangeIndex] = response;
     return [response, this.buildArrangeResultHistoryProxy()];
   }

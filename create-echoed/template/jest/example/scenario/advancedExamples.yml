@@ -25,6 +25,8 @@ scenarios:
               endpoint: products/${productId}
             bind:
               productName: ${_.jsonBody.name}
+          - bind:
+              respondedProductId: ${_arranges[-1].jsonBody.id}
         act:
           runner: fetch
           argument:
@@ -39,6 +41,7 @@ scenarios:
             - ${_.jsonBody.items}
             - 1
           - expect(_.jsonBody.items[0].productId).toBe(productId)
+          - expect(_.jsonBody.items[0].productId).toBe(respondedProductId)
           - expect(_.jsonBody.items[0].quantity).toBe(quantity)
           - expect(_.jsonBody.items[0].product.name).toBe(productName)
   - name: Example for failed assertion

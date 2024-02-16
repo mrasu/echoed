@@ -5,7 +5,7 @@
   "license": "MIT",
   "description": "Observable Integration Testing using OpenTelemetry on top of Jest.",
   "scripts": {
-    "dev": "tsc-watch --onSuccess 'tsup --sourcemap --watch'",
+    "dev": "tsc-watch --onSuccess 'tsup --sourcemap'",
     "build": "npm run protos && npm run build:reporter && npm run build:package",
     "build:reporter": "cd reporter && npm run build",
     "build:package": "tsc && rm -rf ./dist && tsup",

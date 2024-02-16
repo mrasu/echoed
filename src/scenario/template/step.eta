@@ -1,0 +1,67 @@
+<% let step = it.step %>
+
+let [_, _steps] = [undefined as any, __stepCtx.actResultHistory];
+
+const {
+<% it.scenario.getBoundVariablesBefore(it.stepIndex).forEach(function(varName) { %>
+   <%=varName %>,
+<% }) %>
+} = __stepCtx.boundVariables;
+
+<% Array.from(step.variable.entries()).forEach(function([key, value]) { %>
+  const <%=key%> = <%= value.toTsLine() %>;
+<% }) %>
+
+<% if(step.arranges.length > 0) { %>
+  <% step.arranges.forEach(function(arrange, arrangeIndex) { %>
+    {
+      // Arrange (<%=arrangeIndex%>)
+
+      await __stepCtx.runArrange(async (__arrangeCtx) => {
+        <%~ include("arrange", {step: step, arrange: arrange, arrangeIndex: arrangeIndex})%>
+      });
+    }
+
+  <% }) %>
+
+  const {
+    <% step.getArrangeBoundVariables().forEach(function(varName) { %>
+       <%=varName %>,
+    <% }) %>
+  } = __stepCtx.arrangeBoundVariables;
+<% } %>
+
+<% if(step.act) { %>
+  const __runnerArgument = <%= step.act.runner.argument ? step.act.runner.argument.toTsLine(): undefined %>;
+  const __actOption = {
+    <% Array.from(step.act.runner.option.entries()).forEach(function([key, value]) {%>
+      "<%= key %>": <%= value.toTsLine() %>,
+    <% })%>
+  };
+
+  const __actResult = await <%= step.act.runner.name %>(
+    __stepCtx.echoedActContext,
+    __runnerArgument,
+    __scenarioBookCtx.buildRunnerOption("<%= step.act.runner.name %>", __actOption),
+  );
+
+  [_, _steps] = [__actResult, __stepCtx.recordActResult(_steps, __actResult)];
+<% } %>
+
+<% step.asserts.forEach(function(assert) { %>
+  <% if (assert.rawString) {%>
+    <%= assert.rawString.toTsLine() %>;
+  <% } else { %>
+    <% let asserter = assert.asserter %>
+    await <%= asserter.name %>(
+      __stepCtx.echoedAssertContext,
+      <%= asserter.x.toTsLine() %>,
+      <%= asserter.y.toTsLine() %>,
+      __scenarioBookCtx.buildAsserterOption("<%= asserter.name %>")
+    );
+  <% } %>
+<% }) %>
+
+<% Array.from(step.bind.entries()).forEach(function([key, value]) { %>
+  __stepCtx.bindNewVariable("<%= key %>", <%= value.toTsLine() %>);
+<% }) %>

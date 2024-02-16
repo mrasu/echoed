@@ -16,6 +16,17 @@ module.exports = {
     ],
     "@typescript-eslint/explicit-function-return-type": "error",
   },
+  overrides: [
+    {
+      // Allow using "any" in gen/internal as they use "any" so often to accept any user input.
+      files: ["./src/scenario/gen/internal/**/*.ts"],
+      rules: {
+        "@typescript-eslint/no-unsafe-assignment": "off",
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/no-unsafe-return": "off",
+      },
+    },
+  ],
   parserOptions: {
     project: true,
   },

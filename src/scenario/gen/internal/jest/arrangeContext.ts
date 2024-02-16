@@ -1,40 +1,50 @@
 import { EchoedArrangeContext } from "@/scenario/gen/common/context";
 import { RunnerResult } from "@/scenario/gen/common/type";
-import {
-  ArrangeHistory,
-  ArrangeResultHistory,
-} from "@/scenario/gen/internal/jest/arrangeHistory";
-import { ScenarioContext } from "@/scenario/gen/internal/jest/scenarioContext";
+import { ArrangeResultHistory } from "@/scenario/gen/internal/jest/arrangeHistory";
+import { StepContext } from "@/scenario/gen/internal/jest/stepContext";
+import { BoundVariables } from "@/scenario/gen/internal/jest/type";
+
+export type ArrangeResult = {
+  runnerResult: any;
+  newBoundVariables: BoundVariables;
+};
 
 export class ArrangeContext {
-  private readonly scenarioContext: ScenarioContext;
-  private arrangeResultHistory = new ArrangeHistory();
+  public runnerResult: any = undefined;
+  public newBoundVariables: BoundVariables = {};
 
-  static start(
-    scenarioContext: ScenarioContext,
-  ): [undefined, ArrangeResultHistory, ArrangeContext] {
-    const ctx = new ArrangeContext(scenarioContext);
-    return [undefined, ctx.arrangeResultHistory.restart(), ctx];
+  constructor(
+    private readonly step: StepContext,
+    public readonly index: number,
+    public boundVariables: BoundVariables,
+    public readonly arrangeResultHistory: ArrangeResultHistory,
+  ) {}
+
+  recordRunnerResult(arrangeResult: RunnerResult): ArrangeResultHistory {
+    this.runnerResult = arrangeResult;
+    this.arrangeResultHistory[this.arrangeResultHistory.length - 1] =
+      arrangeResult;
+
+    return this.arrangeResultHistory;
   }
 
-  constructor(scenarioContext: ScenarioContext) {
-    this.scenarioContext = scenarioContext;
+  bindNewVariable(key: string, value: any): void {
+    this.newBoundVariables[key] = value;
   }
 
-  next(): [RunnerResult, ArrangeResultHistory] {
-    return [undefined, this.arrangeResultHistory.next()];
+  get result(): ArrangeResult {
+    return {
+      runnerResult: this.runnerResult,
+      newBoundVariables: this.newBoundVariables,
+    };
   }
 
-  setResult(arrangeResult: RunnerResult): [RunnerResult, ArrangeResultHistory] {
-    return this.arrangeResultHistory.setResult(arrangeResult);
-  }
-
-  get context(): EchoedArrangeContext {
+  get echoedArrangeContext(): EchoedArrangeContext {
     return {
       kind: "arrange",
-      scenarioName: this.scenarioContext.scenarioName,
-      currentStepIndex: this.scenarioContext.currentStepIndex,
-      currentArrangeIndex: this.arrangeResultHistory.currentArrangeIndex,
+      scenarioName: this.step.scenario.scenarioName,
+      currentStepIndex: this.step.index,
+      currentArrangeIndex: this.index,
     };
   }
 }

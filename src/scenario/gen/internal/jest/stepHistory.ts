@@ -14,27 +14,18 @@ export class StepHistory {
     return this.stepContents.length - 1;
   }
 
-  get actResult(): RunnerResult {
-    if (this.currentStepIndex === -1) {
-      return undefined;
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    return this.stepContents[this.currentStepIndex].actResult;
-  }
-
-  next(): ActResultHistory {
+  next(): void {
     this.stepContents.push({
       actResult: undefined,
     });
+  }
 
+  get actResultHistory(): ActResultHistory {
     return this.buildActResultHistoryProxy();
   }
 
-  setActResult(response: RunnerResult): [RunnerResult, ActResultHistory] {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  setActResult(response: RunnerResult): void {
     this.stepContents[this.currentStepIndex].actResult = response;
-    return [response, this.buildActResultHistoryProxy()];
   }
 
   private buildActResultHistoryProxy(): ActResultHistory {

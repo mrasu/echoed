@@ -1,78 +1,75 @@
-import { ArrangeContext } from "@/scenario/gen/internal/jest/arrangeContext";
-import { ScenarioContext } from "@/scenario/gen/internal/jest/scenarioContext";
+import { buildArrangeContext } from "@/testUtil/scenario/gen/internal/jest/arrangeContext";
 
 describe("ArrangeContext", () => {
-  describe("start", () => {
-    it("should return ArrangeContext", () => {
-      const scenarioCtx = new ScenarioContext("test");
-      const [result, history, arrangeCtx] = ArrangeContext.start(scenarioCtx);
+  describe("recordRunnerResult", () => {
+    it("should record runnerResult and return history", () => {
+      const ctx = buildArrangeContext();
 
-      expect(result).toBeUndefined();
-      expect(history).toEqual([]);
-      expect(arrangeCtx.context).toEqual({
-        kind: "arrange",
-        scenarioName: "test",
-        currentStepIndex: -1,
-        currentArrangeIndex: -1,
+      const history = ctx.recordRunnerResult({ kind: "success" });
+
+      expect(ctx.runnerResult).toEqual({ kind: "success" });
+      expect(history).toEqual([{ kind: "success" }]);
+    });
+  });
+
+  describe("bindNewVariable", () => {
+    describe("when key is already in newBoundVariables", () => {
+      it("should overwrite the value", () => {
+        const ctx = buildArrangeContext({
+          boundVariables: { key: "value" },
+        });
+
+        ctx.bindNewVariable("key", "new value");
+
+        expect(ctx.newBoundVariables).toEqual({ key: "new value" });
+      });
+    });
+
+    describe("when key is not in newBoundVariables", () => {
+      it("should add an argument to newBoundVariables", () => {
+        const ctx = buildArrangeContext({
+          boundVariables: {},
+        });
+
+        ctx.bindNewVariable("key", "value");
+
+        expect(ctx.newBoundVariables).toEqual({ key: "value" });
       });
     });
   });
 
-  describe("next", () => {
-    describe("when first", () => {
-      it("should return history", () => {
-        const ctx = new ArrangeContext(new ScenarioContext("test"));
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        const [result, history] = ctx.next();
-
-        expect(result).toEqual(undefined);
-        expect(history).toEqual([undefined]);
+  describe("result", () => {
+    it("should return ArrangeResult", () => {
+      const ctx = buildArrangeContext({
+        runnerResult: { kind: "success" },
+        newBoundVariables: { key: "value" },
       });
-    });
 
-    describe("when calling multiple times", () => {
-      it("should return stacked history", () => {
-        const ctx = new ArrangeContext(new ScenarioContext("test"));
-        ctx.next();
+      const result = ctx.result;
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        const [result, history] = ctx.next();
-
-        expect(result).toEqual(undefined);
-        expect(history).toEqual([undefined, undefined]);
+      expect(result).toEqual({
+        runnerResult: { kind: "success" },
+        newBoundVariables: { key: "value" },
       });
     });
   });
 
-  describe("setResult", () => {
-    describe("when first", () => {
-      it("should return history with result", () => {
-        const ctx = new ArrangeContext(new ScenarioContext("test"));
-        ctx.next();
-        ctx.next();
-
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        const [result, history] = ctx.setResult(1);
-
-        expect(result).toEqual(1);
-        expect(history).toEqual([undefined, 1]);
-      });
-    });
-  });
-
-  describe("context", () => {
+  describe("echoedArrangeContext", () => {
     it("should return EchoedArrangeContext", () => {
-      const ctx = new ArrangeContext(new ScenarioContext("test"));
-      ctx.next();
-      ctx.next();
-
-      const echoedArrangeContext = ctx.context;
+      const ctx = buildArrangeContext(
+        {
+          index: 11,
+        },
+        { index: 22 },
+        { scenarioName: "test scenario" },
+      );
+      const echoedArrangeContext = ctx.echoedArrangeContext;
 
       expect(echoedArrangeContext).toEqual({
         kind: "arrange",
-        scenarioName: "test",
-        currentStepIndex: -1,
-        currentArrangeIndex: 1,
+        scenarioName: "test scenario",
+        currentArrangeIndex: 11,
+        currentStepIndex: 22,
       });
     });
   });

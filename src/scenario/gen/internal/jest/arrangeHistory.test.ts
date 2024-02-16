@@ -24,15 +24,6 @@ describe("ArrangeHistory", () => {
     });
   });
 
-  describe("restart", () => {
-    it("should return empty arrangeHistory", () => {
-      const arrangeHistory = new ArrangeHistory();
-      const ret = arrangeHistory.restart();
-
-      expect(ret).toEqual([]);
-    });
-  });
-
   describe("next", () => {
     it("should return pushed arrangeHistory", () => {
       const arrangeHistory = new ArrangeHistory();
@@ -40,6 +31,17 @@ describe("ArrangeHistory", () => {
       const ret = arrangeHistory.next();
 
       expect(ret).toEqual([undefined, undefined]);
+    });
+  });
+
+  describe("resultHistory", () => {
+    it("should return pushed arrangeHistory", () => {
+      const arrangeHistory = new ArrangeHistory();
+      arrangeHistory.next();
+      arrangeHistory.next();
+      arrangeHistory.setResult(123);
+
+      expect(arrangeHistory.resultHistory).toEqual([undefined, 123]);
     });
   });
 

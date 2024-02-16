@@ -1,48 +1,40 @@
 import {
-  EchoedActContext,
-  EchoedAssertContext,
-} from "@/scenario/gen/common/context";
-import { RunnerResult } from "@/scenario/gen/common/type";
-import {
-  ActResultHistory,
-  StepHistory,
-} from "@/scenario/gen/internal/jest/stepHistory";
+  StepContext,
+  StepResult,
+} from "@/scenario/gen/internal/jest/stepContext";
+import { StepHistory } from "@/scenario/gen/internal/jest/stepHistory";
+import { BoundVariables } from "@/scenario/gen/internal/jest/type";
 
 export class ScenarioContext {
   readonly scenarioName: string;
   private readonly stepHistory = new StepHistory();
+  private boundVariables: BoundVariables = {};
 
   constructor(scenarioName: string) {
     this.scenarioName = scenarioName;
   }
 
-  stepNext(): [undefined, ActResultHistory] {
-    return [undefined, this.stepHistory.next()];
+  async runStep(fn: (_: StepContext) => Promise<void>): Promise<void> {
+    const arrangeCtx = this.newStepContext();
+
+    await fn(arrangeCtx);
+
+    this.stepFinished(arrangeCtx.result);
   }
 
-  setActResult(actResult: RunnerResult): [RunnerResult, ActResultHistory] {
-    return this.stepHistory.setActResult(actResult);
+  private newStepContext(): StepContext {
+    this.stepHistory.next();
+    return new StepContext(
+      this,
+      this.stepHistory.currentStepIndex,
+      { ...this.boundVariables },
+      this.stepHistory.actResultHistory,
+    );
   }
 
-  get currentStepIndex(): number {
-    return this.stepHistory.currentStepIndex;
-  }
+  private stepFinished(step: StepResult): void {
+    this.stepHistory.setActResult(step.actResult);
 
-  get actContext(): EchoedActContext {
-    return {
-      kind: "act",
-      scenarioName: this.scenarioName,
-      currentStepIndex: this.currentStepIndex,
-    };
-  }
-
-  get assertContext(): EchoedAssertContext {
-    return {
-      kind: "assert",
-      scenarioName: this.scenarioName,
-      currentStepIndex: this.currentStepIndex,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      actResult: this.stepHistory.actResult,
-    };
+    this.boundVariables = { ...this.boundVariables, ...step.newBoundVariables };
   }
 }
