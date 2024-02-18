@@ -6,7 +6,7 @@ import { TsVariable } from "@/scenario/compile/tsVariable";
 import { JsonSchema } from "@/type/jsonZod";
 import { z } from "zod";
 
-export const StepSchema = z.object({
+export const StepSchema = z.strictObject({
   description: z.string().optional(),
   variable: z.record(JsonSchema).optional(),
   arrange: z.array(ArrangeSchema).optional(),

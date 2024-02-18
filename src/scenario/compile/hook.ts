@@ -5,7 +5,7 @@ import {
 } from "@/scenario/compile/hookExecutor";
 import { z } from "zod";
 
-export const HookSchema = z.object({
+export const HookSchema = z.strictObject({
   beforeAll: z.array(HookExecutorSchema).optional(),
   afterAll: z.array(HookExecutorSchema).optional(),
   beforeEach: z.array(HookExecutorSchema).optional(),

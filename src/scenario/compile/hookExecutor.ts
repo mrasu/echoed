@@ -6,7 +6,7 @@ import { z } from "zod";
 
 export const HookExecutorSchema = z.union([
   z.string(),
-  z.object({
+  z.strictObject({
     bind: z.record(JsonSchema),
   }),
 ]);

@@ -1,20 +1,20 @@
 import { JsonSchema } from "@/type/jsonZod";
 import { z } from "zod";
 
-export const ConfigSchemaZod = z.object({
+export const ConfigSchemaZod = z.strictObject({
   output: z.string(),
   serverPort: z.number().optional(),
   serverStopAfter: z.number().optional(),
   debug: z.boolean().optional(),
   services: z
     .array(
-      z.object({
+      z.strictObject({
         name: z.string(),
         namespace: z.string().optional(),
         openapi: z
           .union([
             z.string(),
-            z.object({
+            z.strictObject({
               filePath: z.string(),
               basePath: z.string().optional(),
             }),
@@ -23,7 +23,7 @@ export const ConfigSchemaZod = z.object({
         proto: z
           .union([
             z.string(),
-            z.object({
+            z.strictObject({
               filePath: z.string(),
               services: z.array(z.string()).optional(),
             }),
@@ -64,7 +64,7 @@ export const ConfigSchemaZod = z.object({
             .object({
               runners: z
                 .array(
-                  z.object({
+                  z.strictObject({
                     module: z.string(),
                     name: z.string(),
                     option: z.record(JsonSchema).optional(),
@@ -73,7 +73,7 @@ export const ConfigSchemaZod = z.object({
                 .optional(),
               asserters: z
                 .array(
-                  z.object({
+                  z.strictObject({
                     module: z.string(),
                     name: z.string(),
                     option: z.record(JsonSchema).optional(),
@@ -82,7 +82,7 @@ export const ConfigSchemaZod = z.object({
                 .optional(),
               commons: z
                 .array(
-                  z.object({
+                  z.strictObject({
                     module: z.string(),
                     names: z.array(z.string()).optional(),
                     default: z.string().optional(),

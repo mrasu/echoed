@@ -3,7 +3,7 @@ import { opentelemetry } from "@/generated/otelpbj";
 import Long from "long";
 import { z } from "zod";
 
-export const JsonNumComparable = z.object({ value: z.number() });
+export const JsonNumComparable = z.strictObject({ value: z.number() });
 export type JsonNumComparable = z.infer<typeof JsonNumComparable>;
 
 export abstract class NumComparable extends Comparable {

@@ -9,7 +9,7 @@ import { TsVariable } from "@/scenario/compile/tsVariable";
 import { JsonSchema } from "@/type/jsonZod";
 import { z } from "zod";
 
-export const ScenarioBookSchema = z.object({
+export const ScenarioBookSchema = z.strictObject({
   scenarios: z.array(ScenarioSchema),
   runners: z.array(ScenarioRunnerConfigSchema).optional(),
   variable: z.record(JsonSchema).optional(),

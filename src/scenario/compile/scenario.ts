@@ -5,7 +5,7 @@ import { escapeTemplateString } from "@/scenario/compile/util";
 import { JsonSchema } from "@/type/jsonZod";
 import { z } from "zod";
 
-export const ScenarioSchema = z.object({
+export const ScenarioSchema = z.strictObject({
   name: z.string(),
   skip: z.boolean().optional(),
   variable: z.record(JsonSchema).optional(),

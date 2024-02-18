@@ -9,14 +9,14 @@ import { TsVariable } from "@/scenario/compile/tsVariable";
 import { JsonSchema } from "@/type/jsonZod";
 import { z } from "zod";
 
-const ArrangeRunnerSchema = RunnerContainerSchema.and(
-  z.object({ bind: z.record(JsonSchema).optional() }),
+const ArrangeRunnerSchema = RunnerContainerSchema.merge(
+  z.strictObject({ bind: z.record(JsonSchema).optional() }),
 );
 
 export const ArrangeSchema = z.union([
   z.string(),
   ArrangeRunnerSchema,
-  z.object({
+  z.strictObject({
     bind: z.record(JsonSchema),
   }),
 ]);

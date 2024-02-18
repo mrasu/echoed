@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const FetchStartedLog = z.object({
+const FetchStartedLog = z.strictObject({
   type: z.literal("fetchStarted"),
   traceId: z.string(),
   testPath: z.string(),
@@ -9,15 +9,15 @@ const FetchStartedLog = z.object({
 
 export type FetchStartedLog = z.infer<typeof FetchStartedLog>;
 
-const FetchFinishedLog = z.object({
+const FetchFinishedLog = z.strictObject({
   type: z.literal("fetchFinished"),
   traceId: z.string(),
-  request: z.object({
+  request: z.strictObject({
     url: z.string(),
     method: z.string(),
     body: z.string().optional(),
   }),
-  response: z.object({
+  response: z.strictObject({
     status: z.number(),
     body: z.string().optional(),
   }),

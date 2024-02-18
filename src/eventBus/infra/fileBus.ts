@@ -4,7 +4,7 @@ import { IFileWatcher } from "@/fs/IFileWatcher";
 import { Logger } from "@/logger";
 import { z } from "zod";
 
-const eventData = z.object({
+const eventData = z.strictObject({
   event: z.string(),
   data: z.unknown(),
 });

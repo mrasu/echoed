@@ -5,7 +5,7 @@ import { z } from "zod";
 
 const KIND = "eq";
 
-export const JsonEq = z.object({
+export const JsonEq = z.strictObject({
   kind: z.literal(KIND),
   value: Primitive,
 });

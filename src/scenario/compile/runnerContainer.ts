@@ -5,7 +5,7 @@ import { TsVariable } from "@/scenario/compile/tsVariable";
 import { JsonSchema } from "@/type/jsonZod";
 import { z } from "zod";
 
-export const RunnerContainerSchema = z.object({
+export const RunnerContainerSchema = z.strictObject({
   runner: z.string(),
   argument: JsonSchema.optional(),
   option: z.record(JsonSchema).optional(),

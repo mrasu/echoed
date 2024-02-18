@@ -5,7 +5,7 @@ import { z } from "zod";
 
 const KIND = "reg";
 
-export const JsonReg = z.object({
+export const JsonReg = z.strictObject({
   kind: z.literal(KIND),
   source: z.string(),
   flags: z.string(),

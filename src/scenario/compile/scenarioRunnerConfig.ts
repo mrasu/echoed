@@ -2,7 +2,7 @@ import { RunnerOption } from "@/scenario/compile/runnerOption";
 import { JsonSchema } from "@/type/jsonZod";
 import { z } from "zod";
 
-export const ScenarioRunnerConfigSchema = z.object({
+export const ScenarioRunnerConfigSchema = z.strictObject({
   name: z.string(),
   option: z.record(JsonSchema).optional(),
 });
