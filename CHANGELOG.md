@@ -1,6 +1,7 @@
 ## Unreleased
 ### Added
 - Add "arrange" and "hook" (beforeAll, afterAll beforeEach and afterEach) section to YAML
+- Add "jest-no-otel" template into create-echoed and add its explanation in README.
 
 ## 0.1.1
 ### Added

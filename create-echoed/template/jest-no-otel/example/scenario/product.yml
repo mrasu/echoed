@@ -1,0 +1,13 @@
+variable:
+  productId: OLJCESPC7Z
+scenarios:
+  - name: /api/products/{id} should return a specified product
+    steps:
+      - description: Get cart
+        act:
+          runner: fetch
+          argument:
+            endpoint: products/${productId}
+        assert:
+          - expect(_.response.status).toBe(200)
+          - expect(_.jsonBody.id).toBe(productId)

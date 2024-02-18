@@ -29,7 +29,8 @@
     "tsup": "^8.0.1"
   },
   "dependencies": {
-    "commander": "^11.1.0",
+    "@commander-js/extra-typings": "^12.0.0",
+    "commander": "^12.0.0",
     "typescript": "^5.0.0"
   },
   "homepage": "https://github.com/mrasu/echoed/blob/main/create-echoed",

@@ -1,0 +1,25 @@
+scenario:
+  compile:
+    yamlDir: example/scenario
+    outDir: example/scenario_gen
+    cleanOutDir: true
+    env:
+      BASE_ENDPOINT: http://localhost:8080
+    plugin:
+      runners:
+        - name: fetch
+          module: echoed/scenario/gen/jest/runner
+          option:
+            baseEndpoint: ${_env.BASE_ENDPOINT}/api
+            headers:
+              content-type: application/json
+      asserters:
+        - name: assertItemLength
+          module: "@/example/util/assertItemLength"
+      commons:
+        - names:
+            - createSession
+          module: "@/example/util/session"
+        - names:
+            - CartRedis
+          module: "@/example/util/cartRedis"

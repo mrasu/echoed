@@ -58,7 +58,7 @@ Echoed offers two installation methods, choose one that suits your needs:
 
 ## Option 1. Create a New Directory with Example Tests
 
-1. Initialize a new directory using npx:
+1. Initialize a new directory using npm:
     ```bash
     mkdir my_test_directory && cd my_test_directory
     npm create echoed@latest
@@ -275,6 +275,22 @@ services:
       filePath: "./example/opentelemetry-demo/pb/demo.proto"
       services:
         - oteldemo.CartService
+```
+
+# Using Echoed without OpenTelemetry
+
+While Echoed's primary feature is to troubleshoot or analyze tests by visualizing OpenTelemetry data, it can also be used to write Jest tests in YAML.  
+To add Echoed into existing tests for writing tests in YAML, simply create a `.echoed.yml` file for configuration.  
+In the "Installation" section, you may see `nodeEnvironment` and `reporter` is added in `jest.config.js`. However, because these configurations are to collect OpenTelemetry data, when you don't use OpenTelemetry, there's no need to modify it.
+
+Alternatively, if you wish to create example tests without OpenTelemetry, you can do so using the following commands:
+```bash
+# Create example tests
+npm create echoed@latest -- --template jest-no-otel
+
+# Compile YAML to TypeScript and run tests
+npx echoed compile
+npx jest
 ```
 
 # Configuration
