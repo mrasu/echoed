@@ -206,7 +206,7 @@ To extend scenarios with additional functionalities, you can add functions at `p
 There are three types of plugins: `Runner`, `Asserter` and `Common`.
 
 * `Runner`  
-    A function that is called inside `act`, typically performing actions like an HTTP request.  
+    A function that is called inside `act` and `arrange`, typically performing actions like an HTTP request.  
     Its result is stored in the `_` variable. 
 * `Asserter`  
   A function that is called inside `assert`, taking two arguments, typically for the expected and actual values. 
