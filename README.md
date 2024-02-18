@@ -18,6 +18,7 @@
   * [YAML](#YAML)
   * [TypeScript](#TypeScript)
   * [Analyze Coverage](#Analyze-Coverage)
+* [Using Echoed without OpenTelemetry](#Using-Echoed-without-OpenTelemetry)
 * [Configuration](#Configuration)
 
 # Features
