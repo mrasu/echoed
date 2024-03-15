@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 
-export const TEMPLATES = ["jest", "jest-no-otel"] as const;
+export const TEMPLATES = ["jest", "jest-no-otel", "playwright"] as const;
 export type TEMPLATE = (typeof TEMPLATES)[number];
 
 const INSTRUCTION_DIR = ".instruction";
@@ -22,7 +22,7 @@ export class Creator {
 
     await this.runInstruction(dir);
 
-    await fs.promises.cp(dir, this.cwd, { recursive: true });
+    await this.cp(dir);
 
     await this.rmInstructionDir();
   }
@@ -51,8 +51,14 @@ export class Creator {
     const copyInstruction = JSON.parse(copyInstructionJson) as CopyInstruction;
     if (copyInstruction.from) {
       const copyFrom = this.toTemplatePath(copyInstruction.from);
-      await fs.promises.cp(copyFrom, this.cwd, { recursive: true });
+      await this.runInstruction(copyFrom);
+
+      await this.cp(copyFrom);
     }
+  }
+
+  private async cp(from: string): Promise<void> {
+    await fs.promises.cp(from, this.cwd, { recursive: true });
   }
 
   private async rmInstructionDir(): Promise<void> {

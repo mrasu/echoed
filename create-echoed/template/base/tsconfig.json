@@ -3,7 +3,7 @@
     "target": "es6",
     "module": "nodenext",
     "outDir": "./dist",
-    "rootDir": "./src",
+    "rootDir": ".",
     "strict": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
@@ -11,6 +11,5 @@
     "paths": {
       "@/*": ["./*"]
     }
-  },
-  "include": ["__scripts/**/*.ts"]
+  }
 }

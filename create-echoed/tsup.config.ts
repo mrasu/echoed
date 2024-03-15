@@ -14,5 +14,6 @@ export default defineConfig({
     mv ./dist/template_tmp/template ./dist &&
     rmdir ./dist/template_tmp &&
     mv ./dist/template/jest/_gitignore ./dist/template/jest/.gitignore
+    mv ./dist/template/playwright/_gitignore ./dist/template/playwright/.gitignore
   `,
 });
