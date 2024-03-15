@@ -18,7 +18,12 @@
   };
 </script>
 
-<TraceTree spans={trace.spans} on:click={(e) => onTreeSpanClicked(e.detail)} />
+{#if trace.spans.length > 0}
+  <TraceTree
+    spans={trace.spans}
+    on:click={(e) => onTreeSpanClicked(e.detail)}
+  />
+{/if}
 
 <Accordion multiple>
   <Panel open={true}>

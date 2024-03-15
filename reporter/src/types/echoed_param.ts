@@ -28,7 +28,7 @@ export type ITestInfo = {
 export type IFetch = {
   traceId: string;
   request: IFetchRequest;
-  response: IFetchResponse;
+  response: IFetchResponse | IFetchFailedResponse;
 };
 
 export type IFetchRequest = {
@@ -40,6 +40,11 @@ export type IFetchRequest = {
 export type IFetchResponse = {
   status: number;
   body?: string;
+};
+
+export type IFetchFailedResponse = {
+  failed: true;
+  reason: string;
 };
 
 export type ISpan = {

@@ -40,7 +40,7 @@ type TestInfo = {
 type Fetch = {
   traceId: string;
   request: FetchRequest;
-  response: FetchResponse;
+  response: FetchResponse | FetchFailedResponse;
 };
 
 type FetchRequest = {
@@ -52,6 +52,11 @@ type FetchRequest = {
 type FetchResponse = {
   status: number;
   body?: string;
+};
+
+type FetchFailedResponse = {
+  failed: true;
+  reason: string;
 };
 
 type CoverageInfo = {

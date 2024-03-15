@@ -27,6 +27,7 @@ import type {
   IPropagationFailedTrace,
   IHttpOperationTraces,
   IRpcMethodTraces,
+  IFetchFailedResponse,
 } from "@/types/echoed_param";
 import Long from "long";
 import type { HttpMethod } from "./util/http";
@@ -160,12 +161,17 @@ export class TestInfo {
 export class Fetch {
   traceId: string;
   request: FetchRequest;
-  response: FetchResponse;
+  response: FetchResponse | FetchFailedResponse;
 
   constructor(fetch: IFetch) {
     this.traceId = toHex(decodeBase64(fetch.traceId));
     this.request = new FetchRequest(fetch.request);
-    this.response = new FetchResponse(fetch.response);
+
+    const response = fetch.response;
+    this.response =
+      "failed" in response
+        ? new FetchFailedResponse(response)
+        : new FetchResponse(response);
   }
 }
 
@@ -188,6 +194,16 @@ export class FetchResponse {
   constructor(response: IFetchResponse) {
     this.status = response.status;
     this.body = response.body;
+  }
+}
+
+export class FetchFailedResponse {
+  failed: true;
+  reason: string;
+
+  constructor(response: IFetchFailedResponse) {
+    this.failed = response.failed;
+    this.reason = response.reason;
   }
 }
 
@@ -788,6 +804,17 @@ export class Traces {
 
   get(traceId: string): Trace | undefined {
     return this.traceMap.get(traceId);
+  }
+
+  getOrEmpty(traceId: string): Trace {
+    const trace = this.get(traceId);
+    if (trace) return trace;
+
+    return new Trace({
+      traceId: traceId,
+      spans: [],
+      logRecords: [],
+    });
   }
 }
 

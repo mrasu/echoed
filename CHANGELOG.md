@@ -1,3 +1,7 @@
+## Unreleased
+### Added
+- Add support for Playwright
+
 ## 0.1.2
 ### Added
 - Add "arrange" and "hook" (beforeAll, afterAll beforeEach and afterEach) section to YAML

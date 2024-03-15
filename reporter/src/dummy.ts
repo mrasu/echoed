@@ -29,13 +29,24 @@ const fetches: IFetch[] = [
       "status": 200,
       "body": "{}"
     }
+  },
+  {
+    "traceId": "ztGplbofNomvXRjV4xq+8Q==",
+    "request": {
+      "url": "http://localhost:8080/api/failed",
+      "method": "GET"
+    },
+    "response": {
+      failed: true,
+      reason: "Test ended"
+    }
   }
 ]
 
 // prettier-ignore
 const testInfos: ITestInfo[] = [
-  { testId: "0", file: "api/buyItem.test.ts", name: "buy items / simple1", startTimeMillis: 1701873955941, status: "passed", orderedTraceIds: ["YUMtSIxXQHea1DTgS+G2zg==", "ztGplbofNomvXRjV4xq+8A==",], fetches: fetches, duration: 1234, failureDetails: [], failureMessages: [] },
-  { testId: "1", file: "api/buyItem.test.ts", name: "failed test2", startTimeMillis: 1701873955942, status: "failed", orderedTraceIds: ["MDAwMDAwMDA="], fetches: fetches,
+  { testId: "0", file: "api/buyItem.test.ts", name: "buy items / simple1", startTimeMillis: 1701873955941, status: "passed", orderedTraceIds: ["YUMtSIxXQHea1DTgS+G2zg==", "ztGplbofNomvXRjV4xq+8A==", "ztGplbofNomvXRjV4xq+/w=="], fetches: fetches, duration: 1234, failureDetails: [], failureMessages: [] },
+  { testId: "1", file: "api/buyItem.test.ts", name: "failed test2", startTimeMillis: 1701873955942, status: "failed", orderedTraceIds: ["MDAwMDAwMDA=", "ztGplbofNomvXRjV4xq+8Q=="], fetches: fetches,
     failureDetails: [
         "{\"cause\":{\"errno\":-111,\"code\":\"ECONNREFUSED\",\"syscall\":\"connect\",\"address\":\"127.0.0.1\",\"port\":8080}}"
     ],
@@ -277,6 +288,11 @@ const traces: ITrace[] = [
       { "traceId": "ElYSWmo1mY/CvRG8wiGNJQ==", "spanId": "2JwexTzu+Ho=", "observedTimeUnixNano": "1702972609914159108", "timeUnixNano": "1702972609914159108", "severityNumber": "SEVERITY_NUMBER_INFO", "severityText": "Information", "body": { "stringValue": "GetCartAsync called with userId={userId}" }, "attributes": [ { "key": "userId", "value": { "stringValue": "aaaaaaaaa" } } ], "flags": 1},
       { "traceId": "ElYSWmo1mY/CvRG8wiGNJQ==", "spanId": "2JwexTzu+Ho=", "observedTimeUnixNano": "1702972609914159108" , "timeUnixNano": "1702972609914159108", "severityNumber": "SEVERITY_NUMBER_INFO", "severityText": "Information", "body": { "stringValue": "GetCartAsync called with userId={userId}" }, "attributes": [ { "key": "userId", "value": { "stringValue": "aaaaaaaaa" } } ], "flags": 1 }
     ]
+  },
+  {
+    traceId: "ztGplbofNomvXRjV4xq+8Q==",
+    spans: [],
+    logRecords: []
   }
 ]
 

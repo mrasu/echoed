@@ -2,5 +2,4 @@
 /reporter
 /src/generated
 /src/opentelemetry-proto
-/src/schema
 /create-echoed

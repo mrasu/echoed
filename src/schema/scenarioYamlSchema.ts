@@ -1,5 +1,6 @@
 import { AnyValue } from "@/schema/configSchema";
 
+// prettier-ignore
 export type ScenarioYamlSchema = {
   /**
    * Number of times to retry the failed test.

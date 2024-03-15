@@ -9,7 +9,12 @@ import { TestCase } from "@/testCase";
 import { TestCaseResult } from "@/testCaseResult";
 import { OtelLogRecord } from "@/type/otelLogRecord";
 import { OtelSpan } from "@/type/otelSpan";
-import { FetchFinishedLog, FetchStartedLog, Log } from "@/types";
+import {
+  FetchFailedLog,
+  FetchFinishedLog,
+  FetchStartedLog,
+  Log,
+} from "@/types";
 import { omitDirPath } from "@/util/file";
 import { neverVisit } from "@/util/never";
 
@@ -146,6 +151,7 @@ class TestCaseLogCollector {
       if (parsed.type === "fetchStarted") {
         logs.push({
           type: "fetchStarted",
+          testId: parsed.testId,
           timeMillis: parsed.timeMillis,
           traceId: parsed.traceId,
           testPath: parsed.testPath,
@@ -163,6 +169,17 @@ class TestCaseLogCollector {
             status: parsed.response.status,
             body: parsed.response.body ?? undefined,
           },
+        });
+      } else if (parsed.type === "fetchFailed") {
+        logs.push({
+          type: "fetchFailed",
+          traceId: parsed.traceId,
+          request: {
+            url: parsed.request.url,
+            method: parsed.request.method,
+            body: parsed.request.body ?? undefined,
+          },
+          reason: parsed.reason,
         });
       } else {
         neverVisit("unknown log type found: ", parsed);
@@ -199,33 +216,30 @@ class TestCaseLogCollector {
     logs: Log[],
   ): Map<string, FetchInfo[]> {
     const fetchFinishedLogMap = this.extractFetchFinishedLogs(logs);
+    const fetchFailedLogMap = this.extractFetchFailedLogs(logs);
     const seeker = new TestCaseSeeker(this.testRootDir, testCases);
 
     const ret = new Map<string, FetchInfo[]>();
 
     const fetchStartedLogs = this.extractOrderedFetchStartedLogs(logs);
     for (const log of fetchStartedLogs) {
-      const fetchFinishedLog = fetchFinishedLogMap.get(log.traceId);
-      if (!fetchFinishedLog) {
-        Logger.error("Invalid state: fetchFinishedLog not found", log);
+      const endLog = this.getFetchEndLogs(
+        log.traceId,
+        fetchFinishedLogMap,
+        fetchFailedLogMap,
+      );
+      if (!endLog) {
+        Logger.error(
+          "Invalid state: fetchFinishedLog/fetchFailedLog not found",
+          log,
+        );
         continue;
       }
 
       const testCase = seeker.seekCorrespondingTestCase(log);
       if (!testCase) continue;
 
-      const fetch: FetchInfo = {
-        traceId: fetchFinishedLog.traceId,
-        request: {
-          url: fetchFinishedLog.request.url,
-          method: fetchFinishedLog.request.method,
-          body: fetchFinishedLog.request.body,
-        },
-        response: {
-          status: fetchFinishedLog.response.status,
-          body: fetchFinishedLog.response.body,
-        },
-      };
+      const fetch = this.toFetchInfo(endLog);
 
       const fetches = ret.get(testCase.testId) ?? [];
       fetches.push(fetch);
@@ -264,6 +278,61 @@ class TestCaseLogCollector {
     );
     return ret;
   }
+
+  private extractFetchFailedLogs(logs: Log[]): Map<string, FetchFailedLog> {
+    const fetchFailedLogs: FetchFailedLog[] = [];
+    for (const log of logs) {
+      if (log.type !== "fetchFailed") {
+        continue;
+      }
+      fetchFailedLogs.push(log);
+    }
+
+    const ret = new Map<string, FetchFailedLog>(
+      fetchFailedLogs.map((log) => [log.traceId, log]),
+    );
+    return ret;
+  }
+
+  private getFetchEndLogs(
+    traceId: string,
+    fetchFinishedLogMap: Map<string, FetchFinishedLog>,
+    fetchFailedLogMap: Map<string, FetchFailedLog>,
+  ): FetchFinishedLog | FetchFailedLog | undefined {
+    const fetchFinishedLog = fetchFinishedLogMap.get(traceId);
+    const fetchFailedLog = fetchFailedLogMap.get(traceId);
+
+    return fetchFinishedLog ?? fetchFailedLog ?? undefined;
+  }
+
+  private toFetchInfo(log: FetchFinishedLog | FetchFailedLog): FetchInfo {
+    if (log.type === "fetchFinished") {
+      return {
+        traceId: log.traceId,
+        request: {
+          url: log.request.url,
+          method: log.request.method,
+          body: log.request.body,
+        },
+        response: {
+          status: log.response.status,
+          body: log.response.body,
+        },
+      };
+    } else if (log.type === "fetchFailed") {
+      return {
+        traceId: log.traceId,
+        request: {
+          url: log.request.url,
+          method: log.request.method,
+          body: log.request.body,
+        },
+        response: { failed: true, reason: log.reason },
+      };
+    } else {
+      neverVisit("unknown log type found: ", log);
+    }
+  }
 }
 
 class TestCaseSeeker {
@@ -293,6 +362,15 @@ class TestCaseSeeker {
     const testCases = this.testCases.get(testFile);
     if (!testCases) {
       return undefined;
+    }
+
+    if (fetchLog.testId) {
+      for (const testCase of testCases) {
+        if (fetchLog.testId === testCase.testId) {
+          return testCase;
+        }
+      }
+      return;
     }
 
     const startIndex = this.currentTestIndexes.get(testFile);

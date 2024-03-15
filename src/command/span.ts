@@ -1,8 +1,10 @@
-import { convertSpanFilterOption } from "@/command/bridge/compare";
+import { waitForSpanForTraceId } from "@/command/bridge/span";
 import { Compare } from "@/command/compare";
 import { Span } from "@/command/spanType";
 import { EchoedFatalError } from "@/echoedFatalError";
-import { SpanBus } from "@/eventBus/spanBus";
+import { EventBus } from "@/eventBus/infra/eventBus";
+import { buildFsContainerForApp } from "@/fs/fsContainer";
+import { newBus } from "@/integration/playwright/internal/util/eventBus";
 import { getTraceIdFromResponse } from "@/traceLoggingFetch";
 
 export type WaitOption = {
@@ -24,11 +26,6 @@ export async function waitForSpan(
   filter: SpanFilterOption,
   options?: WaitOption,
 ): Promise<Span> {
-  const bus = globalThis.__ECHOED_BUS__;
-  if (!bus) {
-    throw new EchoedFatalError("No bus for Echoed. not using reporter?");
-  }
-
   const traceId = getTraceIdFromResponse(res);
   if (!traceId) {
     throw new EchoedFatalError(
@@ -36,12 +33,35 @@ export async function waitForSpan(
     );
   }
 
-  const spanBus = new SpanBus(bus);
-  const span = await spanBus.requestWantSpan(
-    traceId,
-    convertSpanFilterOption(filter),
-    options?.timeoutMs ?? 10000,
-  );
+  let bus = globalThis.__ECHOED_BUS__;
+  let busStartedHere = false;
+  if (!bus) {
+    const busForPlaywright = createBusForPlaywright();
 
-  return span;
+    busStartedHere = true;
+    bus = busForPlaywright;
+    await bus.open();
+  }
+
+  try {
+    return await waitForSpanForTraceId(bus, traceId, filter, options);
+  } finally {
+    if (busStartedHere) {
+      bus.close();
+    }
+  }
+}
+
+function createBusForPlaywright(): EventBus {
+  const fsContainer = buildFsContainerForApp();
+  try {
+    return newBus(fsContainer, true);
+  } catch (e) {
+    if (e instanceof EchoedFatalError) {
+      throw new EchoedFatalError(
+        `No bus for Echoed. When using Jest, not using reporter? When using Playwright, ${e.origMsg}`,
+      );
+    }
+    throw e;
+  }
 }

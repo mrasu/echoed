@@ -8,7 +8,7 @@
   const traceFetch = testInfo?.fetches.find(
     (fetch) => fetch.traceId === params.traceId,
   );
-  const trace = echoedParam.traces.get(params.traceId);
+  const trace = echoedParam.traces.getOrEmpty(params.traceId);
 </script>
 
 {#if testInfo}

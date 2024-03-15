@@ -1,6 +1,10 @@
 export class EchoedFatalError extends Error {
-  constructor(message: string) {
-    super("Echoed: Fatal Error. " + message);
+  origMsg: string;
+
+  constructor(msg: string) {
+    super("Echoed: Fatal Error. " + msg);
+
     this.name = new.target.name;
+    this.origMsg = msg;
   }
 }

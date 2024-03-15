@@ -1,5 +1,6 @@
 import { Comparable } from "@/comparision/comparable";
 import { Eq } from "@/comparision/eq";
+import { Reg } from "@/comparision/reg";
 import {
   Config,
   ECHOED_CONFIG_FILE_NAME,
@@ -32,7 +33,7 @@ import { formatZodError } from "@/util/zod";
 import yaml from "js-yaml";
 import { SafeParseReturnType } from "zod";
 
-type YamlValue = string | boolean | number | null;
+type ComparableValue = string | boolean | number | { regexp: string } | null;
 
 // value of `overrides` in create-echoed/template/.echoed.yml
 const EXAMPLE_TEMPLATE_OVERRIDDEN_CONFIG_PATH = "./example/.echoed.yml";
@@ -160,19 +161,26 @@ export class ConfigLoader {
   ): PropagationTestConfig {
     const enabled = t?.enabled ?? true;
     const ignore = {
-      attributes: this.convertToEqComparables(t?.ignore?.attributes),
+      attributes: this.convertToComparables(t?.ignore?.attributes),
       resource: {
-        attributes: this.convertToEqComparables(
-          t?.ignore?.resource?.attributes,
-        ),
+        attributes: this.convertToComparables(t?.ignore?.resource?.attributes),
       },
+      conditions:
+        t?.ignore?.conditions?.map((c) => {
+          return {
+            attributes: this.convertToComparables(c.attributes),
+            resource: {
+              attributes: this.convertToComparables(c.resource?.attributes),
+            },
+          };
+        }) ?? [],
     };
 
     return new PropagationTestConfig({ enabled, ignore });
   }
 
-  private convertToEqComparables(
-    values: Record<string, YamlValue> | undefined,
+  private convertToComparables(
+    values: Record<string, ComparableValue> | undefined,
   ): Map<string, Comparable> {
     if (!values) return new Map();
 
@@ -180,7 +188,11 @@ export class ConfigLoader {
     for (const [key, val] of Object.entries(values)) {
       if (val === null) continue;
 
-      ret.set(key, new Eq(val));
+      if (typeof val === "object") {
+        ret.set(key, new Reg(new RegExp(val.regexp)));
+      } else {
+        ret.set(key, new Eq(val));
+      }
     }
     return ret;
   }

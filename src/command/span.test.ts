@@ -1,37 +1,23 @@
-import { eq, gt, gte, lt, lte } from "@/command/compare";
 import { waitForSpan } from "@/command/span";
-import { Eq } from "@/comparision/eq";
-import { Gt } from "@/comparision/gt";
-import { Gte } from "@/comparision/gte";
-import { Lt } from "@/comparision/lt";
-import { Lte } from "@/comparision/lte";
-import { Reg } from "@/comparision/reg";
+import { EchoedFatalError } from "@/echoedFatalError";
+import { deleteTmpDirFromEnv, setTmpDirToEnv } from "@/env";
 import { WantSpanEvent } from "@/eventBus/spanBus";
+import { deleteBusIdFromGlobalThis, setBusIdToGlobalThis } from "@/global";
 import { DummyBus } from "@/testUtil/eventBus/dummyBus";
 import { setTraceIdToResponse } from "@/traceLoggingFetch";
 import { Base64String } from "@/type/base64String";
+import fs from "fs";
+import os from "os";
+import path from "path";
 
 describe("waitForSpan", () => {
-  let bus: DummyBus<WantSpanEvent>;
-  beforeEach(async () => {
-    bus = new DummyBus();
-    await bus.open();
-    globalThis.__ECHOED_BUS__ = bus;
+  let res: Response;
+  beforeEach(() => {
+    res = {} as Response;
   });
 
-  afterEach(() => {
-    delete globalThis.__ECHOED_BUS__;
-  });
-
-  const buildResponse = (traceId: Base64String): Response => {
-    const res = {} as Response;
-    setTraceIdToResponse(res, traceId);
-    return res;
-  };
-
-  describe("when filtering by name", () => {
-    it("should emit data to Bus with filtered by name", async () => {
-      const res = buildResponse(new Base64String("dummy-trace-id"));
+  describe("when no traceId is set to response", () => {
+    it("should raise error", async () => {
       await expect(async () => {
         await waitForSpan(
           res,
@@ -40,176 +26,80 @@ describe("waitForSpan", () => {
           },
           { timeoutMs: 0 },
         );
-      }).rejects.toThrow("timeout");
-
-      const emittedData = bus.emittedData();
-      expect(emittedData.length).toBe(1);
-      expect(emittedData[0].data.base64TraceId).toBe("dummy-trace-id");
-      expect(emittedData[0].data.filter).toStrictEqual({
-        name: new Eq("dummy/name").toJSON(),
-        attributes: {},
-        resource: {
-          attributes: {},
-        },
-      });
+      }).rejects.toThrow(EchoedFatalError);
     });
   });
 
-  describe("when filtering by attributes", () => {
-    it("should emit data to Bus with filtered by attributes", async () => {
-      const res = buildResponse(new Base64String("dummy-trace-id"));
-      await expect(async () => {
-        await waitForSpan(
-          res,
-          {
-            attributes: {
-              dummyStr: "dummy-value",
-              dummyReg: /abc/i,
-            },
-          },
-          { timeoutMs: 0 },
-        );
-      }).rejects.toThrow("timeout");
+  describe("when traceId is set to response", () => {
+    beforeEach(() => {
+      setTraceIdToResponse(res, new Base64String("dummy-trace-id"));
+    });
 
-      const emittedData = bus.emittedData();
-      expect(emittedData.length).toBe(1);
-      expect(emittedData[0].data.base64TraceId).toBe("dummy-trace-id");
-      expect(emittedData[0].data.filter).toStrictEqual({
-        attributes: {
-          dummyStr: new Eq("dummy-value").toJSON(),
-          dummyReg: new Reg(/abc/i).toJSON(),
-        },
-        resource: {
-          attributes: {},
-        },
+    describe("when bus is not set anywhere", () => {
+      it("should raise error", async () => {
+        await expect(async () => {
+          await waitForSpan(
+            res,
+            {
+              name: "dummy/name",
+            },
+            { timeoutMs: 0 },
+          );
+        }).rejects.toThrow(EchoedFatalError);
       });
     });
-  });
 
-  describe("when filtering by resource's attributes", () => {
-    it("should emit data to Bus with filtered by resource's attributes", async () => {
-      const res = buildResponse(new Base64String("dummy-trace-id"));
+    describe("when bus is set in globalThis", () => {
+      let bus: DummyBus<WantSpanEvent>;
+      beforeEach(async () => {
+        bus = new DummyBus();
+        await bus.open();
+        globalThis.__ECHOED_BUS__ = bus;
+      });
 
-      await expect(async () => {
-        await waitForSpan(
-          res,
-          {
-            resource: {
-              attributes: {
-                dummyStr: "dummy-value",
-                dummyReg: /abc/i,
-              },
+      afterEach(() => {
+        bus.close();
+        delete globalThis.__ECHOED_BUS__;
+      });
+
+      it("should emit data to Bus", async () => {
+        await expect(async () => {
+          await waitForSpan(
+            res,
+            {
+              name: "dummy/name",
             },
-          },
-          { timeoutMs: 0 },
-        );
-      }).rejects.toThrow("timeout");
-
-      const emittedData = bus.emittedData();
-      expect(emittedData.length).toBe(1);
-      expect(emittedData.length).toBe(1);
-      expect(emittedData[0].data.base64TraceId).toBe("dummy-trace-id");
-      expect(emittedData[0].data.filter).toStrictEqual({
-        attributes: {},
-        resource: {
-          attributes: {
-            dummyStr: new Eq("dummy-value").toJSON(),
-            dummyReg: new Reg(/abc/i).toJSON(),
-          },
-        },
+            { timeoutMs: 0 },
+          );
+        }).rejects.toThrow("timeout");
       });
     });
-  });
 
-  describe("when using eq", () => {
-    it("should emit data to Bus with eq filter", async () => {
-      const res = buildResponse(new Base64String("dummy-trace-id"));
+    describe("when busId is set in environment variable", () => {
+      let tmpdirPath: string;
 
-      await expect(async () => {
-        await waitForSpan(
-          res,
-          {
-            attributes: {
-              key: eq("value"),
-            },
-          },
-          { timeoutMs: 0 },
-        );
-      }).rejects.toThrow("timeout");
-
-      const emittedData = bus.emittedData();
-      expect(emittedData.length).toBe(1);
-      expect(emittedData[0].data.filter).toStrictEqual({
-        attributes: {
-          key: new Eq("value").toJSON(),
-        },
-        resource: {
-          attributes: {},
-        },
+      beforeEach(() => {
+        tmpdirPath = fs.mkdtempSync(path.join(os.tmpdir(), "echoed-"));
+        setBusIdToGlobalThis("busId");
+        setTmpDirToEnv(tmpdirPath);
       });
-    });
-  });
 
-  describe("when using RegExp", () => {
-    it("should emit data to Bus with Reg filter", async () => {
-      const res = buildResponse(new Base64String("dummy-trace-id"));
-
-      await expect(async () => {
-        await waitForSpan(
-          res,
-          {
-            attributes: {
-              key: /abc/i,
-            },
-          },
-          { timeoutMs: 0 },
-        );
-      }).rejects.toThrow("timeout");
-
-      const emittedData = bus.emittedData();
-      expect(emittedData.length).toBe(1);
-      expect(emittedData[0].data.filter).toStrictEqual({
-        attributes: {
-          key: new Reg(/abc/i).toJSON(),
-        },
-        resource: {
-          attributes: {},
-        },
+      afterEach(async () => {
+        deleteBusIdFromGlobalThis();
+        deleteTmpDirFromEnv();
+        await fs.promises.rm(tmpdirPath, { recursive: true, force: true });
       });
-    });
-  });
 
-  describe("when using number comparator", () => {
-    it("should emit data to Bus with number comparison filter", async () => {
-      const res = buildResponse(new Base64String("dummy-trace-id"));
-
-      await expect(async () => {
-        await waitForSpan(
-          res,
-          {
-            attributes: {
-              keyGt: gt(1),
-              keyGte: gte(2),
-              keyLt: lt(3),
-              keyLte: lte(4),
+      it("should emit data to Bus", async () => {
+        await expect(async () => {
+          await waitForSpan(
+            res,
+            {
+              name: "dummy/name",
             },
-          },
-          { timeoutMs: 0 },
-        );
-      }).rejects.toThrow("timeout");
-
-      const emittedData = bus.emittedData();
-      expect(emittedData.length).toBe(1);
-      expect(emittedData[0].data.filter).toStrictEqual({
-        attributes: {
-          keyGt: new Gt(1).toJSON(),
-          keyGte: new Gte(2).toJSON(),
-          keyLt: new Lt(3).toJSON(),
-          keyLte: new Lte(4).toJSON(),
-        },
-        resource: {
-          attributes: {},
-        },
+            { timeoutMs: 0 },
+          );
+        }).rejects.toThrow("timeout");
       });
     });
   });

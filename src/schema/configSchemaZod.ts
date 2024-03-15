@@ -1,6 +1,24 @@
 import { JsonSchema } from "@/type/jsonZod";
 import { z } from "zod";
 
+const attributeRecord = z.record(
+  z.string(),
+  z
+    .string()
+    .or(z.boolean())
+    .or(z.number())
+    .or(z.object({ regexp: z.string() })),
+);
+
+const propagationIgnoreAttributes = z.object({
+  attributes: attributeRecord.optional(),
+  resource: z
+    .object({
+      attributes: attributeRecord.optional(),
+    })
+    .optional(),
+});
+
 export const ConfigSchemaZod = z.strictObject({
   output: z.string(),
   serverPort: z.number().optional(),
@@ -35,19 +53,12 @@ export const ConfigSchemaZod = z.strictObject({
   propagationTest: z
     .object({
       enabled: z.boolean().optional(),
-      ignore: z
-        .object({
-          attributes: z
-            .record(z.string(), z.string().or(z.boolean()).or(z.number()))
-            .optional(),
-          resource: z
-            .object({
-              attributes: z
-                .record(z.string(), z.string().or(z.boolean()).or(z.number()))
-                .optional(),
-            })
-            .optional(),
-        })
+      ignore: propagationIgnoreAttributes
+        .merge(
+          z.object({
+            conditions: z.array(propagationIgnoreAttributes).optional(),
+          }),
+        )
         .optional(),
     })
     .optional(),

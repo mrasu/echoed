@@ -1,13 +1,50 @@
+import { Config, ServiceConfig } from "@/config/config";
 import { Coverage, CoverageResult } from "@/coverage/coverageResult";
+import { OpenApiCoverageCollector } from "@/coverage/openApi/openApiCoverageCollector";
+import { ProtoCoverageCollector } from "@/coverage/proto/protoCoverageCollector";
 import { ServiceCoverageCollector } from "@/coverage/serviceCoverageCollector";
 import { UnmeasuredTraceCollector } from "@/coverage/unmeasuredTraceCollector";
 import { OtelSpan } from "@/type/otelSpan";
 import { TwoKeyValuesMap } from "@/util/twoKeyValuesMap";
+import SwaggerParser from "@apidevtools/swagger-parser";
+import protobuf from "protobufjs";
 
 export class CoverageCollector {
   private readonly serviceCollectors: ServiceMap<ServiceCoverageCollector> =
     new ServiceMap();
   private unmeasuredCollector = new ServiceMap<UnmeasuredTraceCollector>();
+
+  static async createWithServiceInfo(
+    config: Config,
+  ): Promise<CoverageCollector> {
+    const coverageCollector = new CoverageCollector();
+    for (const service of config.serviceConfigs) {
+      const collector = await this.buildServiceCoverageCollector(service);
+      if (!collector) continue;
+
+      coverageCollector.add(service.name, service.namespace, collector);
+    }
+
+    return coverageCollector;
+  }
+
+  private static async buildServiceCoverageCollector(
+    service: ServiceConfig,
+  ): Promise<ServiceCoverageCollector | undefined> {
+    if (service.openapi) {
+      const document = await SwaggerParser.parse(service.openapi.filePath);
+      return OpenApiCoverageCollector.buildFromDocument(document);
+    } else if (service.proto) {
+      const root = await protobuf.load(service.proto.filePath);
+      return ProtoCoverageCollector.buildFromRoot(
+        root,
+        service.proto.filePath,
+        service.proto.services ? new Set(service.proto.services) : undefined,
+      );
+    } else {
+      return undefined;
+    }
+  }
 
   constructor() {}
 

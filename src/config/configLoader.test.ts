@@ -1,6 +1,12 @@
+import { Comparable } from "@/comparision/comparable";
+import { Eq } from "@/comparision/eq";
+import { Reg } from "@/comparision/reg";
 import { Config, ServiceConfig } from "@/config/config";
 import { ConfigLoader } from "@/config/configLoader";
-import { PropagationTestConfig } from "@/config/propagationTestConfig";
+import {
+  PropagationTestConfig,
+  PropagationTestIgnoreConditionConfig,
+} from "@/config/propagationTestConfig";
 import { ScenarioCompileConfig } from "@/config/scenarioCompileConfig";
 import { ConfigSchema } from "@/schema/configSchema";
 import { MockDirectory } from "@/testUtil/fs/mockDirectory";
@@ -34,6 +40,7 @@ describe("ConfigLoader", () => {
               resource: {
                 attributes: new Map(),
               },
+              conditions: [],
             },
           }),
           serviceConfigs,
@@ -560,6 +567,251 @@ describe("ConfigLoader", () => {
                     ],
                   },
                 }),
+              );
+            });
+          });
+        });
+      });
+    });
+
+    describe("when propagationTest section exists", () => {
+      const buildSchemaObject = (
+        propagationTest: NonNullable<ConfigSchema["propagationTest"]>,
+      ): {
+        output: string;
+        propagationTest: ConfigSchema["propagationTest"];
+      } => {
+        return {
+          output: "dummy",
+          propagationTest,
+        };
+      };
+
+      describe("when no value is set", () => {
+        it("should set propagationTest disabled", () => {
+          const config = new ConfigLoader(fsContainer).loadFromObject(
+            buildSchemaObject({}),
+          );
+
+          expect(config.propagationTestConfig.enabled).toEqual(true);
+          expect(config.propagationTestConfig.ignoreConditions).toEqual([]);
+        });
+      });
+
+      describe("when enabled is false", () => {
+        it("should set propagationTest disabled", () => {
+          const config = new ConfigLoader(fsContainer).loadFromObject(
+            buildSchemaObject({
+              enabled: false,
+            }),
+          );
+
+          expect(config.propagationTestConfig.enabled).toEqual(false);
+        });
+      });
+
+      describe("when ignore is set", () => {
+        const buildIgnoreConditions = (
+          conditions: {
+            attributes?: [string, Comparable][];
+            resource?: { attributes?: [string, Comparable][] };
+          }[],
+        ): PropagationTestIgnoreConditionConfig[] => {
+          return conditions.map((c) => {
+            return new PropagationTestIgnoreConditionConfig({
+              attributes: new Map(c.attributes ?? []),
+              resource: {
+                attributes: new Map(c.resource?.attributes ?? []),
+              },
+            });
+          });
+        };
+
+        describe("when attributes is set", () => {
+          it("should spread conditions", () => {
+            const config = new ConfigLoader(fsContainer).loadFromObject(
+              buildSchemaObject({
+                ignore: {
+                  attributes: {
+                    foo1: "bar1",
+                    foo2: "bar2",
+                  },
+                },
+              }),
+            );
+
+            expect(config.propagationTestConfig.ignoreConditions).toEqual(
+              buildIgnoreConditions([
+                {
+                  attributes: [["foo1", new Eq("bar1")]],
+                },
+                {
+                  attributes: [["foo2", new Eq("bar2")]],
+                },
+              ]),
+            );
+          });
+
+          describe("when value uses regexp", () => {
+            it("should set as Reg", () => {
+              const config = new ConfigLoader(fsContainer).loadFromObject(
+                buildSchemaObject({
+                  ignore: {
+                    attributes: {
+                      foo: {
+                        regexp: "bar.+",
+                      },
+                    },
+                  },
+                }),
+              );
+
+              expect(config.propagationTestConfig.ignoreConditions).toEqual(
+                buildIgnoreConditions([
+                  {
+                    attributes: [["foo", new Reg(/bar.+/)]],
+                  },
+                ]),
+              );
+            });
+          });
+        });
+
+        describe("when resource is set", () => {
+          describe("when no value is set", () => {
+            it("should set no condition", () => {
+              const config = new ConfigLoader(fsContainer).loadFromObject(
+                buildSchemaObject({
+                  ignore: {
+                    resource: {},
+                  },
+                }),
+              );
+
+              expect(config.propagationTestConfig.ignoreConditions).toEqual([]);
+            });
+          });
+
+          describe("when attribute is set", () => {
+            it("should spread condition", () => {
+              const config = new ConfigLoader(fsContainer).loadFromObject(
+                buildSchemaObject({
+                  ignore: {
+                    resource: {
+                      attributes: {
+                        foo1: "bar1",
+                        foo2: "bar2",
+                      },
+                    },
+                  },
+                }),
+              );
+
+              expect(config.propagationTestConfig.ignoreConditions).toEqual(
+                buildIgnoreConditions([
+                  {
+                    resource: { attributes: [["foo1", new Eq("bar1")]] },
+                  },
+                  {
+                    resource: { attributes: [["foo2", new Eq("bar2")]] },
+                  },
+                ]),
+              );
+            });
+
+            describe("when regexp is used", () => {
+              it("should set as Reg", () => {
+                const config = new ConfigLoader(fsContainer).loadFromObject(
+                  buildSchemaObject({
+                    ignore: {
+                      resource: {
+                        attributes: {
+                          foo: { regexp: "bar.+" },
+                        },
+                      },
+                    },
+                  }),
+                );
+
+                expect(config.propagationTestConfig.ignoreConditions).toEqual(
+                  buildIgnoreConditions([
+                    {
+                      resource: {
+                        attributes: [["foo", new Reg(/bar.+/)]],
+                      },
+                    },
+                  ]),
+                );
+              });
+            });
+          });
+        });
+
+        describe("when conditions are set", () => {
+          it("should set conditions", () => {
+            const config = new ConfigLoader(fsContainer).loadFromObject(
+              buildSchemaObject({
+                ignore: {
+                  conditions: [
+                    {
+                      attributes: {
+                        foo1: "bar1",
+                      },
+                      resource: {
+                        attributes: {
+                          foo2: "bar2",
+                        },
+                      },
+                    },
+                    {
+                      attributes: {
+                        foo: "bar",
+                      },
+                    },
+                  ],
+                },
+              }),
+            );
+
+            expect(config.propagationTestConfig.ignoreConditions).toEqual(
+              buildIgnoreConditions([
+                {
+                  attributes: [["foo1", new Eq("bar1")]],
+                  resource: { attributes: [["foo2", new Eq("bar2")]] },
+                },
+                {
+                  attributes: [["foo", new Eq("bar")]],
+                },
+              ]),
+            );
+          });
+
+          describe("when regexp is used", () => {
+            it("should set as Reg", () => {
+              const config = new ConfigLoader(fsContainer).loadFromObject(
+                buildSchemaObject({
+                  ignore: {
+                    conditions: [
+                      {
+                        attributes: {
+                          foo1: { regexp: "bar1.+" },
+                          foo2: { regexp: "bar2.+" },
+                        },
+                      },
+                    ],
+                  },
+                }),
+              );
+
+              expect(config.propagationTestConfig.ignoreConditions).toEqual(
+                buildIgnoreConditions([
+                  {
+                    attributes: [
+                      ["foo1", new Reg(/bar1.+/)],
+                      ["foo2", new Reg(/bar2.+/)],
+                    ],
+                  },
+                ]),
               );
             });
           });

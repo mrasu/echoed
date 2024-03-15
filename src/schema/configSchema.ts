@@ -1,3 +1,4 @@
+// prettier-ignore
 export type ConfigSchema = {
   /**
    * [Required] Output directory path
@@ -95,14 +96,14 @@ export type ConfigSchema = {
 
     /**
      * Config to ignore specified spans from propagation test
-     * Note that all conditions are OR.
+     * Note that each condition in attributes and resource is OR.
      */
     ignore?: {
       /**
        * Attributes to ignore matched spans
        * Default: empty (not ignore anything)
        */
-      attributes?: Record<string, string | boolean | number>;
+      attributes?: Record<string, string | boolean | number | { regexp: string }>;
 
       /**
        * Resource to ignore matched spans
@@ -112,8 +113,29 @@ export type ConfigSchema = {
          * Resource attributes to ignore matched spans
          * Default: empty (not ignore anything)
          */
-        attributes?: Record<string, string | boolean | number>;
+        attributes?: Record<string, string | boolean | number | { regexp: string }>;
       };
+
+      /**
+       * Conditions to ignore matched spans
+       * Note that each condition is OR.
+       */
+      conditions?: {
+        /**
+         * Attributes to ignore
+         */
+        attributes?: Record<string, string | boolean | number | { regexp: string }>;
+
+        /**
+         * Resource to ignore
+         */
+        resource?: {
+          /**
+           * Resource attributes to ignore
+           */
+          attributes?: Record<string, string | boolean | number | { regexp: string }>;
+        };
+      }[]
     };
   };
 

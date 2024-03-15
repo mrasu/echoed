@@ -1,28 +1,44 @@
-import { Comparable } from "@/comparision/comparable";
-import { PropagationTestConfig } from "@/config/propagationTestConfig";
+import {
+  PropagationTestConfig,
+  PropagationTestIgnoreConditionConfig,
+} from "@/config/propagationTestConfig";
 import { opentelemetry } from "@/generated/otelpbj";
 import { hasValue } from "@/util/type";
 import { isUserAgentInternalProgram } from "@/util/ua";
+import Span = opentelemetry.proto.trace.v1.Span;
 import IKeyValue = opentelemetry.proto.common.v1.IKeyValue;
+import Resource = opentelemetry.proto.resource.v1.Resource;
+import InstrumentationScope = opentelemetry.proto.common.v1.InstrumentationScope;
 
 const USER_AGENT_ATTRIBUTE_KEYS = new Set(["user-agent", "http.user_agent"]);
 const DEFAULT_SERVICE_NAME = "unknown";
 
-export class OtelSpan extends opentelemetry.proto.trace.v1.Span {
+export type JsonOtelSpan = opentelemetry.proto.trace.v1.ISpan & {
+  resource: opentelemetry.proto.resource.v1.IResource;
+  scope: opentelemetry.proto.common.v1.IInstrumentationScope;
+};
+
+export class OtelSpan extends Span {
   public resource?: opentelemetry.proto.resource.v1.Resource | null;
   public scope?: opentelemetry.proto.common.v1.InstrumentationScope | null;
 
   private readonly attributeMap: Map<string, IKeyValue> = new Map();
   private readonly resourceAttributeMap: Map<string, IKeyValue> = new Map();
 
+  static fromObjects(spans: JsonOtelSpan[]): OtelSpan[] {
+    return spans.map(
+      (span) => new OtelSpan(Span.fromObject(span), span.resource, span.scope),
+    );
+  }
+
   constructor(
     span: opentelemetry.proto.trace.v1.ISpan,
-    resource?: opentelemetry.proto.resource.v1.Resource | null,
-    scope?: opentelemetry.proto.common.v1.InstrumentationScope | null,
+    resource?: opentelemetry.proto.resource.v1.IResource | null,
+    scope?: opentelemetry.proto.common.v1.IInstrumentationScope | null,
   ) {
     super(span);
-    this.resource = resource || null;
-    this.scope = scope || null;
+    this.resource = resource ? Resource.fromObject(resource) : null;
+    this.scope = scope ? InstrumentationScope.fromObject(scope) : null;
 
     for (const attr of this.attributes) {
       const key = attr.key;
@@ -57,15 +73,55 @@ export class OtelSpan extends opentelemetry.proto.trace.v1.Span {
   }
 
   shouldIgnoreFromPropagationTest(config: PropagationTestConfig): boolean {
-    const ignoreAttributes = config.ignoreConfig.attributes;
-    if (isIgnoredAttribute(this.attributes, ignoreAttributes)) {
+    for (const condition of config.ignoreConditions) {
+      if (this.matchesIgnoreCondition(condition)) {
+        return true;
+      }
+    }
+
+    if (this.isIgnoredUserAgentSpan()) {
       return true;
     }
 
-    if (this.resource) {
-      const ignores = config.ignoreConfig?.attributes || {};
-      if (isIgnoredAttribute(this.resource.attributes, ignores)) {
-        return true;
+    return false;
+  }
+
+  private matchesIgnoreCondition(
+    condition: PropagationTestIgnoreConditionConfig,
+  ): boolean {
+    for (const [key, comparable] of condition.attributes) {
+      const attrValue = this.getAttribute(key);
+      if (!attrValue) return false;
+
+      if (!comparable.matchIAnyValue(attrValue.value)) {
+        return false;
+      }
+    }
+
+    for (const [key, comparable] of condition.resource.attributes) {
+      const attrValue = this.getResourceAttribute(key);
+      if (!attrValue) return false;
+
+      if (!comparable.matchIAnyValue(attrValue.value)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  private isIgnoredUserAgentSpan(): boolean {
+    for (const key of this.attributes) {
+      if (!key.key) continue;
+
+      const lowerKey = key.key.toLowerCase();
+      if (USER_AGENT_ATTRIBUTE_KEYS.has(lowerKey)) {
+        const userAgent = key.value?.stringValue;
+        if (!userAgent) continue;
+
+        if (!isUserAgentInternalProgram(userAgent)) {
+          return true;
+        }
       }
     }
 
@@ -93,34 +149,4 @@ export class OtelSpan extends opentelemetry.proto.trace.v1.Span {
   getResourceAttribute(key: string): IKeyValue | undefined {
     return this.resourceAttributeMap.get(key);
   }
-}
-
-function isIgnoredAttribute(
-  attributes: IKeyValue[],
-  ignoreTargets: Map<string, Comparable>,
-): boolean {
-  for (const attr of attributes) {
-    const key = attr.key;
-    if (!key) continue;
-
-    const ignoreComparable = ignoreTargets.get(key);
-    if (!ignoreComparable) continue;
-
-    const val = attr.value;
-    if (ignoreComparable.matchIAnyValue(val)) {
-      return true;
-    }
-
-    const lowerKey = key.toLowerCase();
-    if (USER_AGENT_ATTRIBUTE_KEYS.has(lowerKey)) {
-      const userAgent = val?.stringValue;
-      if (!userAgent) continue;
-
-      if (!isUserAgentInternalProgram(userAgent)) {
-        return true;
-      }
-    }
-  }
-
-  return false;
 }

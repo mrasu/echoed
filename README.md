@@ -4,19 +4,19 @@
 
 # Echoed
 
-#### Observable Integration Testing using OpenTelemetry on top of Jest.
+#### Observable Integration Testing using OpenTelemetry on top of Jest/Playwright.
 
 </div>
 
-# Table of contents
+# Table of Contents
 
 * [Features](#Features)
 * [How Echoed Works](#How-Echoed-Works)
 * [Screenshots](#Screenshots)
 * [Installation](#Installation)
 * [How to Use](#How-to-Use)
-  * [YAML](#YAML)
-  * [TypeScript](#TypeScript)
+  * [Jest](#Jest)
+  * [Playwright](#Playwright)
   * [Analyze Coverage](#Analyze-Coverage)
 * [Using Echoed without OpenTelemetry](#Using-Echoed-without-OpenTelemetry)
 * [Configuration](#Configuration)
@@ -30,17 +30,17 @@ Echoed enhances Integration testing, aka API testing with the following features
 * **Detect Propagation Leaks**: Uncover spans that don't propagate OpenTelemetry's context to their children.
 * **Validate Spans**: Validate span's fields, such as SQL or requests going outside.
 * **CI-Friendly**: Integrates with CI without relying on external services.
-* **IDE Debugging**: Debug your tests in your preferred IDE, leveraging Jest's built-in debugging capabilities.
-* **Code Compatibility**: No need to modify your existing Jest tests.
-* **Parallel Execution**: Boost by executing tests in parallel with Jest.
+* **IDE Debugging**: Debug your tests in your preferred IDE, leveraging TypeScript/JavaScript's built-in debugging capabilities.
+* **Code Compatibility**: No need to modify your existing tests.
+* **Parallel Execution**: Boost by executing tests in parallel.
 
 # How Echoed Works
 
-Echoed starts a local server to gather data through OpenTelemetry when Jest is launched.  
+Echoed starts a local server to gather data through OpenTelemetry when test is started.  
 Throughout the testing process, Echoed captures OpenTelemetry's traces and logs.  
 Once tests finish, Echoed generates an HTML report for the test.
 
-![how Echoed works](https://github.com/mrasu/echoed/raw/main/docs/img/howEchoedWorks.jpg)
+![How Echoed Works](https://github.com/mrasu/echoed/raw/main/docs/img/howEchoedWorks.png)
 
 # Screenshots
 
@@ -55,11 +55,11 @@ Explore the screenshots below to see how it looks:
 
 # Installation
 
-Echoed offers two installation methods, choose one that suits your needs:
+Echoed offers several installation methods depending on your needs:
 
-## Option 1. Create a New Directory with Example Tests
+## Option 1. Create From Template (Jest)
 
-1. Initialize a new directory using npm:
+1. Initialize a new directory using our template:
     ```bash
     mkdir my_test_directory && cd my_test_directory
     npm create echoed@latest
@@ -77,55 +77,20 @@ Echoed offers two installation methods, choose one that suits your needs:
     rm -rf ./example
     ```
 
-## Option 2. Integrate with Existing Tests
+## Other Options
 
-1. Install package:
-    ```bash
-    npm install echoed
-    ```
-2. Update Jest configuration for Echoed  
-    Modify your `jest.config.js` to include Echoed in `testEnvironment` and `reporters`:
-    ```js
-    module.exports = {
-      // ... other configurations
-      testEnvironment: "echoed/jest/nodeEnvironment",
-      reporters: [
-        "default",
-        "echoed/jest/reporter"
-      ],
-    };
-    ```
-3. Create `.echoed.yml`.  
-    To integrate Echoed, create a configuration file named `.echoed.yml`.  
-    The minimal required option is `output`, specifying where to write the result. Refer to the [Configuration](#Configuration) section for other options.  
-    
-    For example:
-    ```yml
-    output: "report/result.html"
-    ```
-4. Update your OpenTelemetry endpoint to send data to Echoed.  
-    If you are using the OpenTelemetry Collector, modify its settings as shown below:
-    ```yml
-    exporters:
-      otlphttp/local:
-        endpoint: http://host.docker.internal:3000 # Default port of Echoed is 3000
-    
-    service:
-      pipelines:
-        traces:
-          exporters: [otlphttp/local]
-        logs:
-          exporters: [otlphttp/local]
-    ```
+Refer to the following documents for other installation methods:
+* [Jest](./docs/installation.md#jest)
+* [Playwright](./docs/installation.md#playwright)
 
 # How to Use
 
-## YAML
+## Jest
+
+### YAML
 
 You can write tests using YAML, and Echoed will convert them into Jest tests.  
 ![Compilation flow](https://github.com/mrasu/echoed/raw/main/docs/img/scenarioYamlCompile.jpg)
-
-### Create Observable Tests
 
 The YAML below makes a request to `http://localhost:8080/api/cart` and validates the response.
 
@@ -144,34 +109,11 @@ scenarios:
           - expect(_.jsonBody.id).toBe(productId)
 ```
 
-To execute the test, use the command `npx echoed compile` to transform the YAML into TypeScript, and then run Jest
-
-### Configuration
-
-To configure runners and adjust other options, include `scenario` block in the `.echoed.yml` file, like below:
-
-```yaml
-scenario:
-  compile:
-    env:
-      BASE_ENDPOINT: http://localhost:8080
-    plugin:
-      runner:
-        - name: fetch
-          module: echoed/scenario/gen/jest/runner
-          option:
-            baseEndpoint: ${_env.BASE_ENDPOINT}/api
-            headers:
-              content-type: application/json
-```
-
 For more details, refer to the [documentation](./docs/yamlScenario.md).  
 
-## TypeScript
+### Make Tests Observable
 
-You can write tests in TypeScript too.
-
-### Make Existing Tests Observable
+You can write Jest tests in TypeScript too.
 
 To generate an HTML report visualizing API traces, no additional code is needed.  
 Simply write your Jest tests as usual.
@@ -202,15 +144,6 @@ describe("Awesome test", () => {
 
     const span = await waitForSpan(response, {
       name: "oteldemo.ProductCatalogService/ListProducts",
-      resource: {
-        attributes: {
-          "service.name": "productcatalogservice",
-        },
-      },
-      attributes: {
-        "app.products.count": gte(5),
-        "rpc.system": /grpc/,
-      }
     });
     
     const productsCount = span.attributes.find(attr => attr.key === "app.products.count");
@@ -218,46 +151,60 @@ describe("Awesome test", () => {
   });
 });
 ```
-The code above waits for a span that satisfies the following specified conditions and then compares it using the `expect` statement:
-* `name` is `oteldemo.ProductCatalogService/ListProducts`
-* `service.name` in resource is `productcatalogservice`
-* `app.products.count` attribute is greater than or equal to `5`
-* `rpc.system` attribute matches `/grpc/`
+The code above waits for a span and compares it using the `expect` statement
 
-### Test SQL
+### Other Examples
 
-You can use the `waitForSpan` function to test executed SQL too.
+For more examples, refer to [documentation](./docs/howToUse.md#jest).
+
+## Playwright
+
+You can write Playwright tests in TypeScript too.
+
+### Make Tests Observable
+
+To generate an HTML report visualizing API traces, no additional code is needed.  
+Simply write your Playwright tests as usual.
 
 ```ts
-describe("Awesome test", () => {
-  it("should create an OpenTelemetry span", async () => {
-    const response = await fetch(`http://localhost:8080/api/products`, {
-      method: "POST",
-      body: JSON.stringify({
-          name: "Awesome Product",
-          price: 100,
-      }),
-    });
-    expect(response.status).toBe(200);
+test("opens home page", async ({ page }) => {
+  await page.goto("http://localhost:8080/");
+  await expect(page).toHaveTitle("OTel demo");
 
-    const span = await waitForSpan(response, {
-      name: "oteldemo.ProductCatalogService/CreateProducts",
-      resource: {
-        attributes: {
-          "service.name": "productcatalogservice",
-        },
-      },
-      attributes: {
-        "db.system": "postgresql",
-        "db.statement": /INSERT INTO products +/,
-      }
-    });
-    
-    const query = span.attributes.find(attr => attr.key === "db.statement");
-    expect(query?.value?.stringValue).toBe("INSERT INTO products (name, price) VALUES ('Awesome Product', 100)");
-  });
+  const productList = page.locator("[data-cy=product-card]");
+  await expect(productList).toHaveCount(10);
 });
 ```
+
+The code above produces an HTML report illustrating traces when opening the home page(`http://localhost:8080`).
+
+### Test OpenTelemetry's Spans
+
+In addition to the HTML output, Echoed offers a method for testing OpenTelemetry spans.  
+Use the `waitForSpanCreatedIn` function to obtain a span that matches your needs.
+
+```ts
+test("creates an OpenTelemetry gRPC span", async ({ page }) => {
+  await page.goto("http://localhost:8080/");
+  await expect(page).toHaveTitle("OTel demo");
+
+  const span = await waitForSpanCreatedIn(
+    page.context(),
+    "http://localhost:8080/api/products",
+    { name: "oteldemo.ProductCatalogService/ListProducts" },
+  );
+  
+  const rpcSystem = span.attributes.find(
+    (attr) => attr.key === "app.products.count",
+  );
+  expect(rpcSystem?.value?.intValue).toBe(10);
+});
+```
+The code above waits for a span that links to the request to `http://localhost:8080/api/products` and compares it using the `expect` statement
+
+### Other Examples
+
+For more examples, refer to [documentation](./docs/howToUse.md#playwright).
 
 ## Analyze Coverage
 
@@ -282,7 +229,7 @@ services:
 
 While Echoed's primary feature is to troubleshoot or analyze tests by visualizing OpenTelemetry data, it can also be used to write Jest tests in YAML.  
 To add Echoed into existing tests for writing tests in YAML, simply create a `.echoed.yml` file for configuration.  
-In the "Installation" section, you may see `nodeEnvironment` and `reporter` is added in `jest.config.js`. However, because these configurations are to collect OpenTelemetry data, when you don't use OpenTelemetry, there's no need to modify it.
+In the "Installation" document, you may see `nodeEnvironment` and `reporter` is added in `jest.config.js`. However, because these configurations are to collect OpenTelemetry data, when you don't use OpenTelemetry, there's no need to modify it.
 
 Alternatively, if you wish to create example tests without OpenTelemetry, you can do so using the following commands:
 ```bash

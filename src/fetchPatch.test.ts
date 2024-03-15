@@ -1,6 +1,7 @@
 import { patchFetch } from "@/fetchPatch";
-import { IFileLogger } from "@/fileLog/iFileLogger";
 import { Logger } from "@/logger";
+import { MockFileLogger } from "@/testUtil/fileLog/mockFileLogger";
+import { DummyFetcher } from "@/testUtil/global/dummyFetcher";
 import type { Global } from "@jest/types";
 
 beforeEach(() => {
@@ -11,30 +12,6 @@ afterEach(() => {
   Logger.setEnable(true);
 });
 
-class DummyLogger implements IFileLogger {
-  texts: string[] = [];
-  async appendFileLine(text: string): Promise<void> {
-    this.texts.push(text);
-
-    return Promise.resolve();
-  }
-}
-
-class DummyFetcher {
-  fetchArguments: [RequestInfo | URL, RequestInit?][] = [];
-
-  buildFetch(): (
-    input: RequestInfo | URL,
-    init?: RequestInit,
-  ) => Promise<Response> {
-    return async (input: RequestInfo | URL, init?: RequestInit) => {
-      this.fetchArguments.push([input, init]);
-      const response = new Response(JSON.stringify({ status: 200 }));
-      return Promise.resolve(response);
-    };
-  }
-}
-
 describe("patchFetch", () => {
   it("should patch fetch", async () => {
     const fetcher = new DummyFetcher();
@@ -42,7 +19,7 @@ describe("patchFetch", () => {
       fetch: fetcher.buildFetch(),
     } as Global.Global;
 
-    const logger = new DummyLogger();
+    const logger = new MockFileLogger();
     patchFetch(logger, "/path/to/example.test.js", globalContainer);
 
     const requestUrl = "https://localhost:3000/api/v1/cart";

@@ -54,14 +54,25 @@
               <Text>Response</Text>
               <DataTable style="width: 100%">
                 <Body>
-                  <Row>
-                    <Cell style="width: 100px">Status</Cell>
-                    <Cell>{traceFetch.response.status}</Cell>
-                  </Row>
-                  <Row>
-                    <Cell>Body</Cell>
-                    <Cell>{traceFetch.response.body}</Cell>
-                  </Row>
+                  {#if "failed" in traceFetch.response}
+                    <Row>
+                      <Cell style="width: 100px">Status</Cell>
+                      <Cell>Failed</Cell>
+                    </Row>
+                    <Row>
+                      <Cell style="width: 100px">Reason</Cell>
+                      <Cell>{traceFetch.response.reason}</Cell>
+                    </Row>
+                  {:else}
+                    <Row>
+                      <Cell style="width: 100px">Status</Cell>
+                      <Cell>{traceFetch.response.status}</Cell>
+                    </Row>
+                    <Row>
+                      <Cell>Body</Cell>
+                      <Cell>{traceFetch.response.body}</Cell>
+                    </Row>
+                  {/if}
                 </Body>
               </DataTable>
             </Content>

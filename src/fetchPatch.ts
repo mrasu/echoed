@@ -1,5 +1,6 @@
 import { IFileLogger } from "@/fileLog/iFileLogger";
-import { buildTraceLoggingFetch } from "@/traceLoggingFetch";
+import { TestActionLogger } from "@/fileLog/testActionLogger";
+import { FetchRunner } from "@/integration/jest/internal/fetchRunner";
 import type { Global } from "@jest/types";
 
 let originalFetch: (
@@ -12,11 +13,15 @@ export function patchFetch(
   testPath: string,
   global: Global.Global,
 ): void {
-  const logFileFn = async (text: string): Promise<void> => {
-    await logger.appendFileLine(text);
-  };
+  const testActionLogger = new TestActionLogger(logger);
 
-  const customFetch = buildTraceLoggingFetch(testPath, global.fetch, logFileFn);
+  const fetchRunner = new FetchRunner(testActionLogger, global.fetch, testPath);
+  const customFetch = async (
+    input: Request | URL,
+    init?: RequestInit,
+  ): Promise<Response> => {
+    return fetchRunner.run(input, init);
+  };
   originalFetch = global.fetch;
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment

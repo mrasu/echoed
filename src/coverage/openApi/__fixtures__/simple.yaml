@@ -1,0 +1,25 @@
+openapi: 3.0.3
+info:
+  title: FrontendService API
+  version: 0.0.1
+servers:
+  - url: "http://localhost:8080/api"
+    description: Local server
+paths:
+  /products:
+    get:
+      responses:
+        "200":
+          description: A JSON array of products
+  /products/{productId}:
+    get:
+      summary: Get a product by ID
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: A JSON object of a product
