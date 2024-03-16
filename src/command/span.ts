@@ -2,9 +2,7 @@ import { waitForSpanForTraceId } from "@/command/bridge/span";
 import { Compare } from "@/command/compare";
 import { Span } from "@/command/spanType";
 import { EchoedFatalError } from "@/echoedFatalError";
-import { EventBus } from "@/eventBus/infra/eventBus";
-import { buildFsContainerForApp } from "@/fs/fsContainer";
-import { newBus } from "@/integration/playwright/internal/util/eventBus";
+import { getServerPortFromEnv } from "@/env";
 import { getTraceIdFromResponse } from "@/traceLoggingFetch";
 
 export type WaitOption = {
@@ -33,35 +31,12 @@ export async function waitForSpan(
     );
   }
 
-  let bus = globalThis.__ECHOED_BUS__;
-  let busStartedHere = false;
-  if (!bus) {
-    const busForPlaywright = createBusForPlaywright();
-
-    busStartedHere = true;
-    bus = busForPlaywright;
-    await bus.open();
+  const port = getServerPortFromEnv();
+  if (!port) {
+    throw new EchoedFatalError(
+      `No Echoed server found. When using Jest, not using reporter? When using Playwright, not using globalSetup?`,
+    );
   }
 
-  try {
-    return await waitForSpanForTraceId(bus, traceId, filter, options);
-  } finally {
-    if (busStartedHere) {
-      bus.close();
-    }
-  }
-}
-
-function createBusForPlaywright(): EventBus {
-  const fsContainer = buildFsContainerForApp();
-  try {
-    return newBus(fsContainer, true);
-  } catch (e) {
-    if (e instanceof EchoedFatalError) {
-      throw new EchoedFatalError(
-        `No bus for Echoed. When using Jest, not using reporter? When using Playwright, ${e.origMsg}`,
-      );
-    }
-    throw e;
-  }
+  return waitForSpanForTraceId(port, traceId, filter, options);
 }

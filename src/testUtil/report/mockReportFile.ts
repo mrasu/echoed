@@ -12,6 +12,6 @@ export class MockReportFile implements IReportFile {
   ): Promise<IFile> {
     this.testResult = testResult;
 
-    return Promise.resolve(new MockFile(true));
+    return Promise.resolve(new MockFile());
   }
 }

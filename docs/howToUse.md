@@ -56,7 +56,7 @@ scenario:
               content-type: application/json
 ```
 
-For more details, refer to the [documentation](/docs/yamlScenario.md).  
+For more details, refer to the [YAML documentation](/docs/yamlScenario.md).  
 
 ## TypeScript
 

@@ -1,7 +1,5 @@
-import { IFileWatcher } from "@/fs/IFileWatcher";
 import { LocalDirectory } from "@/fs/localDirectory";
 import { LocalFile } from "@/fs/localFile";
-import { waitUntilCalled } from "@/testUtil/async";
 import fs from "fs";
 import os from "os";
 import path from "path";
@@ -81,23 +79,6 @@ describe("LocalFile", () => {
       it("should return undefined", () => {
         expect(tmpFile.statSync()).toBe(undefined);
       });
-    });
-  });
-
-  describe("startWatching", () => {
-    let watcher: IFileWatcher | undefined;
-    afterEach(() => {
-      watcher?.close();
-    });
-
-    it("should return started watcher", async () => {
-      const callback = jest.fn();
-      watcher = await tmpFile.startWatching(callback);
-
-      await fs.promises.writeFile(tmpFile.path, "test text");
-
-      await waitUntilCalled(callback);
-      expect(callback.mock.calls).toEqual([["test text"]]);
     });
   });
 

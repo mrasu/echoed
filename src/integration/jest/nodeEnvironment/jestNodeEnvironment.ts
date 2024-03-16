@@ -27,11 +27,9 @@ export class JestNodeEnvironment extends NodeEnvironment {
       );
     }
 
-    const workerID = process.env["JEST_WORKER_ID"];
-
     const fsContainer = buildFsContainerForApp();
     const tmpDir = fsContainer.newDirectory(tmpDirPath);
-    await this.env.setup(this.global, tmpDir, workerID!);
+    this.env.setup(this.global, tmpDir);
   }
 
   override async teardown(): Promise<void> {

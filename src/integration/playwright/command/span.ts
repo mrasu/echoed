@@ -1,11 +1,10 @@
-import { waitForSpanForTraceId as bridgeWaitForSpanForTraceId } from "@/command/bridge/span";
+import { waitForSpanForTraceId as bridgeWaitForSpanForTraceId2 } from "@/command/bridge/span";
 import { SpanFilterOption, WaitOption } from "@/command/span";
 import { Span } from "@/command/spanType";
 import { EchoedFatalError } from "@/echoedFatalError";
-import { buildFsContainerForApp } from "@/fs/fsContainer";
+import { getServerPortFromEnv } from "@/env";
 import { getTraceIdFromAPIResponse } from "@/integration/playwright/internal/util/apiResponse";
 import { getLastTraceIdFromContext } from "@/integration/playwright/internal/util/browserContext";
-import { newBus } from "@/integration/playwright/internal/util/eventBus";
 import { Base64String } from "@/type/base64String";
 import { APIResponse, BrowserContext } from "@playwright/test";
 
@@ -45,18 +44,19 @@ async function waitForSpanForTraceId(
   filter: SpanFilterOption,
   options?: WaitOption,
 ): Promise<Span> {
-  const fsContainer = buildFsContainerForApp();
-  const bus = newBus(fsContainer, false);
+  const port = getServerPortFromEnv();
+  if (!port) {
+    throw new EchoedFatalError(
+      `No Echoed server found. not using globalSetup?`,
+    );
+  }
 
-  await bus.open();
-  const span = await bridgeWaitForSpanForTraceId(
-    bus,
+  const span = await bridgeWaitForSpanForTraceId2(
+    port,
     traceId,
     filter,
     options,
-  ).finally(() => {
-    bus.close();
-  });
+  );
 
   return span;
 }

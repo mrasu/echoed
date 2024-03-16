@@ -15,11 +15,7 @@ export class MockDirectory implements IDirectory {
   }
 
   newFile(filename: string): MockFile {
-    return new MockFile(
-      true,
-      path.join(this.path, filename),
-      this.fileContents,
-    );
+    return new MockFile(path.join(this.path, filename), this.fileContents);
   }
 
   resolve(): string {

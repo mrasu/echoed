@@ -2,7 +2,6 @@ import { EchoedFatalError } from "@/echoedFatalError";
 import { FileLogger } from "@/fileLog/fileLogger";
 import { TestActionLogger } from "@/fileLog/testActionLogger";
 import { FileSpace } from "@/fileSpace/fileSpace";
-import { setBusIdToGlobalThis } from "@/global";
 import { ApiRequestProxyFetchRunner } from "@/integration/playwright/internal/hook/apiRequestProxyFetchRunner";
 import { GlobalFetchRunner } from "@/integration/playwright/internal/hook/globalFetchRunner";
 import { RouteFetchRunner } from "@/integration/playwright/internal/hook/routeFetchRunner";
@@ -31,8 +30,6 @@ export class Hook {
     testInfo: TestInfo,
   ): () => void {
     const testActionLogger = this.mustGetTestActionLogger();
-
-    setBusIdToGlobalThis(testInfo.parallelIndex.toString());
 
     const playwrightCleanup = this.patchPlaywright(
       testActionLogger,

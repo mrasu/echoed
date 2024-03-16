@@ -17,7 +17,7 @@ export const buildMockFsContainer = (): FsContainer & {
       return new MockDirectory(dir, fileContents);
     },
     newFile: (filepath: string): IFile => {
-      return new MockFile(true, filepath, fileContents);
+      return new MockFile(filepath, fileContents);
     },
     fileContents: fileContents,
   };

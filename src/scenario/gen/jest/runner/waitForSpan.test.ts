@@ -1,61 +1,50 @@
-import { SpanBus, WantSpanEvent } from "@/eventBus/spanBus";
-import { opentelemetry } from "@/generated/otelpbj";
+import { deleteServerPortFromEnv, setServerPortToEnv } from "@/env";
 import { waitForSpan } from "@/scenario/gen/jest/runner/waitForSpan";
-import { DummyBus } from "@/testUtil/eventBus/dummyBus";
+import { jsonWantSpanEventResponse } from "@/server/parameter";
 import { buildEchoedActContext } from "@/testUtil/scenario/context";
+import { buildJsonSpan } from "@/testUtil/type/jsonSpan";
 import { setTraceIdToResponse } from "@/traceLoggingFetch";
 import { Base64String } from "@/type/base64String";
-import { OtelSpan } from "@/type/otelSpan";
-import { sleep } from "@/util/async";
+import { toBase64 } from "@/util/byte";
+import fetchMock from "jest-fetch-mock";
 
 describe("waitForSpan", () => {
-  const span = new OtelSpan(
-    {
-      traceId: Uint8Array.from([1, 2, 3]),
-      spanId: Uint8Array.from([11, 12, 13]),
-      parentSpanId: Uint8Array.from([21, 22, 23]),
-      attributes: [
-        {
-          key: "dummyAttr",
-          value: { stringValue: "dummy-value" },
-        },
-      ],
-    },
-    new opentelemetry.proto.resource.v1.Resource({
+  const span = buildJsonSpan({
+    traceId: toBase64(Uint8Array.from([1, 2, 3])).base64String,
+    spanId: toBase64(Uint8Array.from([11, 12, 13])).base64String,
+    parentSpanId: toBase64(Uint8Array.from([21, 22, 23])).base64String,
+    attributes: [
+      {
+        key: "dummyAttr",
+        value: { stringValue: "dummy-value" },
+      },
+    ],
+    resource: {
       attributes: [
         {
           key: "dummyResourceAttr",
           value: { stringValue: "dummy-resource-value" },
         },
       ],
-    }),
-  );
+    },
+  });
 
-  beforeEach(async () => {
-    const bus = new DummyBus();
-    await bus.open();
+  beforeEach(() => {
+    setServerPortToEnv(1);
+    fetchMock.enableMocks();
 
-    bus.on("wantSpan", async (e: unknown) => {
-      // send back receivedSpan after some delay
-      void (async (): Promise<void> => {
-        await sleep(10);
-        const event = e as WantSpanEvent;
-        await new SpanBus(bus).emitReceiveSpanEvent(
-          event.wantId,
-          new Base64String(event.base64TraceId),
-          span,
-        );
-      })();
-
-      return Promise.resolve();
-    });
-
-    globalThis.__ECHOED_BUS__ = bus;
+    const response: jsonWantSpanEventResponse = {
+      span: span,
+    };
+    fetchMock.doMockIf(
+      "http://localhost:1/events/wantSpan",
+      JSON.stringify(response),
+    );
   });
 
   afterEach(() => {
-    globalThis.__ECHOED_BUS__?.close();
-    delete globalThis.__ECHOED_BUS__;
+    fetchMock.disableMocks();
+    deleteServerPortFromEnv();
   });
 
   describe("call", () => {

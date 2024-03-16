@@ -1,6 +1,4 @@
 import { IFile } from "@/fs/IFile";
-import { IFileWatcher } from "@/fs/IFileWatcher";
-import { FileWatcher } from "@/fs/fileWatcher";
 import { IDirectory } from "@/fs/iDirectory";
 import { LocalDirectory } from "@/fs/localDirectory";
 import fs from "fs";
@@ -36,17 +34,6 @@ export class LocalFile implements IFile {
       }
       throw e;
     }
-  }
-
-  async startWatching(
-    callback: (text: string) => Promise<void>,
-  ): Promise<IFileWatcher> {
-    const watcher = new FileWatcher(this);
-    await watcher.open(async (text) => {
-      await callback(text);
-    });
-
-    return watcher;
   }
 
   async ensureDir(): Promise<void> {

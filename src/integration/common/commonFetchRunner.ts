@@ -1,4 +1,5 @@
 import { FetchRequestInfo } from "@/fileLog/testActionLogger";
+import { ECHOED_USER_AGENT, USER_AGENT_HEADER_KEY } from "@/server/request";
 import { setTraceIdToResponse } from "@/traceLoggingFetch";
 import { Base64String } from "@/type/base64String";
 import { readBodyInit, readStreamFully } from "@/util/stream";
@@ -20,7 +21,11 @@ export class CommonFetchRunner {
     ) => Promise<void>,
   ): Promise<Response> {
     const { traceparent, traceId } = generateTraceparent();
-    await onStart(traceId);
+
+    const isEchoedRequest = this.hasEchoedUserAgent(init?.headers);
+    if (!isEchoedRequest) {
+      await onStart(traceId);
+    }
 
     const [response, requestInfo] = await this.callAndExtractFromFetch(
       traceparent,
@@ -29,7 +34,9 @@ export class CommonFetchRunner {
     );
     setTraceIdToResponse(response, traceId);
 
-    await onFinished(traceId, requestInfo, response);
+    if (!isEchoedRequest) {
+      await onFinished(traceId, requestInfo, response);
+    }
 
     return response;
   }
@@ -72,5 +79,18 @@ export class CommonFetchRunner {
 
     const response = await this.originalFetch(input, clonedInit);
     return [response, requestInfo];
+  }
+
+  private hasEchoedUserAgent(headers: HeadersInit | undefined): boolean {
+    if (!headers) return false;
+    if (typeof headers !== "object") return false;
+
+    for (const [key, value] of Object.entries(headers)) {
+      if (key === USER_AGENT_HEADER_KEY && value === ECHOED_USER_AGENT) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }

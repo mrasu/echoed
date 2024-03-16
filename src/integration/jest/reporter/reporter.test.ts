@@ -35,7 +35,7 @@ describe("Reporter", () => {
 
   const buildReporter = (): Reporter => {
     const config = new Config(
-      new MockFile(true),
+      new MockFile(),
       13333,
       0,
       false,

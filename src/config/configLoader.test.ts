@@ -29,7 +29,7 @@ describe("ConfigLoader", () => {
 
       const buildExpectedConfig = (serviceConfigs: ServiceConfig[]): Config => {
         return new Config(
-          new MockFile(true, "dummy"),
+          new MockFile("dummy"),
           3000,
           20,
           false,

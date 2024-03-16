@@ -7,7 +7,6 @@ import { Logger } from "@/logger";
 import { MockFile } from "@/testUtil/fs/mockFile";
 import { MockFileContents } from "@/testUtil/fs/mockFileContents";
 import { buildMockFsContainer } from "@/testUtil/fs/mockFsContainer";
-import { buildFullConfig } from "@/testUtil/playwright/fullConfig";
 
 beforeEach(() => {
   Logger.setEnable(false);
@@ -32,7 +31,7 @@ describe("SetupRunner", () => {
   describe("run", () => {
     const createSetupRunner = (fsContainer: FsContainer): SetupRunner => {
       const echoedConfig = new Config(
-        new MockFile(true),
+        new MockFile(),
         13333,
         0,
         false,
@@ -49,8 +48,7 @@ describe("SetupRunner", () => {
         [],
         undefined,
       );
-      const playwrightConfig = buildFullConfig();
-      return new SetupRunner(fsContainer, echoedConfig, playwrightConfig);
+      return new SetupRunner(fsContainer, echoedConfig);
     };
 
     const getFilePathFromName = (

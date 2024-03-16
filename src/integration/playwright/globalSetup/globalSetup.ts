@@ -10,7 +10,7 @@ import path from "path";
 type TeardownFn = () => Promise<void>;
 
 export default async function globalSetup(
-  playwrightConfig: FullConfig,
+  _playwrightConfig: FullConfig,
 ): Promise<TeardownFn> {
   const fsContainer = buildFsContainerForApp();
   const configFilepath = path.join(process.cwd(), ECHOED_CONFIG_FILE_NAME);
@@ -19,7 +19,7 @@ export default async function globalSetup(
   try {
     const echoedConfig = Config.load(fsContainer, configFile);
 
-    const runner = new SetupRunner(fsContainer, echoedConfig, playwrightConfig);
+    const runner = new SetupRunner(fsContainer, echoedConfig);
     return await runner.run();
   } catch (e) {
     throwError(e);

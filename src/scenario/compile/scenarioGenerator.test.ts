@@ -24,7 +24,7 @@ describe("ScenarioGenerator", () => {
       const scenarioGenerator = new ScenarioGenerator(etaInstance, config);
       const scenarioBook = new ScenarioBook([], [], new Map(), new Hook(), 0);
       const fileContents = new MockFileContents();
-      const outFile = new MockFile(true, "outFile", fileContents);
+      const outFile = new MockFile("outFile", fileContents);
 
       await scenarioGenerator.generate(outFile, scenarioBook);
 

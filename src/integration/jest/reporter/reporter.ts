@@ -4,9 +4,8 @@ import { OpenApiCoverageCollector } from "@/coverage/openApi/openApiCoverageColl
 import { ProtoCoverageCollector } from "@/coverage/proto/protoCoverageCollector";
 import { ServiceCoverageCollector } from "@/coverage/serviceCoverageCollector";
 import { EchoedFatalError } from "@/echoedFatalError";
-import { setTmpDirToEnv } from "@/env";
+import { setServerPortToEnv, setTmpDirToEnv } from "@/env";
 import { FileSpace } from "@/fileSpace/fileSpace";
-import { IFile } from "@/fs/IFile";
 import { FsContainer } from "@/fs/fsContainer";
 import {
   logFileCreated,
@@ -15,7 +14,7 @@ import {
 import { TestCaseStartInfo } from "@/integration/jest/reporter/testCase";
 import { Logger } from "@/logger";
 import { IReportFile } from "@/report/iReportFile";
-import { Server } from "@/server";
+import { Server } from "@/server/server";
 import { TestCase } from "@/testCase";
 import { TestResult } from "@/testResult";
 import { omitDirPath } from "@/util/file";
@@ -75,6 +74,7 @@ export class Reporter {
 
     const tmpdir = fsContainer.mkdtempSync(path.join(os.tmpdir(), "echoed-"));
     setTmpDirToEnv(tmpdir.path);
+    setServerPortToEnv(config.serverPort);
 
     this.fileSpace = new FileSpace(tmpdir);
     this.fileSpace.ensureDirectoryExistence();
@@ -91,12 +91,7 @@ export class Reporter {
 
     Logger.log("Starting server...");
 
-    const busFiles: IFile[] = [];
-    for (let i = 0; i < this.maxWorkers; i++) {
-      busFiles.push(this.fileSpace.createBusFile((i + 1).toString()));
-    }
-
-    this.server = await Server.start(this.config.serverPort, busFiles);
+    this.server = await Server.start(this.config.serverPort);
   }
 
   private async prepareCoverageCollector(): Promise<void> {

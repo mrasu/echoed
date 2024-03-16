@@ -1,4 +1,3 @@
-import { IFileWatcher } from "@/fs/IFileWatcher";
 import { IDirectory } from "@/fs/iDirectory";
 import fs from "fs";
 
@@ -12,10 +11,6 @@ export interface IFile {
 
   read(): Promise<string>;
   readSync(): string;
-
-  startWatching(
-    callback: (text: string) => Promise<void>,
-  ): Promise<IFileWatcher>;
 
   ensureDir(): Promise<void>;
 

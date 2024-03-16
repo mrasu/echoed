@@ -1,19 +1,22 @@
 import { waitForSpan } from "@/command/span";
 import { EchoedFatalError } from "@/echoedFatalError";
-import { deleteTmpDirFromEnv, setTmpDirToEnv } from "@/env";
-import { WantSpanEvent } from "@/eventBus/spanBus";
-import { deleteBusIdFromGlobalThis, setBusIdToGlobalThis } from "@/global";
-import { DummyBus } from "@/testUtil/eventBus/dummyBus";
+import { deleteServerPortFromEnv, setServerPortToEnv } from "@/env";
+import { jsonWantSpanEventResponse } from "@/server/parameter";
+import { buildJsonSpan } from "@/testUtil/type/jsonSpan";
 import { setTraceIdToResponse } from "@/traceLoggingFetch";
 import { Base64String } from "@/type/base64String";
-import fs from "fs";
-import os from "os";
-import path from "path";
+import fetchMock from "jest-fetch-mock";
 
 describe("waitForSpan", () => {
   let res: Response;
   beforeEach(() => {
     res = {} as Response;
+
+    fetchMock.enableMocks();
+  });
+
+  afterEach(() => {
+    fetchMock.disableMocks();
   });
 
   describe("when no traceId is set to response", () => {
@@ -35,7 +38,7 @@ describe("waitForSpan", () => {
       setTraceIdToResponse(res, new Base64String("dummy-trace-id"));
     });
 
-    describe("when bus is not set anywhere", () => {
+    describe("when server-port env is not set anywhere", () => {
       it("should raise error", async () => {
         await expect(async () => {
           await waitForSpan(
@@ -49,57 +52,32 @@ describe("waitForSpan", () => {
       });
     });
 
-    describe("when bus is set in globalThis", () => {
-      let bus: DummyBus<WantSpanEvent>;
-      beforeEach(async () => {
-        bus = new DummyBus();
-        await bus.open();
-        globalThis.__ECHOED_BUS__ = bus;
+    describe("when server-port env is set", () => {
+      beforeEach(() => {
+        setServerPortToEnv(1);
+
+        const response: jsonWantSpanEventResponse = {
+          span: buildJsonSpan(),
+        };
+        fetchMock.doMockIf(
+          "http://localhost:1/events/wantSpan",
+          JSON.stringify(response),
+        );
       });
 
       afterEach(() => {
-        bus.close();
-        delete globalThis.__ECHOED_BUS__;
+        deleteServerPortFromEnv();
       });
 
-      it("should emit data to Bus", async () => {
-        await expect(async () => {
-          await waitForSpan(
-            res,
-            {
-              name: "dummy/name",
-            },
-            { timeoutMs: 0 },
-          );
-        }).rejects.toThrow("timeout");
-      });
-    });
-
-    describe("when busId is set in environment variable", () => {
-      let tmpdirPath: string;
-
-      beforeEach(() => {
-        tmpdirPath = fs.mkdtempSync(path.join(os.tmpdir(), "echoed-"));
-        setBusIdToGlobalThis("busId");
-        setTmpDirToEnv(tmpdirPath);
-      });
-
-      afterEach(async () => {
-        deleteBusIdFromGlobalThis();
-        deleteTmpDirFromEnv();
-        await fs.promises.rm(tmpdirPath, { recursive: true, force: true });
-      });
-
-      it("should emit data to Bus", async () => {
-        await expect(async () => {
-          await waitForSpan(
-            res,
-            {
-              name: "dummy/name",
-            },
-            { timeoutMs: 0 },
-          );
-        }).rejects.toThrow("timeout");
+      it("should emit data to server", async () => {
+        const span = await waitForSpan(
+          res,
+          {
+            name: "dummy/name",
+          },
+          { timeoutMs: 0 },
+        );
+        expect(span.name).toBe("testSpan");
       });
     });
   });

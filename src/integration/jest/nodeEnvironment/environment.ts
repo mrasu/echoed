@@ -3,26 +3,17 @@ import { FileLogger } from "@/fileLog/fileLogger";
 import { IFileLogger } from "@/fileLog/iFileLogger";
 import { FileSpace } from "@/fileSpace/fileSpace";
 import { IDirectory } from "@/fs/iDirectory";
-import { closeBus, openBus } from "@/openBus";
 import type { Global } from "@jest/types";
 
 export class Environment {
   constructor(public testPath: string) {}
 
-  async setup(
-    global: Global.Global,
-    tmpDir: IDirectory,
-    workerID: string,
-  ): Promise<void> {
+  setup(global: Global.Global, tmpDir: IDirectory): void {
     const fileSpace = new FileSpace(tmpDir);
     this.patchFetch(fileSpace, global);
-
-    const busFile = fileSpace.createBusFile(workerID);
-    await openBus(busFile, global);
   }
 
   teardown(global: Global.Global): void {
-    closeBus(global);
     restoreFetch(global);
   }
 

@@ -1,8 +1,10 @@
 import { Comparable } from "@/comparision/comparable";
-import { SpanBus, SpanFilterOption, WantSpanEvent } from "@/eventBus/spanBus";
+import { WantSpanEvent } from "@/eventBus/parameter";
+import { SpanBus } from "@/eventBus/spanBus";
 import { opentelemetry } from "@/generated/otelpbj";
 import { Base64String } from "@/type/base64String";
 import { OtelSpan } from "@/type/otelSpan";
+import { SpanFilterOption } from "@/type/spanFilterOption";
 import { toBase64 } from "@/util/byte";
 
 export class WantSpanRequest {
@@ -20,7 +22,7 @@ export class WantSpanRequest {
     await this.respond(span);
   }
 
-  private async respond(span: OtelSpan): Promise<void> {
+  async respond(span: OtelSpan): Promise<void> {
     await this.bus.emitReceiveSpanEvent(this.wantId, this.traceId, span);
   }
 
@@ -36,7 +38,7 @@ export class WantSpanRequest {
     return this.event.filter;
   }
 
-  private matches(span: OtelSpan): boolean {
+  matches(span: OtelSpan): boolean {
     if (!this.traceId.equals(toBase64(span.traceId))) return false;
 
     if (this.filter.name) {

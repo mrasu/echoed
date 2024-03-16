@@ -1,9 +1,13 @@
-import { FileBus } from "@/eventBus/infra/fileBus";
+import { MemoryBus } from "@/eventBus/infra/memoryBus";
 import { SpanBus } from "@/eventBus/spanBus";
 import { WantSpanRequest } from "@/eventBus/wantSpanRequest";
-import { IFile } from "@/fs/IFile";
 import opentelemetry from "@/generated/otelpbj";
 import { Logger } from "@/logger";
+import {
+  jsonWantSpanEventResponse,
+  restoreWantSpanEventRequestParam,
+} from "@/server/parameter";
+import { Base64String } from "@/type/base64String";
 import { OtelLogRecord } from "@/type/otelLogRecord";
 import { OtelSpan } from "@/type/otelSpan";
 import { sleep } from "@/util/async";
@@ -21,39 +25,30 @@ export class Server {
   private wantSpanRequests: Map<string, WantSpanRequest[]> = new Map();
   private mutex = new Mutex();
 
-  private buses?: FileBus[];
+  private bus = new MemoryBus();
+  private spanBus = new SpanBus(this.bus);
   private httpServer?: http.Server;
   private capturedSpans: Map<string, OtelSpan[]> = new Map();
   private capturedLogs: Map<string, OtelLogRecord[]> = new Map();
 
-  static async start(port: number, busFiles: IFile[]): Promise<Server> {
+  static async start(port: number): Promise<Server> {
     const server = new Server();
-    await server.start(port, busFiles);
+    await server.start(port);
     return server;
   }
 
-  private async start(port: number, busFiles: IFile[]): Promise<void> {
+  private async start(port: number): Promise<void> {
     const server = await this.startHttpServer(port);
-    const buses = await this.startBus(busFiles);
+    this.startBus();
 
     this.httpServer = server;
-    this.buses = buses;
   }
 
-  private async startBus(busFiles: IFile[]): Promise<FileBus[]> {
-    const buses: FileBus[] = busFiles.map((file) => new FileBus(file));
-
-    for (const bus of buses) {
-      await bus.open();
-
-      const spanBus = new SpanBus(bus);
-      spanBus.listenWantSpanEvent(async (data) => {
-        const request = new WantSpanRequest(spanBus, data);
-        await this.handleWantSpanRequest(request);
-      });
-    }
-
-    return buses;
+  private startBus(): void {
+    this.spanBus.listenWantSpanEvent(async (data) => {
+      const request = new WantSpanRequest(this.spanBus, data);
+      await this.handleWantSpanRequest(request);
+    });
   }
 
   private async handleWantSpanRequest(request: WantSpanRequest): Promise<void> {
@@ -77,6 +72,7 @@ export class Server {
   private async startHttpServer(port: number): Promise<http.Server> {
     const app = express();
 
+    app.use(express.json());
     app.use(bodyParser.raw({ inflate: true, limit: "100Mb", type: "*/*" }));
 
     app.get("/", (req, res) => {
@@ -96,6 +92,14 @@ export class Server {
       asyncHandler(async (req, res, _buf) => {
         await this.handleOtelLogs(req.body as Buffer);
         res.send("{}");
+      }),
+    );
+
+    app.post(
+      "/events/wantSpan",
+      asyncHandler(async (req, res) => {
+        const response = await this.handleWantSpanEvent(req.body as string);
+        res.send(JSON.stringify(response));
       }),
     );
 
@@ -159,9 +163,18 @@ export class Server {
       this.capturedSpans.get(traceId)?.push(span);
     });
 
-    const requests = this.wantSpanRequests.get(traceId);
-    requests?.forEach((request) => {
-      void request.respondIfMatch(span);
+    const requests = this.wantSpanRequests.get(traceId) ?? [];
+    const notMatchRequests = requests.filter((request) => {
+      if (request.matches(span)) {
+        void request.respond(span);
+        return false;
+      } else {
+        return true;
+      }
+    });
+
+    await this.mutex.runExclusive(() => {
+      this.wantSpanRequests.set(traceId, notMatchRequests);
     });
   }
 
@@ -176,6 +189,24 @@ export class Server {
       }
       this.capturedLogs.get(traceId)?.push(log);
     });
+  }
+
+  private async handleWantSpanEvent(
+    body: string,
+  ): Promise<jsonWantSpanEventResponse> {
+    const wantSpanEvent = restoreWantSpanEventRequestParam(JSON.parse(body));
+
+    const spanBus = new SpanBus(this.bus);
+    const response = await spanBus.requestWantSpan(
+      new Base64String(wantSpanEvent.base64TraceId),
+      wantSpanEvent.filter,
+      10000,
+    );
+    if ("error" in response) {
+      return response;
+    } else {
+      return { span: response };
+    }
   }
 
   private debugLogSpan(span: OtelSpan): void {
@@ -209,10 +240,6 @@ export class Server {
       this.httpServer?.close(() => {
         resolve(undefined);
       });
-    });
-
-    this.buses?.forEach((bus) => {
-      bus.close();
     });
   }
 }

@@ -4,7 +4,7 @@ import { ScenarioCompileConfig } from "@/config/scenarioCompileConfig";
 import { MockFile } from "@/testUtil/fs/mockFile";
 
 const DEFAULT_CONFIG = {
-  output: new MockFile(true),
+  output: new MockFile(),
   serverPort: 0,
   serverStopAfter: 0,
   debug: false,
