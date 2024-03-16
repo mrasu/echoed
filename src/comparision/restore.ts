@@ -8,7 +8,7 @@ import { JsonReg, Reg } from "@/comparision/reg";
 import { neverVisit } from "@/util/never";
 import { z } from "zod";
 
-const JsonComparable = z.discriminatedUnion("kind", [
+export const JsonComparable = z.discriminatedUnion("kind", [
   JsonEq,
   JsonGt,
   JsonGte,
@@ -17,16 +17,16 @@ const JsonComparable = z.discriminatedUnion("kind", [
   JsonReg,
 ]);
 
-type JsonComparable = z.infer<typeof JsonComparable>;
+export type JsonComparable = z.infer<typeof JsonComparable>;
 
 export function restoreComparables(
-  obj: Record<string, unknown> | undefined,
+  obj: Record<string, JsonComparable> | undefined,
 ): Record<string, Comparable> {
   if (!obj) return {};
 
   const ret: Record<string, Comparable> = {};
   for (const [key, value] of Object.entries(obj)) {
-    ret[key] = restoreComparable(JsonComparable.parse(value));
+    ret[key] = restoreComparable(value);
   }
 
   return ret;
@@ -55,10 +55,13 @@ function restoreComparableFromKind(obj: JsonComparable): Comparable {
   }
 }
 
-const JsonStringComparable = z.discriminatedUnion("kind", [JsonEq, JsonReg]);
+export const JsonStringComparable = z.discriminatedUnion("kind", [
+  JsonEq,
+  JsonReg,
+]);
+type JsonStringComparable = z.infer<typeof JsonStringComparable>;
 
-export function restoreStringComparable(orig: unknown): Reg | Eq {
-  const obj = JsonStringComparable.parse(orig);
+export function restoreStringComparable(obj: JsonStringComparable): Reg | Eq {
   switch (obj.kind) {
     case "eq":
       return Eq.fromJsonObj(obj);

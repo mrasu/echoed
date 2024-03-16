@@ -1,15 +1,15 @@
 import { EventBus } from "@/eventBus/infra/eventBus";
 import {
+  JsonReceiveSpanEvent,
+  JsonWantSpanEvent,
   ReceiveSpanEmitEvent,
   WantSpanEvent,
-  jsonReceiveSpanEvent,
-  jsonWantSpanEvent,
   restoreReceiveSpanEvent,
   restoreWantSpanEvent,
 } from "@/eventBus/parameter";
 import { Base64String } from "@/type/base64String";
 import { ErrorMessage } from "@/type/common";
-import { jsonSpan } from "@/type/jsonSpan";
+import { JsonSpan } from "@/type/jsonSpan";
 import { OtelSpan } from "@/type/otelSpan";
 import { SpanFilterOption } from "@/type/spanFilterOption";
 
@@ -21,7 +21,7 @@ export class SpanBus {
 
   listenWantSpanEvent(callback: (event: WantSpanEvent) => Promise<void>): void {
     this.bus.on(WANT_SPAN_EVENT_NAME, async (origData: unknown) => {
-      const data = origData as jsonWantSpanEvent;
+      const data = JsonWantSpanEvent.parse(origData);
       await callback(restoreWantSpanEvent(data));
     });
   }
@@ -30,7 +30,7 @@ export class SpanBus {
     traceId: Base64String,
     filter: SpanFilterOption,
     waitTimeoutMs: number,
-  ): Promise<jsonSpan | ErrorMessage> {
+  ): Promise<JsonSpan | ErrorMessage> {
     const wantId = crypto.randomUUID();
     await this.emitWantSpanEvent({
       base64TraceId: traceId.base64String,
@@ -42,7 +42,7 @@ export class SpanBus {
       RECEIVE_SPAN_EVENT_NAME,
       waitTimeoutMs,
       async (origData: unknown) => {
-        const data = origData as jsonReceiveSpanEvent;
+        const data = JsonReceiveSpanEvent.parse(origData);
         const event = restoreReceiveSpanEvent(data);
         if (
           event.wantId === wantId &&

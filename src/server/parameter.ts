@@ -1,11 +1,12 @@
 import { ErrorMessage } from "@/type/common";
-import { jsonSpan } from "@/type/jsonSpan";
+import { JsonSpan } from "@/type/jsonSpan";
 import { Span } from "@/type/span";
 import {
-  jsonSpanFilterOption,
+  JsonSpanFilterOption,
   restoreSpanFilterOption,
   SpanFilterOption,
 } from "@/type/spanFilterOption";
+import { z } from "zod";
 
 export type WantSpanEventRequestParam = {
   base64TraceId: string;
@@ -13,11 +14,15 @@ export type WantSpanEventRequestParam = {
   waitTimeoutMs: number;
 };
 
-type jsonWantSpanEventRequestParam = {
-  base64TraceId: string;
-  filter: jsonSpanFilterOption;
-  waitTimeoutMs: number;
-};
+export const JsonWantSpanEventRequestParam = z.strictObject({
+  base64TraceId: z.string(),
+  filter: JsonSpanFilterOption,
+  waitTimeoutMs: z.number(),
+});
+
+export type JsonWantSpanEventRequestParam = z.infer<
+  typeof JsonWantSpanEventRequestParam
+>;
 
 export type WantSpanEventResponse =
   | {
@@ -25,29 +30,29 @@ export type WantSpanEventResponse =
     }
   | ErrorMessage;
 
-export type jsonWantSpanEventResponse =
-  | {
-      span: jsonSpan;
-    }
-  | ErrorMessage;
+export const JsonWantSpanEventResponse = z.union([
+  z.strictObject({
+    span: JsonSpan,
+  }),
+  ErrorMessage,
+]);
+export type JsonWantSpanEventResponse = z.infer<
+  typeof JsonWantSpanEventResponse
+>;
 
 export function restoreWantSpanEventRequestParam(
-  json: unknown,
+  param: JsonWantSpanEventRequestParam,
 ): WantSpanEventRequestParam {
-  const data = json as jsonWantSpanEventRequestParam;
-
   return {
-    base64TraceId: data.base64TraceId,
-    filter: restoreSpanFilterOption(data.filter),
-    waitTimeoutMs: data.waitTimeoutMs,
+    base64TraceId: param.base64TraceId,
+    filter: restoreSpanFilterOption(param.filter),
+    waitTimeoutMs: param.waitTimeoutMs,
   };
 }
 
 export function restoreWantSpanEventResponse(
-  json: unknown,
+  data: JsonWantSpanEventResponse,
 ): WantSpanEventResponse {
-  const data = json as jsonWantSpanEventResponse;
-
   if ("error" in data) {
     return data;
   }

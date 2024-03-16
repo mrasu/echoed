@@ -1,6 +1,7 @@
 import { Span } from "@/command/spanType";
 import { EchoedFatalError } from "@/echoedFatalError";
 import {
+  JsonWantSpanEventResponse,
   restoreWantSpanEventResponse,
   WantSpanEventRequestParam,
 } from "@/server/parameter";
@@ -13,7 +14,7 @@ export async function requestWantSpanEvent(
   wantSpanEventRequest: WantSpanEventRequestParam,
 ): Promise<Span> {
   const response = await post(port, "/events/wantSpan", wantSpanEventRequest);
-  const jsonResponse = (await response.json()) as unknown;
+  const jsonResponse = JsonWantSpanEventResponse.parse(await response.json());
   const resp = restoreWantSpanEventResponse(jsonResponse);
 
   if ("error" in resp) {

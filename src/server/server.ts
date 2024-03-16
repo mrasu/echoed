@@ -4,7 +4,8 @@ import { WantSpanRequest } from "@/eventBus/wantSpanRequest";
 import opentelemetry from "@/generated/otelpbj";
 import { Logger } from "@/logger";
 import {
-  jsonWantSpanEventResponse,
+  JsonWantSpanEventRequestParam,
+  JsonWantSpanEventResponse,
   restoreWantSpanEventRequestParam,
 } from "@/server/parameter";
 import { Base64String } from "@/type/base64String";
@@ -193,8 +194,9 @@ export class Server {
 
   private async handleWantSpanEvent(
     body: string,
-  ): Promise<jsonWantSpanEventResponse> {
-    const wantSpanEvent = restoreWantSpanEventRequestParam(JSON.parse(body));
+  ): Promise<JsonWantSpanEventResponse> {
+    const param = JsonWantSpanEventRequestParam.parse(JSON.parse(body));
+    const wantSpanEvent = restoreWantSpanEventRequestParam(param);
 
     const spanBus = new SpanBus(this.bus);
     const response = await spanBus.requestWantSpan(

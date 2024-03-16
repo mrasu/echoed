@@ -1,10 +1,11 @@
-import { jsonSpan } from "@/type/jsonSpan";
+import { JsonSpan } from "@/type/jsonSpan";
 import { OtelSpan } from "@/type/otelSpan";
 import {
-  jsonSpanFilterOption,
+  JsonSpanFilterOption,
   restoreSpanFilterOption,
   SpanFilterOption,
 } from "@/type/spanFilterOption";
+import { z } from "zod";
 
 export type WantSpanEvent = {
   base64TraceId: string;
@@ -15,27 +16,29 @@ export type WantSpanEvent = {
 type ReceiveSpanEvent = {
   wantId: string;
   base64TraceId: string;
-  span: jsonSpan;
+  span: JsonSpan;
 };
 
 // Span of ReceiveSpanEvent can be OtelSpan because OtelSpan becomes ISpan after JSON.parse(JSON.stringify)
 export type ReceiveSpanEmitEvent = Omit<ReceiveSpanEvent, "span"> & {
-  span: jsonSpan | OtelSpan;
+  span: JsonSpan | OtelSpan;
 };
 
-export type jsonWantSpanEvent = {
-  base64TraceId: string;
-  filter: jsonSpanFilterOption;
-  wantId: string;
-};
+export const JsonWantSpanEvent = z.strictObject({
+  base64TraceId: z.string(),
+  filter: JsonSpanFilterOption,
+  wantId: z.string(),
+});
+export type JsonWantSpanEvent = z.infer<typeof JsonWantSpanEvent>;
 
-export type jsonReceiveSpanEvent = {
-  wantId: string;
-  base64TraceId: string;
-  span: jsonSpan;
-};
+export const JsonReceiveSpanEvent = z.strictObject({
+  wantId: z.string(),
+  base64TraceId: z.string(),
+  span: JsonSpan,
+});
+export type JsonReceiveSpanEvent = z.infer<typeof JsonReceiveSpanEvent>;
 
-export function restoreWantSpanEvent(data: jsonWantSpanEvent): WantSpanEvent {
+export function restoreWantSpanEvent(data: JsonWantSpanEvent): WantSpanEvent {
   return {
     base64TraceId: data.base64TraceId,
     filter: restoreSpanFilterOption(data.filter),
@@ -44,7 +47,7 @@ export function restoreWantSpanEvent(data: jsonWantSpanEvent): WantSpanEvent {
 }
 
 export function restoreReceiveSpanEvent(
-  data: jsonReceiveSpanEvent,
+  data: JsonReceiveSpanEvent,
 ): ReceiveSpanEvent {
   return {
     wantId: data.wantId,

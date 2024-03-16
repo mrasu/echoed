@@ -2,9 +2,11 @@ import { Comparable } from "@/comparision/comparable";
 import { Eq } from "@/comparision/eq";
 import { Reg } from "@/comparision/reg";
 import {
+  JsonStringComparable,
   restoreComparables,
   restoreStringComparable,
 } from "@/comparision/restore";
+import { z } from "zod";
 
 export type SpanFilterOption = {
   name?: Eq | Reg;
@@ -16,19 +18,21 @@ export type SpanFilterOption = {
   };
 };
 
-export type jsonSpanFilterOption = {
-  name?: unknown;
-  attributes: Record<string, unknown>;
-  resource: {
-    attributes: Record<string, unknown>;
-  };
-};
+export const JsonSpanFilterOption = z.strictObject({
+  name: JsonStringComparable.optional(),
+  attributes: z.record(z.string(), JsonStringComparable),
+  resource: z.strictObject({
+    attributes: z.record(z.string(), JsonStringComparable),
+  }),
+});
+
+export type JsonSpanFilterOption = z.infer<typeof JsonSpanFilterOption>;
 
 export function restoreSpanFilterOption(
-  data: jsonSpanFilterOption,
+  data: JsonSpanFilterOption,
 ): SpanFilterOption {
   return {
-    name: restoreStringComparable(data.name),
+    name: data.name ? restoreStringComparable(data.name) : undefined,
     attributes: restoreComparables(data.attributes),
     resource: {
       attributes: restoreComparables(data.resource?.attributes),

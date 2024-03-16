@@ -1,14 +1,14 @@
 import {
-  jsonAnyValue,
-  jsonArrayValue,
-  jsonEvent,
-  jsonInstrumentationScope,
-  jsonKeyValue,
-  jsonKeyValueList,
-  jsonLink,
-  jsonResource,
-  jsonSpan,
-  jsonStatus,
+  JsonAnyValue,
+  JsonArrayValue,
+  JsonEvent,
+  JsonInstrumentationScope,
+  JsonKeyValue,
+  JsonKeyValueList,
+  JsonLink,
+  JsonResource,
+  JsonSpan,
+  JsonStatus,
 } from "@/type/jsonSpan";
 import { decodeBase64 } from "@/util/byte";
 import Long from "long";
@@ -28,7 +28,7 @@ export class Span {
   resource?: Resource;
   scope?: InstrumentationScope;
 
-  constructor(span: jsonSpan) {
+  constructor(span: JsonSpan) {
     this.attributes = span.attributes?.map((kv) => new KeyValue(kv)) || [];
     this.traceId = decodeBase64(span.traceId);
     this.spanId = decodeBase64(span.spanId);
@@ -55,7 +55,7 @@ export class Event {
   attributes?: KeyValue[];
   droppedAttributesCount?: number;
 
-  constructor(event: jsonEvent) {
+  constructor(event: JsonEvent) {
     this.timeUnixNano = event.timeUnixNano
       ? Long.fromString(event.timeUnixNano)
       : undefined;
@@ -72,7 +72,7 @@ export class Link {
   attributes?: KeyValue[];
   droppedAttributesCount?: number;
 
-  constructor(link: jsonLink) {
+  constructor(link: JsonLink) {
     this.traceId = link.traceId ? decodeBase64(link.traceId) : undefined;
     this.spanId = link.spanId ? decodeBase64(link.spanId) : undefined;
     this.traceState = link.traceState ?? undefined;
@@ -85,7 +85,7 @@ export class Status {
   message?: string;
   code?: number;
 
-  constructor(status: jsonStatus) {
+  constructor(status: JsonStatus) {
     this.message = status.message ?? undefined;
     this.code = status.code ?? undefined;
   }
@@ -95,7 +95,7 @@ export class Resource {
   attributes?: KeyValue[];
   droppedAttributesCount?: number;
 
-  constructor(status: jsonResource) {
+  constructor(status: JsonResource) {
     this.attributes = status.attributes?.map((kv) => new KeyValue(kv));
     this.droppedAttributesCount = status.droppedAttributesCount ?? undefined;
   }
@@ -107,7 +107,7 @@ export class InstrumentationScope {
   attributes?: KeyValue[];
   droppedAttributesCount?: number;
 
-  constructor(status: jsonInstrumentationScope) {
+  constructor(status: JsonInstrumentationScope) {
     this.name = status.name ?? undefined;
     this.version = status.version ?? undefined;
     this.attributes = status.attributes?.map((kv) => new KeyValue(kv));
@@ -119,7 +119,7 @@ export class KeyValue {
   key?: string;
   value?: AnyValue;
 
-  constructor(kv: jsonKeyValue) {
+  constructor(kv: JsonKeyValue) {
     this.key = kv.key ?? undefined;
     this.value = kv.value ? new AnyValue(kv.value) : undefined;
   }
@@ -134,7 +134,7 @@ export class AnyValue {
   arrayValue?: ArrayValue;
   kvlistValue?: KeyValueList;
 
-  constructor(value: jsonAnyValue) {
+  constructor(value: JsonAnyValue) {
     this.stringValue = value.stringValue ?? undefined;
     this.boolValue = value.boolValue ?? undefined;
     this.intValue = value.intValue
@@ -156,15 +156,15 @@ export class AnyValue {
 export class ArrayValue {
   values?: AnyValue[];
 
-  constructor(value: jsonArrayValue) {
-    this.values = value.values?.map((v: jsonAnyValue) => new AnyValue(v));
+  constructor(value: JsonArrayValue) {
+    this.values = value.values?.map((v: JsonAnyValue) => new AnyValue(v));
   }
 }
 
 export class KeyValueList {
   values?: KeyValue[];
 
-  constructor(value: jsonKeyValueList) {
-    this.values = value.values?.map((v: jsonKeyValue) => new KeyValue(v));
+  constructor(value: JsonKeyValueList) {
+    this.values = value.values?.map((v: JsonKeyValue) => new KeyValue(v));
   }
 }

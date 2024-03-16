@@ -6,7 +6,7 @@ import {
 } from "@/integration/playwright";
 import { setTraceIdToAPIResponse } from "@/integration/playwright/internal/util/apiResponse";
 import { setTraceIdToContext } from "@/integration/playwright/internal/util/browserContext";
-import { jsonWantSpanEventResponse } from "@/server/parameter";
+import { JsonWantSpanEventResponse } from "@/server/parameter";
 import {
   buildBrowserContext,
   buildInitializedBrowserContext,
@@ -20,7 +20,9 @@ const beforeEachFn = (): void => {
   setServerPortToEnv(1);
 
   fetchMock.enableMocks();
-  const response: jsonWantSpanEventResponse = {
+  fetchMock.resetMocks();
+
+  const response: JsonWantSpanEventResponse = {
     span: buildJsonSpan(),
   };
   fetchMock.doMockIf(

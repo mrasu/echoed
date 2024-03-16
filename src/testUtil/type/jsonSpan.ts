@@ -1,4 +1,4 @@
-import { jsonSpan } from "@/type/jsonSpan";
+import { JsonSpan } from "@/type/jsonSpan";
 
 const DEFAULT_JSON_SPAN = {
   name: "testSpan",
@@ -8,7 +8,7 @@ const DEFAULT_JSON_SPAN = {
   traceId: "",
 };
 
-export function buildJsonSpan(overrides: Partial<jsonSpan> = {}): jsonSpan {
+export function buildJsonSpan(overrides: Partial<JsonSpan> = {}): JsonSpan {
   return {
     ...DEFAULT_JSON_SPAN,
     ...overrides,
