@@ -1,13 +1,10 @@
-import { Config, ServiceConfig } from "@/config/config";
-import { CoverageCollector } from "@/coverage/coverageCollector";
-import { OpenApiCoverageCollector } from "@/coverage/openApi/openApiCoverageCollector";
-import { ProtoCoverageCollector } from "@/coverage/proto/protoCoverageCollector";
-import { ServiceCoverageCollector } from "@/coverage/serviceCoverageCollector";
+import { Config } from "@/config/config";
 import { EchoedFatalError } from "@/echoedFatalError";
 import { setServerPortToEnv, setTmpDirToEnv } from "@/env";
 import { FileSpace } from "@/fileSpace/fileSpace";
 import { FsContainer } from "@/fs/fsContainer";
 import {
+  analyzeCoverage,
   logFileCreated,
   logPropagationTestResult,
 } from "@/integration/common/util/reporter";
@@ -19,7 +16,6 @@ import { TestCase } from "@/testCase";
 import { TestResult } from "@/testResult";
 import { omitDirPath } from "@/util/file";
 import { hasValue } from "@/util/type";
-import SwaggerParser from "@apidevtools/swagger-parser";
 import {
   AggregatedResult,
   Config as JestReporterConfig,
@@ -30,7 +26,6 @@ import { Circus } from "@jest/types";
 import { Mutex } from "async-mutex";
 import os from "os";
 import path from "path";
-import protobuf from "protobufjs";
 
 export class Reporter {
   private mutex = new Mutex();
@@ -39,7 +34,6 @@ export class Reporter {
   private readonly maxWorkers: number;
   private readonly fileSpace: FileSpace;
   private readonly config: Config;
-  private readonly coverageCollector: CoverageCollector;
 
   private server?: Server;
   private lastError: Error | undefined;
@@ -80,45 +74,15 @@ export class Reporter {
     this.fileSpace.ensureDirectoryExistence();
 
     this.config = config;
-    this.coverageCollector = new CoverageCollector();
   }
 
   async onRunStart(
     _results: AggregatedResult,
     _options: ReporterOnStartOptions,
   ): Promise<void> {
-    await this.prepareCoverageCollector();
-
     Logger.log("Starting server...");
 
     this.server = await Server.start(this.config.serverPort);
-  }
-
-  private async prepareCoverageCollector(): Promise<void> {
-    for (const service of this.config.serviceConfigs) {
-      const collector = await this.buildCoverageCollector(service);
-      if (!collector) continue;
-
-      this.coverageCollector.add(service.name, service.namespace, collector);
-    }
-  }
-
-  private async buildCoverageCollector(
-    service: ServiceConfig,
-  ): Promise<ServiceCoverageCollector | undefined> {
-    if (service.openapi) {
-      const document = await SwaggerParser.parse(service.openapi.filePath);
-      return OpenApiCoverageCollector.buildFromDocument(document);
-    } else if (service.proto) {
-      const root = await protobuf.load(service.proto.filePath);
-      return ProtoCoverageCollector.buildFromRoot(
-        root,
-        service.proto.filePath,
-        service.proto.services ? new Set(service.proto.services) : undefined,
-      );
-    } else {
-      return undefined;
-    }
   }
 
   readonly getLastError = (): Error | undefined => {
@@ -137,7 +101,6 @@ export class Reporter {
     const { capturedSpans, capturedLogs } = await this.server.stopAfter(
       this.config.serverStopAfter,
     );
-    this.coverageCollector.markVisited([...capturedSpans.values()].flat());
 
     const testResult = await TestResult.collect(
       this.jestRootDir,
@@ -147,7 +110,7 @@ export class Reporter {
       this.config,
       this.collectedTestCaseElements,
     );
-    const coverageResult = this.coverageCollector.getCoverage();
+    const coverageResult = await analyzeCoverage(this.config, capturedSpans);
 
     const outFile = await reportFile.generate(testResult, coverageResult);
 

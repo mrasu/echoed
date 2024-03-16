@@ -1,9 +1,8 @@
 import { Config } from "@/config/config";
-import { CoverageCollector } from "@/coverage/coverageCollector";
-import { CoverageResult } from "@/coverage/coverageResult";
 import { FileSpace } from "@/fileSpace/fileSpace";
 import { opentelemetry } from "@/generated/otelpbj";
 import {
+  analyzeCoverage,
   logFileCreated,
   logPropagationTestResult,
 } from "@/integration/common/util/reporter";
@@ -107,7 +106,7 @@ export class Reporter {
       this.config,
       this.collectedTestCaseElements,
     );
-    const coverageResult = await this.analyzeCoverage(capturedSpans);
+    const coverageResult = await analyzeCoverage(this.config, capturedSpans);
 
     const outFile = await reportFile.generate(testResult, coverageResult);
 
@@ -158,17 +157,5 @@ export class Reporter {
     }
 
     return logs;
-  }
-
-  private async analyzeCoverage(
-    capturedSpans: Map<string, OtelSpan[]>,
-  ): Promise<CoverageResult> {
-    const coverageCollector = await CoverageCollector.createWithServiceInfo(
-      this.config,
-    );
-    coverageCollector.markVisited([...capturedSpans.values()].flat());
-    const coverageResult = coverageCollector.getCoverage();
-
-    return coverageResult;
   }
 }
