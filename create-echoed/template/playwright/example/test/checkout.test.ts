@@ -1,4 +1,4 @@
-import { test } from "@/fixtures/test";
+import { test } from "echoed/playwright/test";
 import { expect } from "@playwright/test";
 import { waitForSpanCreatedIn } from "echoed/playwright";
 
