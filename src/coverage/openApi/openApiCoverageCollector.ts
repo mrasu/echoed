@@ -1,8 +1,7 @@
-import {
-  HttpOperationCoverage,
-  HttpOperationTraces,
-} from "@/coverage/coverageResult";
+import { OpenApiConfig } from "@/config/config";
+import { HttpOperationCoverage } from "@/coverage/coverageResult";
 import { OperationTree } from "@/coverage/openApi/operationTree";
+import { SpanCollector } from "@/coverage/openApi/spanCollector";
 import {
   ServiceCoverageCollector,
   ServiceCoverageCollectorResult,
@@ -10,29 +9,28 @@ import {
 import { opentelemetry } from "@/generated/otelpbj";
 import { Method, toMethod } from "@/type/http";
 import { OtelSpan } from "@/type/otelSpan";
-import { toBase64 } from "@/util/byte";
 import { TwoKeyValuesMap } from "@/util/twoKeyValuesMap";
 import { removeQueryAndHashFromPath } from "@/util/url";
 import { OpenAPI } from "openapi-types";
 import Span = opentelemetry.proto.trace.v1.Span;
 
 export class OpenApiCoverageCollector implements ServiceCoverageCollector {
-  // undocumentedOperations is Map<path, Map<method, OtelSpan[]>>
-  private undocumentedOperations = new TwoKeyValuesMap<
-    string,
-    Method,
-    OtelSpan[]
-  >();
-
   static buildFromDocument(
+    config: OpenApiConfig,
     document: OpenAPI.Document,
   ): OpenApiCoverageCollector {
     const pathTree = OperationTree.buildFromDocument(document);
+    const undocumentedSpanCollector = new SpanCollector(
+      config.coverage?.undocumentedOperation.ignores ?? [],
+    );
 
-    return new OpenApiCoverageCollector(pathTree);
+    return new OpenApiCoverageCollector(pathTree, undocumentedSpanCollector);
   }
 
-  constructor(private pathTree: OperationTree) {}
+  constructor(
+    private pathTree: OperationTree,
+    private undocumentedSpanCollector: SpanCollector,
+  ) {}
 
   markVisited(spans: OtelSpan[]): void {
     const paths = new TwoKeyValuesMap<string, Method, OtelSpan[]>();
@@ -56,9 +54,7 @@ export class OpenApiCoverageCollector implements ServiceCoverageCollector {
       if (operation) {
         operation.visited = true;
       } else {
-        this.undocumentedOperations.initOr(path, method, spans, (v) => {
-          v.push(...spans);
-        });
+        this.undocumentedSpanCollector.add(path, method, spans);
       }
     }
   }
@@ -94,23 +90,11 @@ export class OpenApiCoverageCollector implements ServiceCoverageCollector {
       });
     });
 
-    const undocumentedOperations: HttpOperationTraces[] = [];
-    for (const [path, method, spans] of this.undocumentedOperations.entries()) {
-      const traceIds = spans
-        .filter((span) => span.traceId)
-        .map((span) => toBase64(span.traceId));
-
-      undocumentedOperations.push({
-        path,
-        method,
-        traceIds: traceIds,
-      });
-    }
-
     return {
       httpCoverage: {
         operationCoverages: coverages,
-        undocumentedOperations: undocumentedOperations,
+        undocumentedOperations:
+          this.undocumentedSpanCollector.toHttpOperationTraces(),
       },
     };
   }

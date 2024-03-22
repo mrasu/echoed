@@ -1,3 +1,7 @@
+## Unreleased
+### Added
+- Add option to ignore spans from "undocumented" in coverage.
+
 ## 0.2.0
 ### Added
 - Add support for Playwright

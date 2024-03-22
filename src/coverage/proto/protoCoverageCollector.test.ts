@@ -1,6 +1,9 @@
+import { Eq } from "@/comparision/eq";
 import { ProtoCoverageCollector } from "@/coverage/proto/protoCoverageCollector";
 import { Service } from "@/coverage/proto/service";
+import { SpanCollector } from "@/coverage/proto/spanCollector";
 import { opentelemetry } from "@/generated/otelpbj";
+import { buildProtoConfig } from "@/testUtil/config/protoConfig";
 import { OtelSpan } from "@/type/otelSpan";
 import { toBase64 } from "@/util/byte";
 import path from "path";
@@ -32,6 +35,7 @@ describe("ProtoCoverageCollector", () => {
     describe("when targetServices is undefined", () => {
       it("should collect coverage from all services", async () => {
         const collector = ProtoCoverageCollector.buildFromRoot(
+          buildProtoConfig(),
           await buildRoot(),
           ABSOLUTE_PROTO_PATH,
           undefined,
@@ -48,6 +52,7 @@ describe("ProtoCoverageCollector", () => {
     describe("when targetServices is specified", () => {
       it("should collect coverage from specified service", async () => {
         const collector = ProtoCoverageCollector.buildFromRoot(
+          buildProtoConfig(),
           await buildRoot(),
           ABSOLUTE_PROTO_PATH,
           new Set(["myPackage.RecommendationService"]),
@@ -60,6 +65,7 @@ describe("ProtoCoverageCollector", () => {
     describe("when targetServices is specified without package name", () => {
       it("should collect coverage from specified service", async () => {
         const collector = ProtoCoverageCollector.buildFromRoot(
+          buildProtoConfig(),
           await buildRoot(),
           ABSOLUTE_PROTO_PATH,
           new Set(["RecommendationService"]),
@@ -71,7 +77,9 @@ describe("ProtoCoverageCollector", () => {
   });
 
   describe("markVisited", () => {
-    const buildCollector = (): ProtoCoverageCollector => {
+    const buildCollector = (
+      undocumentedSpanCollector?: SpanCollector,
+    ): ProtoCoverageCollector => {
       const serviceMap = new Map<string, Service>();
       serviceMap.set(
         "myPackage.CartService",
@@ -93,7 +101,10 @@ describe("ProtoCoverageCollector", () => {
         ),
       );
 
-      return new ProtoCoverageCollector(serviceMap);
+      return new ProtoCoverageCollector(
+        serviceMap,
+        undocumentedSpanCollector ?? new SpanCollector([]),
+      );
     };
 
     const defaultTraceId = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 0]);
@@ -161,6 +172,19 @@ describe("ProtoCoverageCollector", () => {
         ],
       });
 
+      const methodCoverages = [
+        {
+          service: "myPackage.CartService",
+          method: "AddItem",
+          passed: false,
+        },
+        {
+          service: "myPackage.CartService",
+          method: "GetCart",
+          passed: false,
+        },
+      ];
+
       it("should not mark the method as visited", () => {
         const collector = buildCollector();
         collector.markVisited([span]);
@@ -168,18 +192,7 @@ describe("ProtoCoverageCollector", () => {
         const coverage = collector.getCoverage();
         expect(coverage).toEqual({
           rpcCoverage: {
-            methodCoverages: [
-              {
-                service: "myPackage.CartService",
-                method: "AddItem",
-                passed: false,
-              },
-              {
-                service: "myPackage.CartService",
-                method: "GetCart",
-                passed: false,
-              },
-            ],
+            methodCoverages,
             undocumentedMethods: [
               {
                 service: "myPackage.AwesomeService",
@@ -188,6 +201,28 @@ describe("ProtoCoverageCollector", () => {
               },
             ],
           },
+        });
+      });
+
+      describe("when span matches ignore condition", () => {
+        const collector = buildCollector(
+          new SpanCollector([
+            {
+              service: new Eq("myPackage.AwesomeService"),
+              method: new Eq("AddItem"),
+            },
+          ]),
+        );
+        collector.markVisited([span]);
+
+        it("should not mark is as undocumented", () => {
+          const coverage = collector.getCoverage();
+          expect(coverage).toEqual({
+            rpcCoverage: {
+              methodCoverages,
+              undocumentedMethods: [],
+            },
+          });
         });
       });
     });

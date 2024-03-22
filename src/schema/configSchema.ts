@@ -58,7 +58,36 @@ export type ConfigSchema = {
            * When not specified, the base path is extracted from the OpenAPI specification.
            */
           basePath?: string;
-        };
+
+          /**
+           * Configuration for coverage
+           */
+          coverage?: {
+            /**
+             * Configuration for undocumented operation
+             */
+            undocumentedOperation: {
+              /**
+               * List of patterns to be ignored from undocumented operations.
+               */
+              ignores: {
+                /**
+                 * Path of the operation
+                 *
+                 * The value can be string or object.
+                 * If it's string, compare the path as-is.
+                 * If it's object, compare the path with the regular expression.
+                 */
+                path: string | { regexp: string };
+
+                /**
+                 * HTTP method of the operation
+                 */
+                method: "get" | "post" | "put" | "delete" | "options" | "head" | "patch"
+              }[];
+            };
+          };
+        }
 
     /**
      * Protocol buffer specification (`.proto` file)
@@ -81,6 +110,39 @@ export type ConfigSchema = {
            * Note that the values should be the same with `rpc.service` attribute in OpenTelemetry.
            */
           services?: string[];
+
+          /**
+           * Configuration for coverage
+           */
+          coverage?: {
+            /**
+             * Configuration for undocumented operation
+             */
+            undocumentedMethod: {
+              /**
+               * List of patterns to be ignored from undocumented methods.
+               */
+              ignores: {
+                /**
+                 * Service
+                 *
+                 * The value can be string or object.
+                 * If it's string, compare the service as-is.
+                 * If it's object, compare the service with the regular expression.
+                 */
+                service: string | { regexp: string };
+
+                /**
+                 * Method
+                 *
+                 * The value can be string or object.
+                 * If it's string, compare the method as-is.
+                 * If it's object, compare the method with the regular expression.
+                 */
+                method: string | { regexp: string };
+              }[];
+            };
+          };
         };
   }[];
 

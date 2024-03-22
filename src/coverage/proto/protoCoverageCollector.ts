@@ -1,13 +1,13 @@
-import { RpcMethodCoverage, RpcMethodTraces } from "@/coverage/coverageResult";
+import { ProtoConfig } from "@/config/config";
+import { RpcMethodCoverage } from "@/coverage/coverageResult";
 import { Service } from "@/coverage/proto/service";
+import { SpanCollector } from "@/coverage/proto/spanCollector";
 import {
   ServiceCoverageCollector,
   ServiceCoverageCollectorResult,
 } from "@/coverage/serviceCoverageCollector";
 import { opentelemetry } from "@/generated/otelpbj";
 import { OtelSpan } from "@/type/otelSpan";
-import { toBase64 } from "@/util/byte";
-import { TwoKeyValuesMap } from "@/util/twoKeyValuesMap";
 import path from "path";
 import {
   Namespace,
@@ -19,16 +19,8 @@ import {
 import Span = opentelemetry.proto.trace.v1.Span;
 
 export class ProtoCoverageCollector implements ServiceCoverageCollector {
-  private services = new Map<string, Service>();
-
-  // undocumentedProtoSpans is Map<rpcService, Map<rpcMethod, UndocumentedSpans>>
-  private undocumentedProtoSpans = new TwoKeyValuesMap<
-    string,
-    string,
-    OtelSpan[]
-  >();
-
   static buildFromRoot(
+    config: ProtoConfig,
     root: Root,
     filename: string,
     targetServices: Set<string> | undefined,
@@ -63,12 +55,16 @@ export class ProtoCoverageCollector implements ServiceCoverageCollector {
     };
     inspect(root);
 
-    return new ProtoCoverageCollector(services);
+    const undocumentedSpanCollector = new SpanCollector(
+      config.coverage?.undocumentedMethod.ignores ?? [],
+    );
+    return new ProtoCoverageCollector(services, undocumentedSpanCollector);
   }
 
-  constructor(services: Map<string, Service>) {
-    this.services = services;
-  }
+  constructor(
+    private services: Map<string, Service>,
+    private undocumentedSpanCollector: SpanCollector,
+  ) {}
 
   markVisited(spans: OtelSpan[]): void {
     for (const span of spans) {
@@ -92,9 +88,7 @@ export class ProtoCoverageCollector implements ServiceCoverageCollector {
   }
 
   addUndocumented(rpcService: string, rpcMethod: string, span: OtelSpan): void {
-    this.undocumentedProtoSpans.initOr(rpcService, rpcMethod, [span], (v) => {
-      v.push(span);
-    });
+    this.undocumentedSpanCollector.add(rpcService, rpcMethod, [span]);
   }
 
   getCoverage(): ServiceCoverageCollectorResult {
@@ -109,27 +103,10 @@ export class ProtoCoverageCollector implements ServiceCoverageCollector {
       }
     }
 
-    const undocumentedMethods: RpcMethodTraces[] = [];
-    for (const [
-      service,
-      method,
-      spans,
-    ] of this.undocumentedProtoSpans.entries()) {
-      const traceIds = spans
-        .filter((span) => span.traceId)
-        .map((span) => toBase64(span.traceId));
-
-      undocumentedMethods.push({
-        service,
-        method,
-        traceIds: traceIds,
-      });
-    }
-
     return {
       rpcCoverage: {
         methodCoverages: coverages,
-        undocumentedMethods: undocumentedMethods,
+        undocumentedMethods: this.undocumentedSpanCollector.toRpcMethodTraces(),
       },
     };
   }

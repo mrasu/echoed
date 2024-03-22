@@ -1,3 +1,4 @@
+import { Methods } from "@/type/http";
 import { JsonSchema } from "@/type/jsonZod";
 import { z } from "zod";
 
@@ -7,10 +8,10 @@ const attributeRecord = z.record(
     .string()
     .or(z.boolean())
     .or(z.number())
-    .or(z.object({ regexp: z.string() })),
+    .or(z.strictObject({ regexp: z.string() })),
 );
 
-const propagationIgnoreAttributes = z.object({
+const propagationIgnoreAttributes = z.strictObject({
   attributes: attributeRecord.optional(),
   resource: z
     .object({
@@ -18,6 +19,8 @@ const propagationIgnoreAttributes = z.object({
     })
     .optional(),
 });
+
+const stringOrRegexp = z.string().or(z.strictObject({ regexp: z.string() }));
 
 export const ConfigSchemaZod = z.strictObject({
   output: z.string(),
@@ -35,6 +38,18 @@ export const ConfigSchemaZod = z.strictObject({
             z.strictObject({
               filePath: z.string(),
               basePath: z.string().optional(),
+              coverage: z
+                .strictObject({
+                  undocumentedOperation: z.strictObject({
+                    ignores: z.array(
+                      z.strictObject({
+                        path: stringOrRegexp,
+                        method: z.enum(Methods),
+                      }),
+                    ),
+                  }),
+                })
+                .optional(),
             }),
           ])
           .optional(),
@@ -44,6 +59,18 @@ export const ConfigSchemaZod = z.strictObject({
             z.strictObject({
               filePath: z.string(),
               services: z.array(z.string()).optional(),
+              coverage: z
+                .strictObject({
+                  undocumentedMethod: z.strictObject({
+                    ignores: z.array(
+                      z.strictObject({
+                        service: stringOrRegexp,
+                        method: stringOrRegexp,
+                      }),
+                    ),
+                  }),
+                })
+                .optional(),
             }),
           ])
           .optional(),
@@ -55,7 +82,7 @@ export const ConfigSchemaZod = z.strictObject({
       enabled: z.boolean().optional(),
       ignore: propagationIgnoreAttributes
         .merge(
-          z.object({
+          z.strictObject({
             conditions: z.array(propagationIgnoreAttributes).optional(),
           }),
         )

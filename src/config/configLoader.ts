@@ -1,6 +1,3 @@
-import { Comparable } from "@/comparision/comparable";
-import { Eq } from "@/comparision/eq";
-import { Reg } from "@/comparision/reg";
 import {
   Config,
   ECHOED_CONFIG_FILE_NAME,
@@ -19,6 +16,10 @@ import {
   ScenarioCompilePluginImportConfig,
   ScenarioCompilePluginRunnerConfig,
 } from "@/config/scenarioCompileConfig";
+import {
+  convertToComparable,
+  convertToComparables,
+} from "@/config/util/mapper";
 import { IFile } from "@/fs/IFile";
 import { FsContainer } from "@/fs/fsContainer";
 import { Logger } from "@/logger";
@@ -32,8 +33,6 @@ import { override, transformRecord } from "@/util/record";
 import { formatZodError } from "@/util/zod";
 import yaml from "js-yaml";
 import { SafeParseReturnType } from "zod";
-
-type ComparableValue = string | boolean | number | { regexp: string } | null;
 
 // value of `overrides` in create-echoed/template/.echoed.yml
 const EXAMPLE_TEMPLATE_OVERRIDDEN_CONFIG_PATH = "./example/.echoed.yml";
@@ -161,40 +160,22 @@ export class ConfigLoader {
   ): PropagationTestConfig {
     const enabled = t?.enabled ?? true;
     const ignore = {
-      attributes: this.convertToComparables(t?.ignore?.attributes),
+      attributes: convertToComparables(t?.ignore?.attributes),
       resource: {
-        attributes: this.convertToComparables(t?.ignore?.resource?.attributes),
+        attributes: convertToComparables(t?.ignore?.resource?.attributes),
       },
       conditions:
         t?.ignore?.conditions?.map((c) => {
           return {
-            attributes: this.convertToComparables(c.attributes),
+            attributes: convertToComparables(c.attributes),
             resource: {
-              attributes: this.convertToComparables(c.resource?.attributes),
+              attributes: convertToComparables(c.resource?.attributes),
             },
           };
         }) ?? [],
     };
 
     return new PropagationTestConfig({ enabled, ignore });
-  }
-
-  private convertToComparables(
-    values: Record<string, ComparableValue> | undefined,
-  ): Map<string, Comparable> {
-    if (!values) return new Map();
-
-    const ret = new Map<string, Comparable>();
-    for (const [key, val] of Object.entries(values)) {
-      if (val === null) continue;
-
-      if (typeof val === "object") {
-        ret.set(key, new Reg(new RegExp(val.regexp)));
-      } else {
-        ret.set(key, new Eq(val));
-      }
-    }
-    return ret;
   }
 
   private convertServiceConfigs(
@@ -228,6 +209,31 @@ export class ConfigLoader {
     return {
       filePath: config.filePath,
       basePath: config.basePath,
+      coverage: this.convertOpenApiCoverageConfig(config.coverage),
+    };
+  }
+
+  private convertOpenApiCoverageConfig(
+    config:
+      | NonNullable<
+          Exclude<
+            NonNullable<ConfigSchema["services"]>[number]["openapi"],
+            string
+          >
+        >["coverage"]
+      | undefined,
+  ): OpenApiConfig["coverage"] | undefined {
+    if (!config) return;
+
+    return {
+      undocumentedOperation: {
+        ignores: config.undocumentedOperation.ignores.map((ignore) => {
+          return {
+            path: convertToComparable(ignore.path),
+            method: ignore.method,
+          };
+        }),
+      },
     };
   }
 
@@ -247,6 +253,31 @@ export class ConfigLoader {
     return {
       filePath: config.filePath,
       services: config.services,
+      coverage: this.convertProtoCoverageConfig(config.coverage),
+    };
+  }
+
+  private convertProtoCoverageConfig(
+    config:
+      | NonNullable<
+          Exclude<
+            NonNullable<ConfigSchema["services"]>[number]["proto"],
+            string
+          >
+        >["coverage"]
+      | undefined,
+  ): ProtoConfig["coverage"] | undefined {
+    if (!config) return;
+
+    return {
+      undocumentedMethod: {
+        ignores: config.undocumentedMethod.ignores.map((ignore) => {
+          return {
+            service: convertToComparable(ignore.service),
+            method: convertToComparable(ignore.method),
+          };
+        }),
+      },
     };
   }
 

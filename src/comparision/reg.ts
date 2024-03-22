@@ -13,6 +13,14 @@ export const JsonReg = z.strictObject({
 export type JsonReg = z.infer<typeof JsonReg>;
 
 export class Reg extends Comparable {
+  static fromJsonObj(obj: JsonReg): Reg {
+    return new Reg(new RegExp(obj.source, obj.flags));
+  }
+
+  static fromString(str: string): Reg {
+    return new Reg(new RegExp(str));
+  }
+
   constructor(private regExp: RegExp) {
     super();
   }
@@ -42,9 +50,5 @@ export class Reg extends Comparable {
       source: this.regExp.source,
       flags: this.regExp.flags,
     };
-  }
-
-  static fromJsonObj(obj: JsonReg): Reg {
-    return new Reg(new RegExp(obj.source, obj.flags));
   }
 }

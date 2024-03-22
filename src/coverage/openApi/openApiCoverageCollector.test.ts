@@ -2,6 +2,7 @@ import { HttpOperationCoverage } from "@/coverage/coverageResult";
 import { OpenApiCoverageCollector } from "@/coverage/openApi/openApiCoverageCollector";
 import { ServiceCoverageCollectorResult } from "@/coverage/serviceCoverageCollector";
 import { opentelemetry } from "@/generated/otelpbj";
+import { buildOpenApiConfig } from "@/testUtil/config/openApiConfig";
 import { buildV3Document } from "@/testUtil/openapi/apiV3";
 import { OtelSpan } from "@/type/otelSpan";
 import { toBase64 } from "@/util/byte";
@@ -10,8 +11,9 @@ import SpanKind = opentelemetry.proto.trace.v1.Span.SpanKind;
 
 describe("openApiCoverageCollector", () => {
   const buildCollector = async (): Promise<OpenApiCoverageCollector> => {
+    const config = buildOpenApiConfig();
     const doc = await SwaggerParser.parse(buildV3Document());
-    return OpenApiCoverageCollector.buildFromDocument(doc);
+    return OpenApiCoverageCollector.buildFromDocument(config, doc);
   };
 
   const buildExpectedCoverage = (
@@ -249,7 +251,7 @@ describe("openApiCoverageCollector", () => {
         ],
       });
 
-      it("should mark as undocumented", async () => {
+      it("should mark it as undocumented", async () => {
         const collector = await buildCollector();
         collector.markVisited([span]);
 
@@ -269,6 +271,42 @@ describe("openApiCoverageCollector", () => {
           },
         };
         expect(coverage).toEqual(expected);
+      });
+
+      describe("when span is ignored", () => {
+        const span = new OtelSpan({
+          traceId,
+          attributes: [
+            {
+              key: "url.path",
+              value: {
+                stringValue: "/ignored",
+              },
+            },
+            {
+              key: "http.request.method",
+              value: {
+                stringValue: "POST",
+              },
+            },
+          ],
+        });
+
+        it("should not mark it as undocumented", async () => {
+          const collector = await buildCollector();
+          collector.markVisited([span]);
+
+          const coverage = collector.getCoverage();
+
+          const expected = {
+            httpCoverage: {
+              operationCoverages:
+                buildExpectedCoverage().httpCoverage?.operationCoverages,
+              undocumentedOperations: [],
+            },
+          };
+          expect(coverage).toEqual(expected);
+        });
       });
     });
   });

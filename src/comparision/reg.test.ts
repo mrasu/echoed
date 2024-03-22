@@ -1,6 +1,40 @@
 import { Reg } from "@/comparision/reg";
 
 describe("Reg", () => {
+  describe("fromJsonObj", () => {
+    describe("when object doesn't have flag", () => {
+      const obj = {
+        kind: "reg" as const,
+        source: "^abc",
+        flags: "",
+      };
+
+      it("should return Reg instance", () => {
+        expect(Reg.fromJsonObj(obj)).toStrictEqual(new Reg(/^abc/));
+      });
+    });
+
+    describe("when comparing value has flag", () => {
+      const obj = {
+        kind: "reg" as const,
+        source: "^abc",
+        flags: "ig",
+      };
+
+      it("should return Reg instance", () => {
+        expect(Reg.fromJsonObj(obj)).toStrictEqual(new Reg(/^abc/gi));
+      });
+    });
+  });
+
+  describe("fromString", () => {
+    it("should return Reg instance", () => {
+      expect(Reg.fromString("^/aa/b/.+$")).toStrictEqual(
+        new Reg(/^\/aa\/b\/.+$/),
+      );
+    });
+  });
+
   describe("matchIAnyValue", () => {
     describe("when comparing regex doesn't have flag", () => {
       const value = new Reg(/^1234/);
@@ -140,32 +174,6 @@ describe("Reg", () => {
           source: "^abc",
           flags: "i",
         });
-      });
-    });
-  });
-
-  describe("fromJsonObj", () => {
-    describe("when object doesn't have flag", () => {
-      const obj = {
-        kind: "reg" as const,
-        source: "^abc",
-        flags: "",
-      };
-
-      it("should return Reg instance", () => {
-        expect(Reg.fromJsonObj(obj)).toStrictEqual(new Reg(/^abc/));
-      });
-    });
-
-    describe("when comparing value has flag", () => {
-      const obj = {
-        kind: "reg" as const,
-        source: "^abc",
-        flags: "ig",
-      };
-
-      it("should return Reg instance", () => {
-        expect(Reg.fromJsonObj(obj)).toStrictEqual(new Reg(/^abc/gi));
       });
     });
   });

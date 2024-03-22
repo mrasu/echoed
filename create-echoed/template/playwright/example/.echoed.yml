@@ -27,7 +27,22 @@ propagationTest:
 services:
   - name: frontend
     namespace: opentelemetry-demo
-    openapi: "./example/opentelemetry-demo/src/frontend/schema.yaml"
+    openapi:
+      filePath: "./example/opentelemetry-demo/src/frontend/schema.yaml"
+      coverage:
+        undocumentedOperation:
+          ignores:
+            - path: /_next/image
+              method: get
+            - path:
+                regexp: /_next/static/.+
+              method: get
+            - path:
+                regexp: /icons/.+
+              method: get
+            - path:
+                regexp: /images/.+
+              method: get
   - name: cartservice
     namespace: opentelemetry-demo
     proto:

@@ -33,10 +33,14 @@ export class CoverageCollector {
   ): Promise<ServiceCoverageCollector | undefined> {
     if (service.openapi) {
       const document = await SwaggerParser.parse(service.openapi.filePath);
-      return OpenApiCoverageCollector.buildFromDocument(document);
+      return OpenApiCoverageCollector.buildFromDocument(
+        service.openapi,
+        document,
+      );
     } else if (service.proto) {
       const root = await protobuf.load(service.proto.filePath);
       return ProtoCoverageCollector.buildFromRoot(
+        service.proto,
         root,
         service.proto.filePath,
         service.proto.services ? new Set(service.proto.services) : undefined,
