@@ -163,10 +163,12 @@ You can write Playwright tests in TypeScript too.
 
 ### Make Tests Observable
 
-To generate an HTML report visualizing API traces, no additional code is needed.  
-Simply write your Playwright tests as usual.
+To generate an HTML report visualizing API traces, replace `test` of Playwright to Echoed's to intercept requests.
 
 ```ts
+// import { test } from "@playwright/test"; <- Replace this line
+import { test } from "echoed/playwright/test";
+
 test("opens home page", async ({ page }) => {
   await page.goto("http://localhost:8080/");
   await expect(page).toHaveTitle("OTel demo");
