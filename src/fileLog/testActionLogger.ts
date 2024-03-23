@@ -1,6 +1,9 @@
 import { IFileLogger } from "@/fileLog/iFileLogger";
 import { Base64String } from "@/type/base64String";
 import { FetchFailedLog, FetchFinishedLog, FetchStartedLog } from "@/types";
+import { truncateString } from "@/util/string";
+
+const MAX_TEXT_SIZE = 1000;
 
 export type FetchRequestInfo = {
   url: string;
@@ -44,7 +47,7 @@ export class TestActionLogger {
       },
       response: {
         status: responseStatus,
-        body: responseBody,
+        body: truncateString(responseBody, MAX_TEXT_SIZE),
       },
     };
 

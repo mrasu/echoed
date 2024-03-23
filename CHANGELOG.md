@@ -1,6 +1,8 @@
 ## Unreleased
 ### Added
 - Add option to ignore spans from "undocumented" in coverage.
+### Changed
+- Truncate the text of request's result to 1000 characters.
 
 ## 0.2.0
 ### Added
