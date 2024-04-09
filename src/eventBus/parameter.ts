@@ -7,7 +7,7 @@ import {
 } from "@/type/spanFilterOption";
 import { z } from "zod";
 
-export type WantSpanEvent = {
+export type WaitForSpanEvent = {
   base64TraceId: string;
   filter: SpanFilterOption;
   wantId: string;
@@ -24,12 +24,12 @@ export type ReceiveSpanEmitEvent = Omit<ReceiveSpanEvent, "span"> & {
   span: JsonSpan | OtelSpan;
 };
 
-export const JsonWantSpanEvent = z.strictObject({
+export const JsonWaitForSpanEvent = z.strictObject({
   base64TraceId: z.string(),
   filter: JsonSpanFilterOption,
   wantId: z.string(),
 });
-export type JsonWantSpanEvent = z.infer<typeof JsonWantSpanEvent>;
+export type JsonWaitForSpanEvent = z.infer<typeof JsonWaitForSpanEvent>;
 
 export const JsonReceiveSpanEvent = z.strictObject({
   wantId: z.string(),
@@ -38,7 +38,9 @@ export const JsonReceiveSpanEvent = z.strictObject({
 });
 export type JsonReceiveSpanEvent = z.infer<typeof JsonReceiveSpanEvent>;
 
-export function restoreWantSpanEvent(data: JsonWantSpanEvent): WantSpanEvent {
+export function restoreWaitForSpanEvent(
+  data: JsonWaitForSpanEvent,
+): WaitForSpanEvent {
   return {
     base64TraceId: data.base64TraceId,
     filter: restoreSpanFilterOption(data.filter),

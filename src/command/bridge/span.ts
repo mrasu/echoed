@@ -2,7 +2,7 @@ import { convertSpanFilterOption } from "@/command/bridge/compare";
 import { SpanFilterOption, WaitOption } from "@/command/span";
 import { Span } from "@/command/spanType";
 import { FetchRequester } from "@/server/fetchRequester";
-import { requestWantSpanEvent } from "@/server/request";
+import { requestWaitForSpanEvent } from "@/server/request";
 import { Requester } from "@/server/requester";
 import { Base64String } from "@/type/base64String";
 
@@ -37,5 +37,5 @@ export async function waitForSpanForTraceIdWithRequester(
     waitTimeoutMs: options?.timeoutMs ?? DEFAULT_TIMEOUT_MS,
   };
 
-  return await requestWantSpanEvent(requester, port, param);
+  return await requestWaitForSpanEvent(requester, port, param);
 }

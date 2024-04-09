@@ -2,9 +2,9 @@ import { Span } from "@/command/spanType";
 import { EchoedFatalError } from "@/echoedFatalError";
 import { SuccessResponse } from "@/server/commonParameter";
 import {
-  JsonWantSpanEventResponse,
-  restoreWantSpanEventResponse,
-  WantSpanEventRequestParam,
+  JsonWaitForSpanEventResponse,
+  restoreWaitForSpanEventResponse,
+  WaitForSpanEventRequestParam,
 } from "@/server/parameter";
 import { Requester } from "@/server/requester";
 import { Resp } from "@/server/resp";
@@ -14,16 +14,16 @@ import { TestFinishedEventRequestParam } from "@/server/testFinishedParameter";
 export const USER_AGENT_HEADER_KEY = "User-Agent";
 export const ECHOED_USER_AGENT = "echoed/0.0.1";
 
-export async function requestWantSpanEvent(
+export async function requestWaitForSpanEvent(
   requester: Requester,
   port: number,
-  param: WantSpanEventRequestParam,
+  param: WaitForSpanEventRequestParam,
 ): Promise<Span> {
-  const response = await post(requester, port, "/events/wantSpan", param);
-  const jsonResponse = JsonWantSpanEventResponse.parse(
+  const response = await post(requester, port, "/events/waitForSpan", param);
+  const jsonResponse = JsonWaitForSpanEventResponse.parse(
     JSON.parse(response.body),
   );
-  const resp = restoreWantSpanEventResponse(jsonResponse);
+  const resp = restoreWaitForSpanEventResponse(jsonResponse);
 
   if ("error" in resp) {
     throw new EchoedFatalError(

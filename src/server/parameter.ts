@@ -8,41 +8,41 @@ import {
 } from "@/type/spanFilterOption";
 import { z } from "zod";
 
-export type WantSpanEventRequestParam = {
+export type WaitForSpanEventRequestParam = {
   base64TraceId: string;
   filter: SpanFilterOption;
   waitTimeoutMs: number;
 };
 
-export const JsonWantSpanEventRequestParam = z.strictObject({
+export const JsonWaitForSpanEventRequestParam = z.strictObject({
   base64TraceId: z.string(),
   filter: JsonSpanFilterOption,
   waitTimeoutMs: z.number(),
 });
 
-export type JsonWantSpanEventRequestParam = z.infer<
-  typeof JsonWantSpanEventRequestParam
+export type JsonWaitForSpanEventRequestParam = z.infer<
+  typeof JsonWaitForSpanEventRequestParam
 >;
 
-export type WantSpanEventResponse =
+export type WaitForSpanEventResponse =
   | {
       span: Span;
     }
   | ErrorMessage;
 
-export const JsonWantSpanEventResponse = z.union([
+export const JsonWaitForSpanEventResponse = z.union([
   z.strictObject({
     span: JsonSpan,
   }),
   ErrorMessage,
 ]);
-export type JsonWantSpanEventResponse = z.infer<
-  typeof JsonWantSpanEventResponse
+export type JsonWaitForSpanEventResponse = z.infer<
+  typeof JsonWaitForSpanEventResponse
 >;
 
-export function restoreWantSpanEventRequestParam(
-  param: JsonWantSpanEventRequestParam,
-): WantSpanEventRequestParam {
+export function restoreWaitForSpanEventRequestParam(
+  param: JsonWaitForSpanEventRequestParam,
+): WaitForSpanEventRequestParam {
   return {
     base64TraceId: param.base64TraceId,
     filter: restoreSpanFilterOption(param.filter),
@@ -50,9 +50,9 @@ export function restoreWantSpanEventRequestParam(
   };
 }
 
-export function restoreWantSpanEventResponse(
-  data: JsonWantSpanEventResponse,
-): WantSpanEventResponse {
+export function restoreWaitForSpanEventResponse(
+  data: JsonWaitForSpanEventResponse,
+): WaitForSpanEventResponse {
   if ("error" in data) {
     return data;
   }

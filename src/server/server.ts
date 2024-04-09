@@ -1,14 +1,14 @@
 import { MemoryBus } from "@/eventBus/infra/memoryBus";
 import { SpanBus } from "@/eventBus/spanBus";
-import { WantSpanRequest } from "@/eventBus/wantSpanRequest";
+import { WaitForSpanRequest } from "@/eventBus/waitForSpanRequest";
 import opentelemetry from "@/generated/otelpbj";
 import { Logger } from "@/logger";
 import { SuccessResponse } from "@/server/commonParameter";
 import { IServer } from "@/server/iServer";
 import {
-  JsonWantSpanEventRequestParam,
-  JsonWantSpanEventResponse,
-  restoreWantSpanEventRequestParam,
+  JsonWaitForSpanEventRequestParam,
+  JsonWaitForSpanEventResponse,
+  restoreWaitForSpanEventRequestParam,
 } from "@/server/parameter";
 import { State, StateEventRequestParam } from "@/server/stateParameter";
 import {
@@ -34,7 +34,7 @@ const LogsData = opentelemetry.opentelemetry.proto.logs.v1.LogsData;
 const WAIT_FOR_ALL_END_MS = 1000;
 
 export class Server implements IServer {
-  private wantSpanRequests: Map<string, WantSpanRequest[]> = new Map();
+  private waitForSpanRequests: Map<string, WaitForSpanRequest[]> = new Map();
   private mutex = new Mutex();
 
   private bus = new MemoryBus();
@@ -60,22 +60,24 @@ export class Server implements IServer {
   }
 
   private startBus(): void {
-    this.spanBus.listenWantSpanEvent(async (data) => {
-      const request = new WantSpanRequest(this.spanBus, data);
-      await this.handleWantSpanRequest(request);
+    this.spanBus.listenWaitForSpanEvent(async (data) => {
+      const request = new WaitForSpanRequest(this.spanBus, data);
+      await this.handleWaitForSpanRequest(request);
     });
   }
 
-  private async handleWantSpanRequest(request: WantSpanRequest): Promise<void> {
+  private async handleWaitForSpanRequest(
+    request: WaitForSpanRequest,
+  ): Promise<void> {
     const base64TraceId = request.traceId.base64String;
 
     let spans: OtelSpan[] | undefined = [];
     await this.mutex.runExclusive(() => {
       spans = this.capturedSpans.get(base64TraceId);
 
-      const requests = this.wantSpanRequests.get(base64TraceId) || [];
+      const requests = this.waitForSpanRequests.get(base64TraceId) || [];
       requests.push(request);
-      this.wantSpanRequests.set(base64TraceId, requests);
+      this.waitForSpanRequests.set(base64TraceId, requests);
     });
     if (!spans) return;
 
@@ -111,9 +113,9 @@ export class Server implements IServer {
     );
 
     app.post(
-      "/events/wantSpan",
+      "/events/waitForSpan",
       asyncHandler(async (req, res) => {
-        const response = await this.handleWantSpanEvent(req.body as string);
+        const response = await this.handleWaitForSpanEvent(req.body as string);
         res.send(JSON.stringify(response));
       }),
     );
@@ -194,7 +196,7 @@ export class Server implements IServer {
       this.capturedSpans.get(traceId)?.push(span);
     });
 
-    const requests = this.wantSpanRequests.get(traceId) ?? [];
+    const requests = this.waitForSpanRequests.get(traceId) ?? [];
     const notMatchRequests = requests.filter((request) => {
       if (request.matches(span)) {
         void request.respond(span);
@@ -205,7 +207,7 @@ export class Server implements IServer {
     });
 
     await this.mutex.runExclusive(() => {
-      this.wantSpanRequests.set(traceId, notMatchRequests);
+      this.waitForSpanRequests.set(traceId, notMatchRequests);
     });
   }
 
@@ -222,16 +224,16 @@ export class Server implements IServer {
     });
   }
 
-  private async handleWantSpanEvent(
+  private async handleWaitForSpanEvent(
     body: string,
-  ): Promise<JsonWantSpanEventResponse> {
-    const param = JsonWantSpanEventRequestParam.parse(JSON.parse(body));
-    const wantSpanEvent = restoreWantSpanEventRequestParam(param);
+  ): Promise<JsonWaitForSpanEventResponse> {
+    const param = JsonWaitForSpanEventRequestParam.parse(JSON.parse(body));
+    const waitForSpanEvent = restoreWaitForSpanEventRequestParam(param);
 
     const spanBus = new SpanBus(this.bus);
-    const response = await spanBus.requestWantSpan(
-      new Base64String(wantSpanEvent.base64TraceId),
-      wantSpanEvent.filter,
+    const response = await spanBus.requestWaitForSpan(
+      new Base64String(waitForSpanEvent.base64TraceId),
+      waitForSpanEvent.filter,
       10000,
     );
     if ("error" in response) {

@@ -1,7 +1,7 @@
 import { Eq } from "@/comparision/eq";
 import { Reg } from "@/comparision/reg";
 import { EventBus } from "@/eventBus/infra/eventBus";
-import { WantSpanEvent } from "@/eventBus/parameter";
+import { WaitForSpanEvent } from "@/eventBus/parameter";
 import { SpanBus } from "@/eventBus/spanBus";
 import { Base64String } from "@/type/base64String";
 import { SpanFilterOption } from "@/type/spanFilterOption";
@@ -21,7 +21,7 @@ describe("SpanBus", () => {
     },
   };
 
-  describe("listenWantSpanEvent", () => {
+  describe("listenWaitForSpanEvent", () => {
     let bus: MockProxy<EventBus>;
     let spanBus: SpanBus;
     beforeEach(() => {
@@ -31,15 +31,15 @@ describe("SpanBus", () => {
 
     it("should call callback when event is emitted", async () => {
       const callback = jest.fn();
-      spanBus.listenWantSpanEvent(callback);
+      spanBus.listenWaitForSpanEvent(callback);
 
-      await spanBus.requestWantSpan(
+      await spanBus.requestWaitForSpan(
         new Base64String("trace-id"),
         defaultFilter,
         0,
       );
 
-      const expected: WantSpanEvent = {
+      const expected: WaitForSpanEvent = {
         wantId: expect.any(String) as string,
         base64TraceId: "trace-id",
         filter: defaultFilter,
@@ -48,7 +48,7 @@ describe("SpanBus", () => {
     });
   });
 
-  describe("requestWantSpan", () => {
+  describe("requestWaitForSpan", () => {
     let bus: SpanBus;
     let mockBus: MockProxy<EventBus>;
 
@@ -58,7 +58,11 @@ describe("SpanBus", () => {
     });
 
     it("should emit request", async () => {
-      await bus.requestWantSpan(new Base64String("trace-id"), defaultFilter, 0);
+      await bus.requestWaitForSpan(
+        new Base64String("trace-id"),
+        defaultFilter,
+        0,
+      );
 
       const emittedData = mockBus.emit.mock.calls;
       expect(emittedData.length).toBe(1);

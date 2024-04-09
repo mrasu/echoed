@@ -9,7 +9,7 @@ import { Gte } from "@/comparision/gte";
 import { Lt } from "@/comparision/lt";
 import { Lte } from "@/comparision/lte";
 import { Reg } from "@/comparision/reg";
-import { JsonWantSpanEventResponse } from "@/server/parameter";
+import { JsonWaitForSpanEventResponse } from "@/server/parameter";
 import { ECHOED_USER_AGENT, USER_AGENT_HEADER_KEY } from "@/server/request";
 import { Requester } from "@/server/requester";
 import { Resp } from "@/server/resp";
@@ -26,7 +26,7 @@ describe("waitForSpanForTraceId", () => {
     fetchMock.resetMocks();
 
     fetchMock.doMockIf(
-      "http://localhost:1/events/wantSpan",
+      "http://localhost:1/events/waitForSpan",
       JSON.stringify({ span: buildJsonSpan() }),
     );
   });
@@ -76,7 +76,7 @@ describe("waitForSpanForTraceIdWithRequester", () => {
     Requester,
     jest.Mock<Promise<Resp>, [string, Record<string, string>, string]>,
   ] => {
-    const resp: JsonWantSpanEventResponse = {
+    const resp: JsonWaitForSpanEventResponse = {
       span: buildJsonSpan(),
     };
     const post = jest
@@ -103,7 +103,7 @@ describe("waitForSpanForTraceIdWithRequester", () => {
       );
 
       expect(post.mock.calls[0][0]).toEqual(
-        "http://localhost:1/events/wantSpan",
+        "http://localhost:1/events/waitForSpan",
       );
       expect(post.mock.calls[0][1]).toEqual({
         [USER_AGENT_HEADER_KEY]: ECHOED_USER_AGENT,
@@ -141,7 +141,7 @@ describe("waitForSpanForTraceIdWithRequester", () => {
       );
 
       expect(post.mock.calls[0][0]).toEqual(
-        "http://localhost:1/events/wantSpan",
+        "http://localhost:1/events/waitForSpan",
       );
       expect(post.mock.calls[0][1]).toEqual({
         [USER_AGENT_HEADER_KEY]: ECHOED_USER_AGENT,
@@ -183,7 +183,7 @@ describe("waitForSpanForTraceIdWithRequester", () => {
       );
 
       expect(post.mock.calls[0][0]).toEqual(
-        "http://localhost:1/events/wantSpan",
+        "http://localhost:1/events/waitForSpan",
       );
       expect(post.mock.calls[0][1]).toEqual({
         [USER_AGENT_HEADER_KEY]: ECHOED_USER_AGENT,
@@ -222,7 +222,7 @@ describe("waitForSpanForTraceIdWithRequester", () => {
       );
 
       expect(post.mock.calls[0][0]).toEqual(
-        "http://localhost:1/events/wantSpan",
+        "http://localhost:1/events/waitForSpan",
       );
       expect(post.mock.calls[0][1]).toEqual({
         [USER_AGENT_HEADER_KEY]: ECHOED_USER_AGENT,
@@ -260,7 +260,7 @@ describe("waitForSpanForTraceIdWithRequester", () => {
       );
 
       expect(post.mock.calls[0][0]).toEqual(
-        "http://localhost:1/events/wantSpan",
+        "http://localhost:1/events/waitForSpan",
       );
       expect(post.mock.calls[0][1]).toEqual({
         [USER_AGENT_HEADER_KEY]: ECHOED_USER_AGENT,
@@ -301,7 +301,7 @@ describe("waitForSpanForTraceIdWithRequester", () => {
       );
 
       expect(post.mock.calls[0][0]).toEqual(
-        "http://localhost:1/events/wantSpan",
+        "http://localhost:1/events/waitForSpan",
       );
       expect(post.mock.calls[0][1]).toEqual({
         [USER_AGENT_HEADER_KEY]: ECHOED_USER_AGENT,

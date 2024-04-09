@@ -1,11 +1,11 @@
 import { Eq } from "@/comparision/eq";
 import { FetchRequester } from "@/server/fetchRequester";
-import { JsonWantSpanEventResponse } from "@/server/parameter";
-import { requestWantSpanEvent } from "@/server/request";
+import { JsonWaitForSpanEventResponse } from "@/server/parameter";
+import { requestWaitForSpanEvent } from "@/server/request";
 import { buildJsonSpan } from "@/testUtil/type/jsonSpan";
 import fetchMock from "jest-fetch-mock";
 
-describe("requestWantSpanEvent", () => {
+describe("requestWaitForSpanEvent", () => {
   beforeEach(() => {
     fetchMock.enableMocks();
     fetchMock.resetMocks();
@@ -15,9 +15,9 @@ describe("requestWantSpanEvent", () => {
     fetchMock.disableMocks();
   });
 
-  const mockFetch = (response: JsonWantSpanEventResponse): void => {
+  const mockFetch = (response: JsonWaitForSpanEventResponse): void => {
     fetchMock.doMockIf(
-      "http://localhost:1/events/wantSpan",
+      "http://localhost:1/events/waitForSpan",
       JSON.stringify(response),
     );
   };
@@ -29,7 +29,7 @@ describe("requestWantSpanEvent", () => {
 
     it("should return span", async () => {
       const requester = new FetchRequester();
-      const span = await requestWantSpanEvent(requester, 1, {
+      const span = await requestWaitForSpanEvent(requester, 1, {
         base64TraceId: "dummy-trace-id",
         filter: {
           name: new Eq("dummy/name"),
@@ -53,7 +53,7 @@ describe("requestWantSpanEvent", () => {
     it("should raise error", async () => {
       await expect(async () => {
         const requester = new FetchRequester();
-        await requestWantSpanEvent(requester, 1, {
+        await requestWaitForSpanEvent(requester, 1, {
           base64TraceId: "dummy-trace-id",
           filter: {
             name: new Eq("dummy/name"),
@@ -76,7 +76,7 @@ describe("requestWantSpanEvent", () => {
     it("should raise error", async () => {
       await expect(async () => {
         const requester = new FetchRequester();
-        await requestWantSpanEvent(requester, 1, {
+        await requestWaitForSpanEvent(requester, 1, {
           base64TraceId: "dummy-trace-id",
           filter: {
             name: new Eq("dummy/name"),

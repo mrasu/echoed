@@ -1,11 +1,11 @@
 import { EventBus } from "@/eventBus/infra/eventBus";
 import {
   JsonReceiveSpanEvent,
-  JsonWantSpanEvent,
+  JsonWaitForSpanEvent,
   ReceiveSpanEmitEvent,
-  WantSpanEvent,
+  WaitForSpanEvent,
   restoreReceiveSpanEvent,
-  restoreWantSpanEvent,
+  restoreWaitForSpanEvent,
 } from "@/eventBus/parameter";
 import { Base64String } from "@/type/base64String";
 import { ErrorMessage } from "@/type/common";
@@ -14,26 +14,28 @@ import { OtelSpan } from "@/type/otelSpan";
 import { SpanFilterOption } from "@/type/spanFilterOption";
 import { buildRandomHexUUID } from "@/util/random";
 
-export const WANT_SPAN_EVENT_NAME = "wantSpan";
+export const WAIT_FOR_SPAN_EVENT_NAME = "waitForSpan";
 export const RECEIVE_SPAN_EVENT_NAME = "receiveSpan";
 
 export class SpanBus {
   constructor(private readonly bus: EventBus) {}
 
-  listenWantSpanEvent(callback: (event: WantSpanEvent) => Promise<void>): void {
-    this.bus.on(WANT_SPAN_EVENT_NAME, async (origData: unknown) => {
-      const data = JsonWantSpanEvent.parse(origData);
-      await callback(restoreWantSpanEvent(data));
+  listenWaitForSpanEvent(
+    callback: (event: WaitForSpanEvent) => Promise<void>,
+  ): void {
+    this.bus.on(WAIT_FOR_SPAN_EVENT_NAME, async (origData: unknown) => {
+      const data = JsonWaitForSpanEvent.parse(origData);
+      await callback(restoreWaitForSpanEvent(data));
     });
   }
 
-  async requestWantSpan(
+  async requestWaitForSpan(
     traceId: Base64String,
     filter: SpanFilterOption,
     waitTimeoutMs: number,
   ): Promise<JsonSpan | ErrorMessage> {
     const wantId = buildRandomHexUUID();
-    await this.emitWantSpanEvent({
+    await this.emitWaitForSpanEvent({
       base64TraceId: traceId.base64String,
       filter,
       wantId,
@@ -58,8 +60,8 @@ export class SpanBus {
     return span;
   }
 
-  private async emitWantSpanEvent(event: WantSpanEvent): Promise<void> {
-    await this.bus.emit(WANT_SPAN_EVENT_NAME, event);
+  private async emitWaitForSpanEvent(event: WaitForSpanEvent): Promise<void> {
+    await this.bus.emit(WAIT_FOR_SPAN_EVENT_NAME, event);
   }
 
   async emitReceiveSpanEvent(

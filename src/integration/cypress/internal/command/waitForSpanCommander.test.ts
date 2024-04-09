@@ -3,7 +3,7 @@ import {
   initializeEchoedContext,
   setTraceIdToCypressSpec,
 } from "@/integration/cypress/internal/util/cypressSpec";
-import { JsonWantSpanEventResponse } from "@/server/parameter";
+import { JsonWaitForSpanEventResponse } from "@/server/parameter";
 import { ECHOED_USER_AGENT, USER_AGENT_HEADER_KEY } from "@/server/request";
 import { Requester } from "@/server/requester";
 import { buildCypressSpec } from "@/testUtil/cypress/cypressSpec";
@@ -14,7 +14,7 @@ describe("WaitForSpanCommander", () => {
   const url = "https://example.com";
 
   describe("run", () => {
-    const response: JsonWantSpanEventResponse = {
+    const response: JsonWaitForSpanEventResponse = {
       span: {
         attributes: [],
         traceId: "traceId",
@@ -39,7 +39,7 @@ describe("WaitForSpanCommander", () => {
 
       expect(span.name).toEqual("foo");
       expect(requester.post.mock.calls[0]).toEqual([
-        "http://localhost:1234/events/wantSpan",
+        "http://localhost:1234/events/waitForSpan",
         {
           [USER_AGENT_HEADER_KEY]: ECHOED_USER_AGENT,
         },

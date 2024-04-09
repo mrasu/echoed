@@ -1,5 +1,5 @@
 import { Comparable } from "@/comparision/comparable";
-import { WantSpanEvent } from "@/eventBus/parameter";
+import { WaitForSpanEvent } from "@/eventBus/parameter";
 import { SpanBus } from "@/eventBus/spanBus";
 import { opentelemetry } from "@/generated/otelpbj";
 import { Base64String } from "@/type/base64String";
@@ -7,11 +7,11 @@ import { OtelSpan } from "@/type/otelSpan";
 import { SpanFilterOption } from "@/type/spanFilterOption";
 import { toBase64 } from "@/util/byte";
 
-export class WantSpanRequest {
+export class WaitForSpanRequest {
   public readonly bus: SpanBus;
-  private readonly event: WantSpanEvent;
+  private readonly event: WaitForSpanEvent;
 
-  constructor(bus: SpanBus, event: WantSpanEvent) {
+  constructor(bus: SpanBus, event: WaitForSpanEvent) {
     this.bus = bus;
     this.event = event;
   }
