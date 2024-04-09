@@ -1,9 +1,10 @@
 import { EchoedFatalError } from "@/echoedFatalError";
+import { TraceHistory } from "@/integration/common/traceHistory";
 import { Base64String } from "@/type/base64String";
 import { BrowserContext } from "@playwright/test";
 
 type EchoedContext = {
-  traces: [string, Base64String][];
+  traces: TraceHistory;
 };
 
 const echoedContextPropertyName = "__echoed_ctx";
@@ -27,7 +28,7 @@ function getEchoedContext(context: BrowserContext): EchoedContext {
 
 export function initializeEchoedContext(context: BrowserContext): void {
   (context as unknown as WrappedBrowserContext)[echoedContextPropertyName] = {
-    traces: [],
+    traces: new TraceHistory(),
   };
 }
 
@@ -37,24 +38,17 @@ export function setTraceIdToContext(
   traceId: Base64String,
 ): void {
   const traces = getEchoedContext(context).traces;
-  traces.push([url, traceId]);
+  traces.push(url, traceId);
 }
 
 export function getLastTraceIdFromContext(
   context: BrowserContext,
-  url: string | RegExp,
+  pattern: string | RegExp,
 ): Base64String | undefined {
   const traces = getEchoedContext(context).traces;
   if (!traces) {
     return undefined;
   }
 
-  const trace = traces.reverse().find((t) => {
-    if (url instanceof RegExp) {
-      return url.test(t[0]);
-    }
-    return t[0] === url;
-  });
-
-  return trace?.[1];
+  return traces.getLastTraceId(pattern);
 }

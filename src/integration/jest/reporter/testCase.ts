@@ -11,6 +11,7 @@ export class TestCaseStartInfo {
   toTestCaseElement(
     status: string,
     duration: number,
+    testEndTimeMillis: number,
     failureDetails: string[] | undefined,
     failureMessages: string[] | undefined,
   ): TestCase {
@@ -21,6 +22,7 @@ export class TestCaseStartInfo {
       this.startTimeMillis,
       status,
       duration,
+      testEndTimeMillis,
       failureDetails,
       failureMessages,
     );

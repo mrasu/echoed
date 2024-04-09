@@ -9,13 +9,10 @@ export class TestCase {
     public startTimeMillis: number,
     public status: string,
     public duration: number,
+    public testEndTimeMillis: number,
     public failureDetails?: string[],
     public failureMessages?: string[],
   ) {}
-
-  get finishTimeMillis(): number {
-    return this.startTimeMillis + this.duration;
-  }
 
   toResult(orderedTraceIds: string[], fetches: FetchInfo[]): TestCaseResult {
     return new TestCaseResult(
@@ -27,6 +24,7 @@ export class TestCase {
       orderedTraceIds,
       fetches,
       this.duration,
+      this.testEndTimeMillis,
       this.failureDetails,
       this.failureMessages,
     );

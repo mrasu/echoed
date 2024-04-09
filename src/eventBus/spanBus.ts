@@ -12,6 +12,7 @@ import { ErrorMessage } from "@/type/common";
 import { JsonSpan } from "@/type/jsonSpan";
 import { OtelSpan } from "@/type/otelSpan";
 import { SpanFilterOption } from "@/type/spanFilterOption";
+import { buildRandomHexUUID } from "@/util/random";
 
 export const WANT_SPAN_EVENT_NAME = "wantSpan";
 export const RECEIVE_SPAN_EVENT_NAME = "receiveSpan";
@@ -31,7 +32,7 @@ export class SpanBus {
     filter: SpanFilterOption,
     waitTimeoutMs: number,
   ): Promise<JsonSpan | ErrorMessage> {
-    const wantId = crypto.randomUUID();
+    const wantId = buildRandomHexUUID();
     await this.emitWantSpanEvent({
       base64TraceId: traceId.base64String,
       filter,

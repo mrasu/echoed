@@ -1,4 +1,5 @@
 import { FetchRequestInfo, TestActionLogger } from "@/fileLog/testActionLogger";
+import { TRACEPARENT_HEADER_KEY } from "@/integration/common/commonFetchRunner";
 import {
   readAPIResponseText,
   setTraceIdToAPIResponse,
@@ -20,7 +21,7 @@ export class RouteFetchRunner {
     await this.logFetchStarted(testInfo, traceId, new Date());
 
     const headers = route.request().headers();
-    headers["traceparent"] = traceparent;
+    headers[TRACEPARENT_HEADER_KEY] = traceparent;
     const response = await this.runRouteFetch(route, headers);
     if ("fetchError" in response) {
       await this.logFetchFailed(route, traceId, response.message);

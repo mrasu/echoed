@@ -89,7 +89,7 @@
           <td>
             {#each testInfo.failureDetails as message}
               <pre class="failure-message">{beautifyJSONString(
-                  JSON.stringify(message),
+                  JSON.stringify(message, null, "\t"),
                 )}</pre>
             {/each}
           </td>

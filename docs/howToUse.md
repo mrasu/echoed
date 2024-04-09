@@ -6,6 +6,7 @@ Documentation for Usage of Echoed.
 
 * [Jest](#Jest)
 * [Playwright](#Playwright)
+* [Cypress](#Cypress)
 * [Analyze Coverage](#Analyze-Coverage)
 * [Using Echoed without OpenTelemetry](#Using-Echoed-without-OpenTelemetry)
 
@@ -156,10 +157,6 @@ For more examples, refer to [jest/example/test](../create-echoed/template/jest/e
 
 # Playwright
 
-## YAML
-
-YAML is under development. 🚧
-
 ### Make Tests Observable
 
 To generate an HTML report visualizing API traces, replace `test` of Playwright to Echoed's to intercept requests.
@@ -256,9 +253,111 @@ test("creates an OpenTelemetry span", async ({ request }) => {
 });
 ```
 
+## YAML
+
+YAML is under development. 🚧
+
 ## More Examples
 
 For more examples, refer to [playwright/example/test](../create-echoed/template/playwright/example/test) directory.
+
+# Cypress
+
+### Make Tests Observable
+
+To generate an HTML report visualizing API traces, no additional code is needed.  
+Simply write your Cypress tests as usual.
+
+```ts
+it("opens home page", () => {
+  cy.visit("http://localhost:8080");
+  cy.title().should("eq", "OTel demo");
+  
+  cy.get("[data-cy=product-card]").should("have.length", 10);
+});
+```
+The code above produces an HTML report illustrating traces made when opening the home page(`http://localhost:8080`).
+
+### Test OpenTelemetry's Spans
+
+In addition to the HTML output, Echoed offers a method for testing OpenTelemetry spans.  
+Use the `waitForSpan` command to obtain a span that matches your needs.
+
+```ts
+it("creates an OpenTelemetry gRPC span", () => {
+  cy.visit("http://localhost:8080");
+  cy.title().should("eq", "OTel demo");
+
+  cy.waitForSpan(
+    "http://localhost:8080/api/products",
+    {
+      name: "oteldemo.ProductCatalogService/ListProducts",
+      resource: {
+        attributes: {
+          "service.name": "productcatalogservice",
+        },
+      },
+      attributes: {
+        "app.products.count": gte(5),
+        "rpc.system": /grpc/,
+      }
+    },
+  ).then((span) => {
+    const rpcSystem = span.attributes.find(
+      (attr) => attr.key === "app.products.count",
+    );
+    expect(rpcSystem?.value?.intValue).to.eq(10);
+  });
+});
+```
+The code above waits for a span that satisfies the following specified conditions and then compares it using the `expect` statement:
+* `name` is `oteldemo.ProductCatalogService/ListProducts`
+* `service.name` in resource is `productcatalogservice`
+* `app.products.count` attribute is greater than or equal to `5`
+* `rpc.system` attribute matches `/grpc/`
+
+You can also use `waitForSpan` command to test the response of `cy.request()` by replacing the url in arguments with the response of `cy.request()`.
+
+### Test SQL
+
+You can use the `waitForSpan` command to test executed SQL too.
+
+```ts
+it("creates an OpenTelemetry span", () => {
+  cy.request("POST", `http://localhost:8080/api/products`, {
+    data: {
+        name: "Awesome Product",
+        price: 100,
+    },
+  }).then((response) => {
+    expect(response.status).to.eq(200);
+    
+    cy.waitForSpan(response, {
+      name: "oteldemo.ProductCatalogService/CreateProducts",
+      resource: {
+        attributes: {
+          "service.name": "productcatalogservice",
+        },
+      },
+      attributes: {
+        "db.system": "postgresql",
+        "db.statement": /INSERT INTO products +/,
+      }
+    }).then((span) => {
+      const query = span.attributes.find(attr => attr.key === "db.statement");
+      expect(query?.value?.stringValue).to.eq("INSERT INTO products (name, price) VALUES ('Awesome Product', 100)");
+    });
+  });
+});
+```
+
+## YAML
+
+YAML is under development. 🚧
+
+## More Examples
+
+For more examples, refer to [cypress/example/test](../create-echoed/template/cypress/cypress/e2e/example) directory.
 
 # Analyze Coverage
 

@@ -1,4 +1,4 @@
-import { truncateString } from "@/util/string";
+import { toOnlyCharacters, truncateString } from "@/util/string";
 
 describe("truncateString", () => {
   describe("when the string is shorter than the max length", () => {
@@ -17,5 +17,11 @@ describe("truncateString", () => {
     it("should truncate the string", () => {
       expect(truncateString("hello world", 5)).toBe("hello...");
     });
+  });
+});
+
+describe("toOnlyCharacters", () => {
+  it("should remove non-alphanumeric characters", () => {
+    expect(toOnlyCharacters("hello, world!")).toBe("helloworld");
   });
 });

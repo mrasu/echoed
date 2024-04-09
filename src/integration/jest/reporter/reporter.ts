@@ -11,6 +11,7 @@ import {
 import { TestCaseStartInfo } from "@/integration/jest/reporter/testCase";
 import { Logger } from "@/logger";
 import { IReportFile } from "@/report/iReportFile";
+import { TestFailedError } from "@/report/testFailedError";
 import { Server } from "@/server/server";
 import { TestCase } from "@/testCase";
 import { TestResult } from "@/testResult";
@@ -117,7 +118,7 @@ export class Reporter {
     if (this.config.propagationTestConfig.enabled) {
       const passed = logPropagationTestResult(testResult);
       if (!passed) {
-        this.lastError = new Error("Propagation leak found");
+        this.lastError = new TestFailedError("Propagation leak found");
       }
     }
 
@@ -166,9 +167,12 @@ export class Reporter {
       );
     }
 
+    const duration = testCaseResult.duration ?? 0;
     const element = testCase.toTestCaseElement(
       testCaseResult.status,
-      testCaseResult.duration ?? 0,
+      duration,
+      // Because Jest starts the next test without waiting for `onTestCaseResult`, we cannot find exact test finished time. Instead, use `startTimeMillis + duration` as finished time.
+      testCase.startTimeMillis + duration,
       testCaseResult.failureDetails.map((v) => JSON.stringify(v)),
       testCaseResult.failureMessages,
     );

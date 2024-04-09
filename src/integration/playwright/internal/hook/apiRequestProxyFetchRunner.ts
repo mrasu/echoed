@@ -1,4 +1,5 @@
 import { FetchRequestInfo, TestActionLogger } from "@/fileLog/testActionLogger";
+import { TRACEPARENT_HEADER_KEY } from "@/integration/common/commonFetchRunner";
 import {
   readAPIResponseText,
   setTraceIdToAPIResponse,
@@ -45,7 +46,7 @@ export class ApiRequestProxyFetchRunner {
   ): Promise<APIResponse> {
     const headers = options?.headers ?? {};
     const { traceparent, traceId } = generateTraceparent();
-    headers["traceparent"] = traceparent;
+    headers[TRACEPARENT_HEADER_KEY] = traceparent;
     const modifiedOptions = { ...options, headers };
 
     await this.logFetchStarted(testInfo, traceId, new Date());

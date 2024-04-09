@@ -18,7 +18,7 @@ export function getServerPortFromEnv(): number | undefined {
   const port = process.env.__ECHOED_SERVER_PORT__;
   if (!port) return undefined;
 
-  return parseInt(port);
+  return parseInt(port) || undefined;
 }
 
 export function deleteServerPortFromEnv(): void {

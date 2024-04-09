@@ -35,6 +35,15 @@ export class TwoKeyValuesMap<K1, K2, V> {
     }
   }
 
+  delete(k1: K1, k2: K2): void {
+    const map2 = this.map.get(k1);
+    if (!map2) return;
+    map2.delete(k2);
+    if (map2.size === 0) {
+      this.map.delete(k1);
+    }
+  }
+
   entries(): [K1, K2, V][] {
     const ret: [K1, K2, V][] = [];
     for (const [k1, map1] of this.map.entries()) {

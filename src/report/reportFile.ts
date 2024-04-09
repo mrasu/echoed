@@ -35,6 +35,7 @@ type TestInfo = {
   failureDetails?: string[];
   failureMessages?: string[];
   duration?: number;
+  testEndTimeMillis: number;
 };
 
 type Fetch = {
@@ -193,6 +194,7 @@ export class ReportFile implements IReportFile {
         failureDetails: result.failureDetails,
         failureMessages: result.failureMessages,
         duration: result.duration,
+        testEndTimeMillis: result.testEndTimeMillis,
       };
       return testInfo;
     });

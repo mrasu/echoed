@@ -1,4 +1,5 @@
 import { Eq } from "@/comparision/eq";
+import { FetchRequester } from "@/server/fetchRequester";
 import { JsonWantSpanEventResponse } from "@/server/parameter";
 import { requestWantSpanEvent } from "@/server/request";
 import { buildJsonSpan } from "@/testUtil/type/jsonSpan";
@@ -27,7 +28,8 @@ describe("requestWantSpanEvent", () => {
     });
 
     it("should return span", async () => {
-      const span = await requestWantSpanEvent(1, {
+      const requester = new FetchRequester();
+      const span = await requestWantSpanEvent(requester, 1, {
         base64TraceId: "dummy-trace-id",
         filter: {
           name: new Eq("dummy/name"),
@@ -50,7 +52,8 @@ describe("requestWantSpanEvent", () => {
 
     it("should raise error", async () => {
       await expect(async () => {
-        await requestWantSpanEvent(1, {
+        const requester = new FetchRequester();
+        await requestWantSpanEvent(requester, 1, {
           base64TraceId: "dummy-trace-id",
           filter: {
             name: new Eq("dummy/name"),
@@ -72,7 +75,8 @@ describe("requestWantSpanEvent", () => {
 
     it("should raise error", async () => {
       await expect(async () => {
-        await requestWantSpanEvent(1, {
+        const requester = new FetchRequester();
+        await requestWantSpanEvent(requester, 1, {
           base64TraceId: "dummy-trace-id",
           filter: {
             name: new Eq("dummy/name"),

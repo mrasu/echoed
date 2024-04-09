@@ -37,13 +37,17 @@ export class TestActionLogger {
     responseStatus: number,
     responseBody: string,
   ): Promise<void> {
+    const reqBody = requestInfo.body
+      ? truncateString(requestInfo.body, MAX_TEXT_SIZE)
+      : undefined;
+
     const value: FetchFinishedLog = {
       type: "fetchFinished",
       traceId: traceId.base64String,
       request: {
         url: requestInfo.url,
         method: requestInfo.method,
-        body: requestInfo.body ?? undefined,
+        body: reqBody,
       },
       response: {
         status: responseStatus,

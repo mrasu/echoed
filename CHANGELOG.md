@@ -1,3 +1,7 @@
+## Unreleased
+### Added
+- Add support for Cypress
+
 ## 0.2.1
 ### Added
 - Add option to ignore spans from "undocumented" in coverage.

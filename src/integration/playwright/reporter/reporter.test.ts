@@ -68,6 +68,7 @@ describe("Reporter", () => {
           result.startTime.getTime(),
           "passed",
           123,
+          result.startTime.getTime() + 123,
           [],
           [],
         ),
@@ -96,6 +97,7 @@ describe("Reporter", () => {
             result.startTime.getTime(),
             "failed",
             123,
+            result.startTime.getTime() + 123,
             [
               JSON.stringify({
                 message: "test failed",

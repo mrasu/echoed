@@ -1,9 +1,8 @@
 import { Config, ECHOED_CONFIG_FILE_NAME } from "@/config/config";
-import { EchoedError } from "@/echoedError";
 import { FsContainer, buildFsContainerForApp } from "@/fs/fsContainer";
 import { LocalFile } from "@/fs/localFile";
+import { throwError } from "@/integration/common/util/error";
 import { Reporter } from "@/integration/jest/reporter/reporter";
-import { Logger } from "@/logger";
 import { ReportFile } from "@/report/reportFile";
 import {
   AggregatedResult,
@@ -38,7 +37,7 @@ export class JestReporter implements IJestReporter {
 
       this.reporter = new Reporter(this.fsContainer, globalConfig, this.config);
     } catch (e) {
-      this.throwError(e);
+      throwError(e);
     }
   }
 
@@ -91,19 +90,7 @@ export class JestReporter implements IJestReporter {
     try {
       await fn();
     } catch (e) {
-      this.throwError(e);
+      throwError(e);
     }
-  }
-
-  private throwError(e: unknown): never {
-    if (e instanceof EchoedError) {
-      // Add new line to emphasize message.
-      // Because long message including stacktrace will be printed after `throw e`, we need to emphasize message somehow.
-      Logger.ln(2);
-      Logger.error(e.message);
-      Logger.ln(2);
-    }
-
-    throw e;
   }
 }

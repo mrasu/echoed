@@ -20,6 +20,11 @@ function extractLowerCaseContentType(response: Response): string {
   return "";
 }
 
-export function buildNotDisplayableMessage(contentType: string): string {
-  return `[Not displayable. content-type=${contentType}]`;
+export function buildNotDisplayableMessage(origContentType?: string): string {
+  if (origContentType === undefined) {
+    return "[Not displayable]";
+  }
+
+  const ct = origContentType || "unknown";
+  return `[Not displayable. content-type=${ct}]`;
 }

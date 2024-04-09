@@ -17,6 +17,7 @@
 * [How to Use](#How-to-Use)
   * [Jest](#Jest)
   * [Playwright](#Playwright)
+  * [Cypress](#Cypress)
   * [Analyze Coverage](#Analyze-Coverage)
 * [Using Echoed without OpenTelemetry](#Using-Echoed-without-OpenTelemetry)
 * [Configuration](#Configuration)
@@ -82,6 +83,7 @@ Echoed offers several installation methods depending on your needs:
 Refer to the following documents for other installation methods:
 * [Jest](./docs/installation.md#jest)
 * [Playwright](./docs/installation.md#playwright)
+* [Cypress](./docs/installation.md#cypress)
 
 # How to Use
 
@@ -207,6 +209,53 @@ The code above waits for a span that links to the request to `http://localhost:8
 ### Other Examples
 
 For more examples, refer to [documentation](./docs/howToUse.md#playwright).
+
+## Cypress
+
+You can write Cypress tests in TypeScript too.
+
+### Make Tests Observable
+
+To generate an HTML report visualizing API traces, no additional code is needed.  
+Simply write your Cypress tests as usual.
+
+```ts
+it("opens home page", () => {
+  cy.visit("http://localhost:8080");
+  cy.title().should("eq", "OTel demo");
+  
+  cy.get("[data-cy=product-card]").should("have.length", 10);
+});
+```
+
+The code above produces an HTML report illustrating traces when opening the home page(`http://localhost:8080`).
+
+### Test OpenTelemetry's Spans
+
+In addition to the HTML output, Echoed offers a method for testing OpenTelemetry spans.  
+Use the `waitForSpan` command to obtain a span that matches your needs.
+
+```ts
+it("creates an OpenTelemetry gRPC span", () => {
+  cy.visit("http://localhost:8080");
+  cy.title().should("eq", "OTel demo");
+
+  cy.waitForSpan(
+    "http://localhost:8080/api/products",
+    { name: "oteldemo.ProductCatalogService/ListProducts" },
+  ).then((span) => {
+    const rpcSystem = span.attributes.find(
+      (attr) => attr.key === "app.products.count",
+    );
+    expect(rpcSystem?.value?.intValue).to.eq(10);
+  });
+});
+```
+The code above waits for a span that links to the request to `http://localhost:8080/api/products` and compares it using the `expect` statement
+
+### Other Examples
+
+For more examples, refer to [documentation](./docs/howToUse.md#cypress).
 
 ## Analyze Coverage
 

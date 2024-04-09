@@ -6,6 +6,7 @@ import { readBodyInit, readStreamFully } from "@/util/stream";
 import { generateTraceparent } from "@/util/traceparent";
 
 export type GlobalFetch = typeof globalThis.fetch;
+export const TRACEPARENT_HEADER_KEY = "traceparent";
 
 export class CommonFetchRunner {
   constructor(private readonly originalFetch: GlobalFetch) {}
@@ -48,7 +49,7 @@ export class CommonFetchRunner {
   ): Promise<[Response, FetchRequestInfo]> {
     if (input instanceof Request) {
       const clonedInput = structuredClone(input);
-      clonedInput.headers.set("traceparent", traceparent);
+      clonedInput.headers.set(TRACEPARENT_HEADER_KEY, traceparent);
 
       const requestInfo: FetchRequestInfo = {
         url: input.url,
@@ -69,11 +70,11 @@ export class CommonFetchRunner {
 
     const headers = clonedInit.headers || {};
     if (headers instanceof Headers) {
-      headers.set("traceparent", traceparent);
+      headers.set(TRACEPARENT_HEADER_KEY, traceparent);
     } else if (Array.isArray(headers)) {
-      headers.push(["traceparent", traceparent]);
+      headers.push([TRACEPARENT_HEADER_KEY, traceparent]);
     } else {
-      headers["traceparent"] = traceparent;
+      headers[TRACEPARENT_HEADER_KEY] = traceparent;
     }
     clonedInit.headers = headers;
 

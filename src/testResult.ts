@@ -229,8 +229,9 @@ class TestCaseLogCollector {
         fetchFailedLogMap,
       );
       if (!endLog) {
-        Logger.error(
-          "Invalid state: fetchFinishedLog/fetchFailedLog not found",
+        // Not found endLog is not an error. For example, Cypress doesn't wait for end of all requests.
+        Logger.debug(
+          "FetchStartedLog: fetchFinishedLog/fetchFailedLog not found",
           log,
         );
         continue;
@@ -239,6 +240,7 @@ class TestCaseLogCollector {
       const testCase = seeker.seekCorrespondingTestCase(log);
       if (!testCase) continue;
 
+      // TODO: Log even when no `endLog` found.
       const fetch = this.toFetchInfo(endLog);
 
       const fetches = ret.get(testCase.testId) ?? [];
@@ -391,7 +393,7 @@ class TestCaseSeeker {
       if (fetchLog.timeMillis < testCase.startTimeMillis) {
         return undefined;
       }
-      if (testCase.finishTimeMillis <= fetchLog.timeMillis) {
+      if (testCase.testEndTimeMillis <= fetchLog.timeMillis) {
         continue;
       }
 

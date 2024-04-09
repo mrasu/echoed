@@ -1,4 +1,5 @@
 import { patchFetch } from "@/fetchPatch";
+import { TRACEPARENT_HEADER_KEY } from "@/integration/common/commonFetchRunner";
 import { Logger } from "@/logger";
 import { MockFileLogger } from "@/testUtil/fileLog/mockFileLogger";
 import { DummyFetcher } from "@/testUtil/global/dummyFetcher";
@@ -33,6 +34,8 @@ describe("patchFetch", () => {
       string,
       unknown
     >;
-    expect(headers["traceparent"]).toMatch(/00-[0-9a-f]{32}-[0-9a-f]{16}-01/);
+    expect(headers[TRACEPARENT_HEADER_KEY]).toMatch(
+      /00-[0-9a-f]{32}-[0-9a-f]{16}-01/,
+    );
   });
 });

@@ -3,16 +3,25 @@ import { SpanBus } from "@/eventBus/spanBus";
 import { WantSpanRequest } from "@/eventBus/wantSpanRequest";
 import opentelemetry from "@/generated/otelpbj";
 import { Logger } from "@/logger";
+import { SuccessResponse } from "@/server/commonParameter";
+import { IServer } from "@/server/iServer";
 import {
   JsonWantSpanEventRequestParam,
   JsonWantSpanEventResponse,
   restoreWantSpanEventRequestParam,
 } from "@/server/parameter";
+import { State, StateEventRequestParam } from "@/server/stateParameter";
+import {
+  TestFinishedEventRequestParam,
+  restoreTestCase,
+} from "@/server/testFinishedParameter";
+import { TestCase } from "@/testCase";
 import { Base64String } from "@/type/base64String";
 import { OtelLogRecord } from "@/type/otelLogRecord";
 import { OtelSpan } from "@/type/otelSpan";
 import { sleep } from "@/util/async";
 import { toBase64 } from "@/util/byte";
+import { neverVisit } from "@/util/never";
 import { Mutex } from "async-mutex";
 import bodyParser from "body-parser";
 import express from "express";
@@ -22,7 +31,9 @@ import http from "http";
 const TracesData = opentelemetry.opentelemetry.proto.trace.v1.TracesData;
 const LogsData = opentelemetry.opentelemetry.proto.logs.v1.LogsData;
 
-export class Server {
+const WAIT_FOR_ALL_END_MS = 1000;
+
+export class Server implements IServer {
   private wantSpanRequests: Map<string, WantSpanRequest[]> = new Map();
   private mutex = new Mutex();
 
@@ -31,6 +42,9 @@ export class Server {
   private httpServer?: http.Server;
   private capturedSpans: Map<string, OtelSpan[]> = new Map();
   private capturedLogs: Map<string, OtelLogRecord[]> = new Map();
+  private capturedTestCases: Map<string, TestCase[]> = new Map();
+
+  private states = new Map<string, State>();
 
   static async start(port: number): Promise<Server> {
     const server = new Server();
@@ -100,6 +114,22 @@ export class Server {
       "/events/wantSpan",
       asyncHandler(async (req, res) => {
         const response = await this.handleWantSpanEvent(req.body as string);
+        res.send(JSON.stringify(response));
+      }),
+    );
+
+    app.post(
+      "/events/testFinished",
+      asyncHandler(async (req, res) => {
+        const response = await this.handleTestFinishedEvent(req.body as string);
+        res.send(JSON.stringify(response));
+      }),
+    );
+
+    app.post(
+      "/events/state",
+      asyncHandler(async (req, res) => {
+        const response = await this.handleStateEvent(req.body as string);
         res.send(JSON.stringify(response));
       }),
     );
@@ -211,6 +241,44 @@ export class Server {
     }
   }
 
+  private async handleTestFinishedEvent(
+    body: string,
+  ): Promise<SuccessResponse> {
+    const param = TestFinishedEventRequestParam.parse(JSON.parse(body));
+
+    const tests = new Map<string, TestCase[]>();
+    for (const testCaseFile of param) {
+      const testcases = restoreTestCase(testCaseFile.testCases);
+      tests.set(testCaseFile.file, testcases);
+    }
+
+    await this.mutex.runExclusive(() => {
+      for (const [file, testcases] of tests) {
+        const existingTestCases = this.capturedTestCases.get(file) ?? [];
+        existingTestCases.push(...testcases);
+        this.capturedTestCases.set(file, existingTestCases);
+      }
+    });
+
+    return { success: true };
+  }
+
+  private async handleStateEvent(body: string): Promise<SuccessResponse> {
+    const param = StateEventRequestParam.parse(JSON.parse(body));
+    switch (param.state) {
+      case "start":
+        this.states.set(param.name, "start");
+        break;
+      case "end":
+        this.states.delete(param.name);
+        break;
+      default:
+        neverVisit("unknown state", param.state);
+    }
+
+    return Promise.resolve({ success: true });
+  }
+
   private debugLogSpan(span: OtelSpan): void {
     Logger.debug("Trace", "JSON", JSON.stringify(span));
   }
@@ -222,6 +290,7 @@ export class Server {
   async stopAfter(waitSec: number): Promise<{
     capturedSpans: Map<string, OtelSpan[]>;
     capturedLogs: Map<string, OtelLogRecord[]>;
+    capturedTestCases: Map<string, TestCase[]>;
   }> {
     Logger.writeWithTag(`waiting for OpenTelemetry for ${waitSec} seconds`);
     await sleep(1000 * waitSec, () => {
@@ -234,10 +303,18 @@ export class Server {
     return {
       capturedSpans: this.capturedSpans,
       capturedLogs: this.capturedLogs,
+      capturedTestCases: this.capturedTestCases,
     };
   }
 
   private async stop(): Promise<void> {
+    if (this.states.size > 0) {
+      await sleep(WAIT_FOR_ALL_END_MS);
+      if (this.states.size > 0) {
+        Logger.warn("Stop server despite ongoing processes", this.states);
+      }
+    }
+
     await new Promise((resolve) => {
       this.httpServer?.close(() => {
         resolve(undefined);

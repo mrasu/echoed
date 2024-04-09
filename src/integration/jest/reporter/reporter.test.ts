@@ -234,6 +234,7 @@ describe("Reporter", () => {
       startedAt,
       "passed",
       123,
+      startedAt + 123,
       [],
       [],
     );

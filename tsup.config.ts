@@ -4,6 +4,9 @@ export default defineConfig({
   entry: [
     "src/index.ts",
     "src/cli/bin.ts",
+    "src/integration/cypress/nodeEvents/index.ts",
+    "src/integration/cypress/reporter/index.ts",
+    "src/integration/cypress/support/index.ts",
     "src/integration/jest/reporter/index.ts",
     "src/integration/jest/nodeEnvironment/index.ts",
     "src/integration/playwright/index.ts",

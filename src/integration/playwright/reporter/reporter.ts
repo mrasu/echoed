@@ -81,6 +81,8 @@ export class Reporter {
     const testCase = testCaseStartInfo.toTestCaseElement(
       result.status,
       result.duration,
+      // Because Playwright starts the next test without waiting for `onTestEnd`, we cannot find exact test finished time. Instead, use `startTimeMillis + duration` as finished time.
+      testCaseStartInfo.startTimeMillis + result.duration,
       failureDetails,
       result.errors.map((e) => e.message ?? "").filter((v) => v),
     );

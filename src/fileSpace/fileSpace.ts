@@ -1,6 +1,7 @@
 import { OtelDirectory } from "@/fileSpace/otelDirectory";
 import { IFile } from "@/fs/IFile";
 import { IDirectory } from "@/fs/iDirectory";
+import { buildRandomHexUUID } from "@/util/random";
 
 export class FileSpace {
   readonly testLogDir: IDirectory;
@@ -18,7 +19,7 @@ export class FileSpace {
 
   createTestLogFile(): IFile {
     const logDir = this.testLogDir;
-    const filename = crypto.randomUUID() + ".json";
+    const filename = buildRandomHexUUID() + ".json";
     return logDir.newFile(filename);
   }
 }
