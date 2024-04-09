@@ -1,0 +1,99 @@
+propagationTest:
+  ignore:
+    # Ignore spans holding "OtelColHttpCheck" in the user_agent attribute OR "opentelemetry_collector_http" in the upstream_cluster attribute
+    attributes:
+      user_agent: OtelColHttpCheck/0.1
+      upstream_cluster: opentelemetry_collector_http
+    # Ignore spans matching any of the following conditions
+    conditions:
+      - attributes:
+          http.url: http://localhost:8080/favicon.ico
+        resource:
+          attributes:
+            service.name: frontend-proxy
+      - attributes:
+          http.url:
+            regexp: _next/image\?.+
+        resource:
+          attributes:
+            service.name: frontend-proxy
+      - attributes:
+          http.url:
+            regexp: /images/products/
+        resource:
+          attributes:
+            service.name: frontend-proxy
+      - resource:
+          attributes:
+            service.name: emailservice
+
+services:
+  - name: frontend
+    namespace: opentelemetry-demo
+    openapi:
+      filePath: "./example/opentelemetry-demo/src/frontend/schema.yaml"
+      coverage:
+        undocumentedOperation:
+          ignores:
+            - path: /_next/image
+              method: get
+            - path:
+                regexp: /_next/static/.+
+              method: get
+            - path:
+                regexp: /icons/.+
+              method: get
+            - path:
+                regexp: /images/.+
+              method: get
+  - name: cartservice
+    namespace: opentelemetry-demo
+    proto:
+      filePath: "./example/opentelemetry-demo/pb/demo.proto"
+      services:
+        - oteldemo.CartService
+  - name: checkoutservice
+    namespace: opentelemetry-demo
+    proto:
+      filePath: "./example/opentelemetry-demo/pb/demo.proto"
+      services:
+        - oteldemo.CheckoutService
+  - name: currencyservice
+    namespace: opentelemetry-demo
+    proto:
+      filePath: "./example/opentelemetry-demo/pb/demo.proto"
+      services:
+        - oteldemo.CurrencyService
+  - name: emailservice
+    namespace: opentelemetry-demo
+    proto:
+      filePath: "./example/opentelemetry-demo/pb/demo.proto"
+      services:
+        - oteldemo.EmailService
+  - name: paymentservice
+    namespace: opentelemetry-demo
+    proto:
+      filePath: "./example/opentelemetry-demo/pb/demo.proto"
+      services:
+        - oteldemo.PaymentService
+  - name: productcatalogservice
+    namespace: opentelemetry-demo
+    proto:
+      filePath: "./example/opentelemetry-demo/pb/demo.proto"
+      services:
+        - oteldemo.ProductCatalogService
+  - name: recommendationservice
+    namespace: opentelemetry-demo
+    proto:
+      filePath: "./example/opentelemetry-demo/pb/demo.proto"
+      services:
+        - oteldemo.RecommendationService
+  - name: shippingservice
+    namespace: opentelemetry-demo
+    proto:
+      filePath: "./example/opentelemetry-demo/pb/demo.proto"
+      services:
+        - oteldemo.ShippingService
+  # Not configure quoteservice to demonstrate "Not Configured Services" in the report
+  # - name: quoteservice
+  #   namespace: opentelemetry-demo

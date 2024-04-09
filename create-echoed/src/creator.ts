@@ -1,7 +1,12 @@
 import fs from "fs";
 import path from "path";
 
-export const TEMPLATES = ["jest", "jest-no-otel", "playwright"] as const;
+export const TEMPLATES = [
+  "jest",
+  "jest-no-otel",
+  "playwright",
+  "cypress",
+] as const;
 export type TEMPLATE = (typeof TEMPLATES)[number];
 
 const INSTRUCTION_DIR = ".instruction";
