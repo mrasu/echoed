@@ -9,10 +9,10 @@ import { Gte } from "@/comparision/gte";
 import { Lt } from "@/comparision/lt";
 import { Lte } from "@/comparision/lte";
 import { Reg } from "@/comparision/reg";
-import { JsonWaitForSpanEventResponse } from "@/server/parameter";
+import { WaitForSpanEventResponse } from "@/server/parameter/waitForSpanParameter";
 import { ECHOED_USER_AGENT, USER_AGENT_HEADER_KEY } from "@/server/request";
-import { Requester } from "@/server/requester";
-import { Resp } from "@/server/resp";
+import { Requester } from "@/server/requester/requester";
+import { Resp } from "@/server/requester/resp";
 import { buildJsonSpan } from "@/testUtil/type/jsonSpan";
 import { Base64String } from "@/type/base64String";
 import fetchMock from "jest-fetch-mock";
@@ -76,7 +76,7 @@ describe("waitForSpanForTraceIdWithRequester", () => {
     Requester,
     jest.Mock<Promise<Resp>, [string, Record<string, string>, string]>,
   ] => {
-    const resp: JsonWaitForSpanEventResponse = {
+    const resp: WaitForSpanEventResponse = {
       span: buildJsonSpan(),
     };
     const post = jest

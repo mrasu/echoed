@@ -40,24 +40,16 @@ const DEFAULT_PROTO_SPAN: ISpan = {
   ],
 };
 
-export function buildHttpOtelSpan(
-  args: Partial<{
-    span: Partial<ISpan>;
-  }> = {},
-): OtelSpan {
+export function buildHttpOtelSpan(span: Partial<ISpan> = {}): OtelSpan {
   return new OtelSpan({
-    ...args.span,
     ...DEFAULT_HTTP_SPAN,
+    ...span,
   });
 }
 
-export function buildProtoOtelSpan(
-  args: Partial<{
-    span: Partial<ISpan>;
-  }> = {},
-): OtelSpan {
+export function buildProtoOtelSpan(span: Partial<ISpan> = {}): OtelSpan {
   return new OtelSpan({
-    ...args.span,
     ...DEFAULT_PROTO_SPAN,
+    ...span,
   });
 }

@@ -1,15 +1,15 @@
 import { Span } from "@/command/spanType";
 import { EchoedFatalError } from "@/echoedFatalError";
-import { SuccessResponse } from "@/server/commonParameter";
+import { SuccessResponse } from "@/server/parameter/commonParameter";
+import { State } from "@/server/parameter/stateParameter";
+import { TestFinishedEventRequestParam } from "@/server/parameter/testFinishedParameter";
 import {
-  JsonWaitForSpanEventResponse,
+  WaitForSpanEventRequestObjectParam,
+  WaitForSpanEventResponse,
   restoreWaitForSpanEventResponse,
-  WaitForSpanEventRequestParam,
-} from "@/server/parameter";
-import { Requester } from "@/server/requester";
-import { Resp } from "@/server/resp";
-import { State } from "@/server/stateParameter";
-import { TestFinishedEventRequestParam } from "@/server/testFinishedParameter";
+} from "@/server/parameter/waitForSpanParameter";
+import { Requester } from "@/server/requester/requester";
+import { Resp } from "@/server/requester/resp";
 
 export const USER_AGENT_HEADER_KEY = "User-Agent";
 export const ECHOED_USER_AGENT = "echoed/0.0.1";
@@ -17,10 +17,10 @@ export const ECHOED_USER_AGENT = "echoed/0.0.1";
 export async function requestWaitForSpanEvent(
   requester: Requester,
   port: number,
-  param: WaitForSpanEventRequestParam,
+  param: WaitForSpanEventRequestObjectParam,
 ): Promise<Span> {
   const response = await post(requester, port, "/events/waitForSpan", param);
-  const jsonResponse = JsonWaitForSpanEventResponse.parse(
+  const jsonResponse = WaitForSpanEventResponse.parse(
     JSON.parse(response.body),
   );
   const resp = restoreWaitForSpanEventResponse(jsonResponse);
@@ -44,6 +44,7 @@ export async function requestTestFinishedEvent(
 
   return jsonResponse.success;
 }
+
 export async function requestStateEvent(
   requester: Requester,
   port: number,

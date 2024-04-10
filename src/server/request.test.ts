@@ -1,7 +1,7 @@
 import { Eq } from "@/comparision/eq";
-import { FetchRequester } from "@/server/fetchRequester";
-import { JsonWaitForSpanEventResponse } from "@/server/parameter";
+import { WaitForSpanEventResponse } from "@/server/parameter/waitForSpanParameter";
 import { requestWaitForSpanEvent } from "@/server/request";
+import { FetchRequester } from "@/server/requester/fetchRequester";
 import { buildJsonSpan } from "@/testUtil/type/jsonSpan";
 import fetchMock from "jest-fetch-mock";
 
@@ -15,7 +15,7 @@ describe("requestWaitForSpanEvent", () => {
     fetchMock.disableMocks();
   });
 
-  const mockFetch = (response: JsonWaitForSpanEventResponse): void => {
+  const mockFetch = (response: WaitForSpanEventResponse): void => {
     fetchMock.doMockIf(
       "http://localhost:1/events/waitForSpan",
       JSON.stringify(response),

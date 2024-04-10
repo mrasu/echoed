@@ -35,13 +35,8 @@ export class SpanBus {
     waitTimeoutMs: number,
   ): Promise<JsonSpan | ErrorMessage> {
     const wantId = buildRandomHexUUID();
-    await this.emitWaitForSpanEvent({
-      base64TraceId: traceId.base64String,
-      filter,
-      wantId,
-    });
 
-    const span = await this.bus.onOnce(
+    const listener = this.bus.onOnce(
       RECEIVE_SPAN_EVENT_NAME,
       waitTimeoutMs,
       async (origData: unknown) => {
@@ -56,6 +51,12 @@ export class SpanBus {
         return Promise.resolve(undefined);
       },
     );
+    await this.emitWaitForSpanEvent({
+      base64TraceId: traceId.base64String,
+      filter,
+      wantId,
+    });
+    const span = await listener;
 
     return span;
   }

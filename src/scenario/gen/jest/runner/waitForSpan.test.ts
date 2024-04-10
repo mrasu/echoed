@@ -1,6 +1,6 @@
 import { deleteServerPortFromEnv, setServerPortToEnv } from "@/env";
 import { waitForSpan } from "@/scenario/gen/jest/runner/waitForSpan";
-import { JsonWaitForSpanEventResponse } from "@/server/parameter";
+import { WaitForSpanEventResponse } from "@/server/parameter/waitForSpanParameter";
 import { buildEchoedActContext } from "@/testUtil/scenario/context";
 import { buildJsonSpan } from "@/testUtil/type/jsonSpan";
 import { setTraceIdToResponse } from "@/traceLoggingFetch";
@@ -34,7 +34,7 @@ describe("waitForSpan", () => {
     fetchMock.enableMocks();
     fetchMock.resetMocks();
 
-    const response: JsonWaitForSpanEventResponse = {
+    const response: WaitForSpanEventResponse = {
       span: span,
     };
     fetchMock.doMockIf(

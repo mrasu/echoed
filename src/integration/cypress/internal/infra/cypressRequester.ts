@@ -1,6 +1,6 @@
 import { promisify } from "@/integration/cypress/internal/util/promisify";
-import { Requester } from "@/server/requester";
-import { Resp } from "@/server/resp";
+import { Requester } from "@/server/requester/requester";
+import { Resp } from "@/server/requester/resp";
 
 // Set the timeout to 10,100 ms because timeout of `/events/waitForSpan` is 10,000 ms.
 const REQUEST_TIMEOUT = 10_100;

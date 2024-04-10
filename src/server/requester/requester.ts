@@ -1,4 +1,4 @@
-import { Resp } from "@/server/resp";
+import { Resp } from "@/server/requester/resp";
 
 export interface Requester {
   post(

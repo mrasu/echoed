@@ -5,3 +5,6 @@ export const SuccessResponse = z.strictObject({
 });
 
 export type SuccessResponse = z.infer<typeof SuccessResponse>;
+
+export const NoResponse = "{}";
+export type NoResponse = typeof NoResponse;

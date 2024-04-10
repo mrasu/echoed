@@ -1,9 +1,9 @@
 import { convertSpanFilterOption } from "@/command/bridge/compare";
 import { SpanFilterOption, WaitOption } from "@/command/span";
 import { Span } from "@/command/spanType";
-import { FetchRequester } from "@/server/fetchRequester";
 import { requestWaitForSpanEvent } from "@/server/request";
-import { Requester } from "@/server/requester";
+import { FetchRequester } from "@/server/requester/fetchRequester";
+import { Requester } from "@/server/requester/requester";
 import { Base64String } from "@/type/base64String";
 
 const DEFAULT_TIMEOUT_MS = 10_000;

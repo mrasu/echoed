@@ -1,7 +1,7 @@
 import { waitForSpan } from "@/command/span";
 import { EchoedFatalError } from "@/echoedFatalError";
 import { deleteServerPortFromEnv, setServerPortToEnv } from "@/env";
-import { JsonWaitForSpanEventResponse } from "@/server/parameter";
+import { WaitForSpanEventResponse } from "@/server/parameter/waitForSpanParameter";
 import { buildJsonSpan } from "@/testUtil/type/jsonSpan";
 import { setTraceIdToResponse } from "@/traceLoggingFetch";
 import { Base64String } from "@/type/base64String";
@@ -57,7 +57,7 @@ describe("waitForSpan", () => {
       beforeEach(() => {
         setServerPortToEnv(1);
 
-        const response: JsonWaitForSpanEventResponse = {
+        const response: WaitForSpanEventResponse = {
           span: buildJsonSpan(),
         };
         fetchMock.doMockIf(

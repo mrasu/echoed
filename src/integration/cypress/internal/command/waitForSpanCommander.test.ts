@@ -3,9 +3,9 @@ import {
   initializeEchoedContext,
   setTraceIdToCypressSpec,
 } from "@/integration/cypress/internal/util/cypressSpec";
-import { JsonWaitForSpanEventResponse } from "@/server/parameter";
+import { WaitForSpanEventResponse } from "@/server/parameter/waitForSpanParameter";
 import { ECHOED_USER_AGENT, USER_AGENT_HEADER_KEY } from "@/server/request";
-import { Requester } from "@/server/requester";
+import { Requester } from "@/server/requester/requester";
 import { buildCypressSpec } from "@/testUtil/cypress/cypressSpec";
 import { Base64String } from "@/type/base64String";
 import { mock } from "jest-mock-extended";
@@ -14,7 +14,7 @@ describe("WaitForSpanCommander", () => {
   const url = "https://example.com";
 
   describe("run", () => {
-    const response: JsonWaitForSpanEventResponse = {
+    const response: WaitForSpanEventResponse = {
       span: {
         attributes: [],
         traceId: "traceId",

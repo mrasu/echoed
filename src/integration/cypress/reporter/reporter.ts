@@ -1,7 +1,7 @@
 import { TestCaseStartInfo } from "@/integration/jest/reporter/testCase";
-import { FetchRequester } from "@/server/fetchRequester";
+import { TestFinishedEventRequestParam } from "@/server/parameter/testFinishedParameter";
 import { requestStateEvent, requestTestFinishedEvent } from "@/server/request";
-import { TestFinishedEventRequestParam } from "@/server/testFinishedParameter";
+import { FetchRequester } from "@/server/requester/fetchRequester";
 import { TestCase } from "@/testCase";
 import { toOnlyCharacters } from "@/util/string";
 import { TwoKeyValuesMap } from "@/util/twoKeyValuesMap";

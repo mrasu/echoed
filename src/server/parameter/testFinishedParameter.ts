@@ -24,7 +24,7 @@ export type TestFinishedEventRequestParam = z.infer<
   typeof TestFinishedEventRequestParam
 >;
 
-export function restoreTestCase(
+export function restoreTestCases(
   testCases: TestFinishedEventRequestParam[number]["testCases"],
 ): TestCase[] {
   return testCases.map((testCase) => {

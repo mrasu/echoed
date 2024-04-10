@@ -85,7 +85,7 @@ export const JsonInstrumentationScope = z.strictObject({
 export type JsonInstrumentationScope = z.infer<typeof JsonInstrumentationScope>;
 
 export const JsonSpan = z.strictObject({
-  attributes: z.array(JsonKeyValue),
+  attributes: z.array(JsonKeyValue).optional(),
   traceId: z.string(),
   spanId: z.string(),
   parentSpanId: z.string(),

@@ -1,5 +1,5 @@
-import { Requester } from "@/server/requester";
-import { Resp } from "@/server/resp";
+import { Requester } from "@/server/requester/requester";
+import { Resp } from "@/server/requester/resp";
 
 export class FetchRequester implements Requester {
   async post(
