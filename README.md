@@ -4,7 +4,7 @@
 
 # Echoed
 
-#### Observable Integration Testing using OpenTelemetry on top of Jest/Playwright.
+#### Observable Integration Testing using OpenTelemetry on top of Jest/Playwright/Cypress.
 
 </div>
 
