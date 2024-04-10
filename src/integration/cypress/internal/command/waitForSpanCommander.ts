@@ -1,15 +1,18 @@
-import { waitForSpanForTraceIdWithRequester } from "@/command/bridge/span";
-import { SpanFilterOption, WaitOption } from "@/command/span";
+import {
+  FulfilledWaitOption,
+  waitForSpanForTraceIdWithRequester,
+} from "@/command/bridge/span";
+import { SpanFilterOption } from "@/command/span";
 import { Span } from "@/command/spanType";
 import { EchoedFatalError } from "@/echoedFatalError";
-import { CypressRequester } from "@/integration/cypress/internal/infra/cypressRequester";
 import { getTraceIdFromCypressResponse } from "@/integration/cypress/internal/util/cypressResponse";
 import { getLastTraceIdFromCypressSpec } from "@/integration/cypress/internal/util/cypressSpec";
+import { Requester } from "@/server/requester/requester";
 import { Base64String } from "@/type/base64String";
 
 export class WaitForSpanCommander {
   constructor(
-    private requester: CypressRequester,
+    private requester: Requester,
     private spec: Cypress.Spec,
   ) {}
 
@@ -17,7 +20,7 @@ export class WaitForSpanCommander {
     port: number,
     urlPatternOrResponse: string | RegExp | Cypress.Response<unknown>,
     filter: SpanFilterOption,
-    options?: WaitOption,
+    options: FulfilledWaitOption,
   ): Promise<Span> {
     const traceId = this.extractTraceId(urlPatternOrResponse);
 
@@ -58,7 +61,7 @@ export class WaitForSpanCommander {
     port: number,
     traceId: Base64String,
     filter: SpanFilterOption,
-    options?: WaitOption,
+    options: FulfilledWaitOption,
   ): Promise<Span> {
     return waitForSpanForTraceIdWithRequester(
       this.requester,

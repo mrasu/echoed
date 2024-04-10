@@ -1,4 +1,7 @@
-import { waitForSpanForTraceId } from "@/command/bridge/span";
+import {
+  fulfillWaitOption,
+  waitForSpanForTraceId,
+} from "@/command/bridge/span";
 import { Compare } from "@/command/compare";
 import { Span } from "@/command/spanType";
 import { EchoedFatalError } from "@/echoedFatalError";
@@ -38,5 +41,6 @@ export async function waitForSpan(
     );
   }
 
-  return waitForSpanForTraceId(port, traceId, filter, options);
+  const fulfilledOptions = fulfillWaitOption(options);
+  return waitForSpanForTraceId(port, traceId, filter, fulfilledOptions);
 }

@@ -1,4 +1,7 @@
-import { waitForSpanForTraceId as bridgeWaitForSpanForTraceId2 } from "@/command/bridge/span";
+import {
+  waitForSpanForTraceId as bridgeWaitForSpanForTraceId2,
+  fulfillWaitOption,
+} from "@/command/bridge/span";
 import { SpanFilterOption, WaitOption } from "@/command/span";
 import { Span } from "@/command/spanType";
 import { EchoedFatalError } from "@/echoedFatalError";
@@ -55,7 +58,7 @@ async function waitForSpanForTraceId(
     port,
     traceId,
     filter,
-    options,
+    fulfillWaitOption(options),
   );
 
   return span;

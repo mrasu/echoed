@@ -1,3 +1,4 @@
+import { fulfillWaitOption } from "@/command/bridge/span";
 import { SpanFilterOption, WaitOption } from "@/command/span";
 import { Span } from "@/command/spanType";
 import { EchoedFatalError } from "@/echoedFatalError";
@@ -19,7 +20,13 @@ export function waitForSpan(
     );
   }
 
-  const requester = new CypressRequester();
+  const fulfilledOption = fulfillWaitOption(options);
+
+  // Add 100ms for timeout.
+  // Because Server will wait `fulfilledOption.timeoutMs` for span, we should wait more a bit to avoid request timeout.
+  const requester = new CypressRequester(fulfilledOption.timeoutMs + 100);
   const commander = new WaitForSpanCommander(requester, Cypress.spec);
-  return cy.wrap(commander.run(port, urlPatternOrResponse, filter, options));
+  return cy.wrap(
+    commander.run(port, urlPatternOrResponse, filter, fulfilledOption),
+  );
 }

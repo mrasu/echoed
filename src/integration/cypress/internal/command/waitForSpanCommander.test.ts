@@ -35,7 +35,7 @@ describe("WaitForSpanCommander", () => {
       setTraceIdToCypressSpec(spec, url, new Base64String("traceId"));
       const commander = new WaitForSpanCommander(requester, spec);
 
-      const span = await commander.run(1234, url, {});
+      const span = await commander.run(1234, url, {}, { timeoutMs: 10000 });
 
       expect(span.name).toEqual("foo");
       expect(requester.post.mock.calls[0]).toEqual([
