@@ -2,6 +2,12 @@ propagationTest:
   ignore:
     attributes:
       user_agent: OtelColHttpCheck/0.1
+    # Ignore spans matching any of the following conditions
+    conditions:
+      # Comment out the following to see failed Propagation test
+      - resource:
+          attributes:
+            service.name: emailservice
 
 scenario:
   compile:

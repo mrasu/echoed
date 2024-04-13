@@ -7,8 +7,6 @@ hook:
         cartRedis: ${await CartRedis.connect()}
   afterAll:
     - await cartRedis.quit()
-  beforeEach:
-    - console.log("running beforeEach")
   afterEach:
     - await cartRedis.resetUser(session.userId)
 scenarios:
@@ -44,28 +42,3 @@ scenarios:
           - expect(_.jsonBody.items[0].productId).toBe(respondedProductId)
           - expect(_.jsonBody.items[0].quantity).toBe(quantity)
           - expect(_.jsonBody.items[0].product.name).toBe(productName)
-  - name: Example for failed assertion
-    variable:
-      session: ${createSession()}
-    steps:
-      - description: List product
-        act:
-          runner: fetch
-          argument:
-            endpoint: products?currencyCode=${session.currencyCode}
-        assert:
-          - expect(_.response.status).toBe(200)
-      - description: Check Span
-        act:
-          runner: waitForSpan
-          argument:
-            response: ${_steps[-1].response}
-            filter:
-              name: oteldemo.ProductCatalogService/ListProducts
-              resource:
-                attributes:
-                  service.name: productcatalogservice
-              attributes:
-                rpc.method: ListProducts
-        assert:
-          - expect(_.getAttribute("app.products.count").value.intValue).toBe(20)

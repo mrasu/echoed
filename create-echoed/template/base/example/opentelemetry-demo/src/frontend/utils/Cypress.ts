@@ -26,6 +26,3 @@ export enum CypressFields {
   ProductQuantity = 'product-quantity',
   ProductAddToCart = 'product-add-to-cart',
 }
-
-export const getElementByField = (field: CypressFields, context: Cypress.Chainable = cy) =>
-  context.get(`[data-cy="${field}"]`);

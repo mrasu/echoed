@@ -1,5 +1,6 @@
 import { getSession } from "@/example/util/session";
 import { test } from "echoed/playwright/test";
+// import { test } from "@/fixtures/test";
 import { expect } from "@playwright/test";
 
 test.describe("Home Page", () => {

@@ -1,4 +1,5 @@
 import { test } from "echoed/playwright/test";
+// import { test } from "@/fixtures/test";
 import { expect } from "@playwright/test";
 
 test.describe("Product Detail Page", () => {

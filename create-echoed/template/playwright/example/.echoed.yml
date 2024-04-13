@@ -23,6 +23,10 @@ propagationTest:
         resource:
           attributes:
             service.name: frontend-proxy
+      # Comment out the following to see failed Propagation test
+      - resource:
+          attributes:
+            service.name: emailservice
 
 services:
   - name: frontend

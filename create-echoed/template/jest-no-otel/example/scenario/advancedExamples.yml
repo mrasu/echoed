@@ -7,8 +7,6 @@ hook:
         cartRedis: ${await CartRedis.connect()}
   afterAll:
     - await cartRedis.quit()
-  beforeEach:
-    - console.log("running beforeEach")
   afterEach:
     - await cartRedis.resetUser(session.userId)
 scenarios:
