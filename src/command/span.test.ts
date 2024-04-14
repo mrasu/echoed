@@ -1,9 +1,12 @@
 import { waitForSpan } from "@/command/span";
 import { EchoedFatalError } from "@/echoedFatalError";
-import { deleteServerPortFromEnv, setServerPortToEnv } from "@/env";
+import {
+  deleteServerPortFromEnv,
+  setServerPortToEnv,
+} from "@/integration/common/util/env";
+import { setTraceIdToResponse } from "@/integration/common/util/fetchResponse";
 import { WaitForSpanEventResponse } from "@/server/parameter/waitForSpanParameter";
 import { buildJsonSpan } from "@/testUtil/type/jsonSpan";
-import { setTraceIdToResponse } from "@/traceLoggingFetch";
 import { HexString } from "@/type/hexString";
 import fetchMock from "jest-fetch-mock";
 

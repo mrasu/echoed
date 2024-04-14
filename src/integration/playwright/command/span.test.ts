@@ -1,5 +1,8 @@
 import { EchoedFatalError } from "@/echoedFatalError";
-import { deleteServerPortFromEnv, setServerPortToEnv } from "@/env";
+import {
+  deleteServerPortFromEnv,
+  setServerPortToEnv,
+} from "@/integration/common/util/env";
 import {
   waitForSpanCreatedIn,
   waitForSpanFromPlaywrightFetch,

@@ -1,7 +1,10 @@
 import { Config } from "@/config/config";
 import { PropagationTestConfig } from "@/config/propagationTestConfig";
-import { deleteTmpDirFromEnv, getTmpDirFromEnv } from "@/env";
 import { FsContainer } from "@/fs/fsContainer";
+import {
+  deleteTmpDirFromEnv,
+  getTmpDirFromEnv,
+} from "@/integration/common/util/env";
 import { SetupRunner } from "@/integration/playwright/globalSetup/setupRunner";
 import { Logger } from "@/logger";
 import { MockFile } from "@/testUtil/fs/mockFile";

@@ -5,7 +5,7 @@ import {
 import { SpanFilterOption, WaitOption } from "@/command/span";
 import { Span } from "@/command/spanType";
 import { EchoedFatalError } from "@/echoedFatalError";
-import { getServerPortFromEnv } from "@/env";
+import { getServerPortFromEnv } from "@/integration/common/util/env";
 import { getTraceIdFromAPIResponse } from "@/integration/playwright/internal/util/apiResponse";
 import { getLastTraceIdFromContext } from "@/integration/playwright/internal/util/browserContext";
 import { HexString } from "@/type/hexString";

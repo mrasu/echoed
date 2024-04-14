@@ -1,6 +1,6 @@
 import { EchoedFatalError } from "@/echoedFatalError";
-import { getTmpDirFromEnv } from "@/env";
 import { buildFsContainerForApp } from "@/fs/fsContainer";
+import { getTmpDirFromEnv } from "@/integration/common/util/env";
 import { Environment } from "@/integration/jest/nodeEnvironment/environment";
 import type {
   EnvironmentContext,

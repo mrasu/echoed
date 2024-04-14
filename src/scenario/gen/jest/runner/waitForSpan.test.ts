@@ -1,9 +1,12 @@
-import { deleteServerPortFromEnv, setServerPortToEnv } from "@/env";
+import {
+  deleteServerPortFromEnv,
+  setServerPortToEnv,
+} from "@/integration/common/util/env";
+import { setTraceIdToResponse } from "@/integration/common/util/fetchResponse";
 import { waitForSpan } from "@/scenario/gen/jest/runner/waitForSpan";
 import { WaitForSpanEventResponse } from "@/server/parameter/waitForSpanParameter";
 import { buildEchoedActContext } from "@/testUtil/scenario/context";
 import { buildJsonSpan } from "@/testUtil/type/jsonSpan";
-import { setTraceIdToResponse } from "@/traceLoggingFetch";
 import { HexString } from "@/type/hexString";
 import { toBase64String } from "@/util/byte";
 import fetchMock from "jest-fetch-mock";

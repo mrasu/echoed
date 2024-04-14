@@ -1,4 +1,3 @@
-import { AnsiGreen, AnsiRed, AnsiReset } from "@/ansi";
 import { Config } from "@/config/config";
 import { CoverageCollector } from "@/coverage/coverageCollector";
 import { CoverageResult } from "@/coverage/coverageResult";
@@ -6,6 +5,7 @@ import { IFile } from "@/fs/IFile";
 import { Logger } from "@/logger";
 import { TestResult } from "@/report/testResult";
 import { OtelSpan } from "@/type/otelSpan";
+import { AnsiGreen, AnsiRed, AnsiReset } from "@/util/ansi";
 
 export function logFileCreated(outFile: IFile): void {
   Logger.log(

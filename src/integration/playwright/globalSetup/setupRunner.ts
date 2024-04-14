@@ -1,7 +1,10 @@
 import { Config } from "@/config/config";
-import { setServerPortToEnv, setTmpDirToEnv } from "@/env";
 import { FileSpace } from "@/fileSpace/fileSpace";
 import { FsContainer } from "@/fs/fsContainer";
+import {
+  setServerPortToEnv,
+  setTmpDirToEnv,
+} from "@/integration/common/util/env";
 import { Server } from "@/server/server";
 import os from "os";
 import path from "path";

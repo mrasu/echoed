@@ -1,8 +1,11 @@
 import { ECHOED_CONFIG_FILE_NAME } from "@/config/config";
-import { getServerPortFromEnv, setServerPortToEnv } from "@/env";
 import { buildFsContainerForApp } from "@/fs/fsContainer";
 import { LocalFile } from "@/fs/localFile";
 import { loadConfig } from "@/integration/common/util/config";
+import {
+  getServerPortFromEnv,
+  setServerPortToEnv,
+} from "@/integration/common/util/env";
 import { Reporter } from "@/integration/cypress/reporter/reporter";
 import { buildRandomHexBytes } from "@/util/random";
 import { MochaOptions, Runner, Test, reporters } from "mocha";

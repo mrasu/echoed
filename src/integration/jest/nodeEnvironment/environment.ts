@@ -1,8 +1,11 @@
-import { patchFetch, restoreFetch } from "@/fetchPatch";
 import { FileLogger } from "@/fileLog/fileLogger";
 import { IFileLogger } from "@/fileLog/iFileLogger";
 import { FileSpace } from "@/fileSpace/fileSpace";
 import { IDirectory } from "@/fs/iDirectory";
+import {
+  patchFetch,
+  restoreFetch,
+} from "@/integration/jest/internal/util/fetchPatch";
 import type { Global } from "@jest/types";
 
 export class Environment {

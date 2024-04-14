@@ -1,9 +1,9 @@
 import { Config, ECHOED_CONFIG_FILE_NAME } from "@/config/config";
 import { EchoedFatalError } from "@/echoedFatalError";
-import { getTmpDirFromEnv } from "@/env";
 import { FileSpace } from "@/fileSpace/fileSpace";
 import { FsContainer, buildFsContainerForApp } from "@/fs/fsContainer";
 import { LocalFile } from "@/fs/localFile";
+import { getTmpDirFromEnv } from "@/integration/common/util/env";
 import { Reporter } from "@/integration/playwright/reporter/reporter";
 import { Logger } from "@/logger";
 import { ReportFile } from "@/report/reportFile";

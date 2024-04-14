@@ -1,6 +1,6 @@
 import { FetchRequestInfo } from "@/fileLog/testActionLogger";
+import { setTraceIdToResponse } from "@/integration/common/util/fetchResponse";
 import { ECHOED_USER_AGENT, USER_AGENT_HEADER_KEY } from "@/server/request";
-import { setTraceIdToResponse } from "@/traceLoggingFetch";
 import { HexString } from "@/type/hexString";
 import { readBodyInit, readStreamFully } from "@/util/stream";
 import { generateTraceparent } from "@/util/traceparent";

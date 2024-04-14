@@ -5,8 +5,8 @@ import {
 import { Compare } from "@/command/compare";
 import { Span } from "@/command/spanType";
 import { EchoedFatalError } from "@/echoedFatalError";
-import { getServerPortFromEnv } from "@/env";
-import { getTraceIdFromResponse } from "@/traceLoggingFetch";
+import { getServerPortFromEnv } from "@/integration/common/util/env";
+import { getTraceIdFromResponse } from "@/integration/common/util/fetchResponse";
 
 export type WaitOption = {
   timeoutMs?: number;

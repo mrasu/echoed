@@ -1,4 +1,4 @@
-import { FetchInfo } from "@/fetchInfo";
+import { FetchInfo } from "@/report/fetchInfo";
 import { TestCase } from "@/type/testCase";
 
 export class TestCaseResult {

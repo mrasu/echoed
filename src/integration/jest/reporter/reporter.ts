@@ -1,8 +1,11 @@
 import { Config } from "@/config/config";
 import { EchoedFatalError } from "@/echoedFatalError";
-import { setServerPortToEnv, setTmpDirToEnv } from "@/env";
 import { FileSpace } from "@/fileSpace/fileSpace";
 import { FsContainer } from "@/fs/fsContainer";
+import {
+  setServerPortToEnv,
+  setTmpDirToEnv,
+} from "@/integration/common/util/env";
 import {
   analyzeCoverage,
   logFileCreated,

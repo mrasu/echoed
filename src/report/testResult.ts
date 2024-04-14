@@ -1,10 +1,10 @@
 import { Config } from "@/config/config";
 import { PropagationTestConfig } from "@/config/propagationTestConfig";
-import { FetchInfo } from "@/fetchInfo";
 import { IFile } from "@/fs/IFile";
 import { IDirectory } from "@/fs/iDirectory";
 import { opentelemetry } from "@/generated/otelpbj";
 import { Logger } from "@/logger";
+import { FetchInfo } from "@/report/fetchInfo";
 import { TestCaseResult } from "@/report/testCaseResult";
 import {
   FetchFailedLog,

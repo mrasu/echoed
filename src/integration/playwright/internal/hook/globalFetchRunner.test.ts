@@ -1,10 +1,10 @@
 import { TestActionLogger } from "@/fileLog/testActionLogger";
 import { GlobalFetch } from "@/integration/common/commonFetchRunner";
+import { getTraceIdFromResponse } from "@/integration/common/util/fetchResponse";
 import { GlobalFetchRunner } from "@/integration/playwright/internal/hook/globalFetchRunner";
 import { MockFileLogger } from "@/testUtil/fileLog/mockFileLogger";
 import { DummyFetcher } from "@/testUtil/global/dummyFetcher";
 import { buildPlaywrightTestInfo } from "@/testUtil/playwright/testInfo";
-import { getTraceIdFromResponse } from "@/traceLoggingFetch";
 import { FetchFinishedLog, FetchStartedLog } from "@/type/log";
 
 describe("GlobalFetchRunner", () => {

@@ -1,7 +1,7 @@
 import { EchoedFatalError } from "@/echoedFatalError";
-import { getTmpDirFromEnv } from "@/env";
 import { FileSpace } from "@/fileSpace/fileSpace";
 import { buildFsContainerForApp } from "@/fs/fsContainer";
+import { getTmpDirFromEnv } from "@/integration/common/util/env";
 
 export const getFileSpace = (): FileSpace => {
   const tmpDirPath = getTmpDirFromEnv();

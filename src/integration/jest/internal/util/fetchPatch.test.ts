@@ -1,5 +1,5 @@
-import { patchFetch } from "@/fetchPatch";
 import { TRACEPARENT_HEADER_KEY } from "@/integration/common/commonFetchRunner";
+import { patchFetch } from "@/integration/jest/internal/util/fetchPatch";
 import { Logger } from "@/logger";
 import { MockFileLogger } from "@/testUtil/fileLog/mockFileLogger";
 import { DummyFetcher } from "@/testUtil/global/dummyFetcher";
