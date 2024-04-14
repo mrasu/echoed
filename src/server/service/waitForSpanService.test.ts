@@ -69,7 +69,7 @@ describe("waitForSpanService", () => {
 
         expect("reason" in res).toBe(true);
         if ("reason" in res) {
-          expect(res.reason).toBe("timeout");
+          expect(res.reason).toMatch(/No matching span found/);
         } else {
           throw new Error("unexpected path");
         }

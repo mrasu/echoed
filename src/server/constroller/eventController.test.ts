@@ -86,7 +86,7 @@ describe("EventController", () => {
         const res = await controller.waitForSpan(JSON.stringify(requestParam));
         expect("error" in res).toBe(true);
         if ("error" in res) {
-          expect(res.reason).toBe("timeout");
+          expect(res.reason).toMatch(/No matching span found/);
         } else {
           throw new Error("unexpected path");
         }
