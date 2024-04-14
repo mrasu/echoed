@@ -1,7 +1,7 @@
 import { TestActionLogger } from "@/fileLog/testActionLogger";
 import { MockFileLogger } from "@/testUtil/fileLog/mockFileLogger";
 import { HexString } from "@/type/hexString";
-import { FetchFailedLog, FetchFinishedLog, FetchStartedLog } from "@/types";
+import { FetchFailedLog, FetchFinishedLog, FetchStartedLog } from "@/type/log";
 
 describe("TestActionLogger", () => {
   describe("logFetchStarted", () => {

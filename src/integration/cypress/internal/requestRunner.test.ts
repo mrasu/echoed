@@ -7,7 +7,7 @@ import { buildCypressSpec } from "@/testUtil/cypress/cypressSpec";
 import { buildCypressHttpResponse } from "@/testUtil/cypress/httpResponse";
 import { buildCypressRequest } from "@/testUtil/cypress/request";
 import { MockFileLogger } from "@/testUtil/fileLog/mockFileLogger";
-import { FetchFinishedLog, FetchStartedLog } from "@/types";
+import { FetchFinishedLog, FetchStartedLog } from "@/type/log";
 
 describe("RequestRunner", () => {
   describe("run", () => {

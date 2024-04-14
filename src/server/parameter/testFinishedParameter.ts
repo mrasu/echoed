@@ -1,4 +1,4 @@
-import { TestCase } from "@/testCase";
+import { TestCase } from "@/type/testCase";
 import { z } from "zod";
 
 export const TestFinishedEventRequestParam = z.array(

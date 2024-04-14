@@ -1,7 +1,7 @@
 import { IServer } from "@/server/iServer";
-import { TestCase } from "@/testCase";
 import { OtelLogRecord } from "@/type/otelLogRecord";
 import { OtelSpan } from "@/type/otelSpan";
+import { TestCase } from "@/type/testCase";
 
 export class DummyServer implements IServer {
   capturedSpans: Map<string, OtelSpan[]>;

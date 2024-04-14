@@ -3,7 +3,6 @@ import { EventListener } from "@/integration/cypress/nodeEvents/eventListener";
 import { Logger } from "@/logger";
 import { TestFailedError } from "@/report/testFailedError";
 import { IServer } from "@/server/iServer";
-import { TestCase } from "@/testCase";
 import { buildConfig } from "@/testUtil/config/config";
 import { buildMockFsContainer } from "@/testUtil/fs/mockFsContainer";
 import { buildHttpOtelSpan } from "@/testUtil/otel/otelSpan";
@@ -11,6 +10,7 @@ import { MockReportFile } from "@/testUtil/report/mockReportFile";
 import { buildTestCase } from "@/testUtil/report/testCase";
 import { DummyServer } from "@/testUtil/server/server";
 import { OtelSpan } from "@/type/otelSpan";
+import { TestCase } from "@/type/testCase";
 import { buildRandomHexUUID } from "@/util/random";
 
 describe("EventListener", () => {

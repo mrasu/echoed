@@ -4,7 +4,7 @@ import { CoverageCollector } from "@/coverage/coverageCollector";
 import { CoverageResult } from "@/coverage/coverageResult";
 import { IFile } from "@/fs/IFile";
 import { Logger } from "@/logger";
-import { TestResult } from "@/testResult";
+import { TestResult } from "@/report/testResult";
 import { OtelSpan } from "@/type/otelSpan";
 
 export function logFileCreated(outFile: IFile): void {

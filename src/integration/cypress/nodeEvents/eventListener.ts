@@ -9,8 +9,8 @@ import {
 } from "@/integration/common/util/reporter";
 import { IReportFile } from "@/report/iReportFile";
 import { TestFailedError } from "@/report/testFailedError";
+import { TestResult } from "@/report/testResult";
 import { IServer } from "@/server/iServer";
-import { TestResult } from "@/testResult";
 
 export class EventListener {
   server: IServer | undefined;

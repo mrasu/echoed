@@ -1,4 +1,4 @@
-import { TestCase } from "@/testCase";
+import { TestCase } from "@/type/testCase";
 
 export class TestCaseStartInfo {
   constructor(

@@ -5,16 +5,16 @@ import { IFile } from "@/fs/IFile";
 import { IDirectory } from "@/fs/iDirectory";
 import { opentelemetry } from "@/generated/otelpbj";
 import { Logger } from "@/logger";
-import { TestCase } from "@/testCase";
-import { TestCaseResult } from "@/testCaseResult";
-import { OtelLogRecord } from "@/type/otelLogRecord";
-import { OtelSpan } from "@/type/otelSpan";
+import { TestCaseResult } from "@/report/testCaseResult";
 import {
   FetchFailedLog,
   FetchFinishedLog,
   FetchStartedLog,
   Log,
-} from "@/types";
+} from "@/type/log";
+import { OtelLogRecord } from "@/type/otelLogRecord";
+import { OtelSpan } from "@/type/otelSpan";
+import { TestCase } from "@/type/testCase";
 import { omitDirPath } from "@/util/file";
 import { neverVisit } from "@/util/never";
 
@@ -200,7 +200,7 @@ class TestCaseLogCollector {
       const results = testCases.map((testCase) => {
         const fetchInfos = fetchInfoMap.get(testCase.testId) || [];
         const orderedTraceIds = fetchInfos.map((f) => f.traceId);
-        return testCase.toResult(orderedTraceIds, fetchInfos);
+        return new TestCaseResult(testCase, orderedTraceIds, fetchInfos);
       });
       ret.set(file, results);
     }

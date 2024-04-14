@@ -5,7 +5,7 @@ import { MockFileLogger } from "@/testUtil/fileLog/mockFileLogger";
 import { DummyFetcher } from "@/testUtil/global/dummyFetcher";
 import { buildPlaywrightTestInfo } from "@/testUtil/playwright/testInfo";
 import { getTraceIdFromResponse } from "@/traceLoggingFetch";
-import { FetchFinishedLog, FetchStartedLog } from "@/types";
+import { FetchFinishedLog, FetchStartedLog } from "@/type/log";
 
 describe("GlobalFetchRunner", () => {
   describe("run", () => {

@@ -1,7 +1,7 @@
 import { TestRecordService } from "@/server/service/testRecordService";
 import { TestCaseStore } from "@/server/store/testCaseStore";
-import { TestCase } from "@/testCase";
 import { buildTestCase } from "@/testUtil/report/testCase";
+import { TestCase } from "@/type/testCase";
 
 describe("TestRecordService", () => {
   describe("recordFinished", () => {

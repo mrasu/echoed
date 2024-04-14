@@ -12,9 +12,9 @@ import { TestCaseStartInfo } from "@/integration/jest/reporter/testCase";
 import { Logger } from "@/logger";
 import { IReportFile } from "@/report/iReportFile";
 import { TestFailedError } from "@/report/testFailedError";
+import { TestResult } from "@/report/testResult";
 import { Server } from "@/server/server";
-import { TestCase } from "@/testCase";
-import { TestResult } from "@/testResult";
+import { TestCase } from "@/type/testCase";
 import { omitDirPath } from "@/util/file";
 import { hasValue } from "@/util/type";
 import {
@@ -55,7 +55,7 @@ export class Reporter {
   currentTestQueues: Map<string, TestCaseStartInfo[]> = new Map();
 
   private knownTestCount = 0;
-  collectedTestCaseElements: Map<string, TestCase[]> = new Map();
+  collectedTestCases: Map<string, TestCase[]> = new Map();
 
   constructor(
     fsContainer: FsContainer,
@@ -109,7 +109,7 @@ export class Reporter {
       capturedSpans,
       capturedLogs,
       this.config,
-      this.collectedTestCaseElements,
+      this.collectedTestCases,
     );
     const coverageResult = await analyzeCoverage(this.config, capturedSpans);
 
@@ -177,8 +177,8 @@ export class Reporter {
       testCaseResult.failureMessages,
     );
 
-    const collected = this.collectedTestCaseElements.get(element.file) || [];
+    const collected = this.collectedTestCases.get(element.file) || [];
     collected.push(element);
-    this.collectedTestCaseElements.set(element.file, collected);
+    this.collectedTestCases.set(element.file, collected);
   }
 }

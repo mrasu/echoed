@@ -1,6 +1,6 @@
 import { TestCaseStore } from "@/server/store/testCaseStore";
-import { TestCase } from "@/testCase";
 import { buildTestCase } from "@/testUtil/report/testCase";
+import { TestCase } from "@/type/testCase";
 
 describe("TestCaseStore", () => {
   describe("add", () => {

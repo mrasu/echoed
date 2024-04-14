@@ -1,4 +1,4 @@
-import { TestCase } from "@/testCase";
+import { TestCase } from "@/type/testCase";
 import { Mutex } from "async-mutex";
 
 export class TestCaseStore {

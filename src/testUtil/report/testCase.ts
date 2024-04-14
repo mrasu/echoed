@@ -1,4 +1,4 @@
-import { TestCase } from "@/testCase";
+import { TestCase } from "@/type/testCase";
 
 const DEFAULT_TEST_CASE = {
   testId: "testId",

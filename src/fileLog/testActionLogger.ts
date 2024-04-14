@@ -1,6 +1,6 @@
 import { IFileLogger } from "@/fileLog/iFileLogger";
 import { HexString } from "@/type/hexString";
-import { FetchFailedLog, FetchFinishedLog, FetchStartedLog } from "@/types";
+import { FetchFailedLog, FetchFinishedLog, FetchStartedLog } from "@/type/log";
 import { truncateString } from "@/util/string";
 
 const MAX_TEXT_SIZE = 1000;

@@ -9,10 +9,10 @@ import {
 import { TestCaseStartInfo } from "@/integration/jest/reporter/testCase";
 import { Logger } from "@/logger";
 import { IReportFile } from "@/report/iReportFile";
-import { TestCase } from "@/testCase";
-import { TestResult } from "@/testResult";
+import { TestResult } from "@/report/testResult";
 import { OtelLogRecord } from "@/type/otelLogRecord";
 import { JsonOtelSpan, OtelSpan } from "@/type/otelSpan";
+import { TestCase } from "@/type/testCase";
 import { omitDirPath } from "@/util/file";
 import { type FullResult } from "@playwright/test/reporter";
 import type {

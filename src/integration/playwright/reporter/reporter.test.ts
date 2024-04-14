@@ -1,7 +1,6 @@
 import { FileSpace } from "@/fileSpace/fileSpace";
 import { Reporter } from "@/integration/playwright/reporter/reporter";
 import { Logger } from "@/logger";
-import { TestCase } from "@/testCase";
 import { buildConfig } from "@/testUtil/config/config";
 import { MockDirectory } from "@/testUtil/fs/mockDirectory";
 import { MockFileContents } from "@/testUtil/fs/mockFileContents";
@@ -14,6 +13,7 @@ import {
   makeTestResultFailed,
 } from "@/testUtil/playwright/testResult";
 import { MockReportFile } from "@/testUtil/report/mockReportFile";
+import { TestCase } from "@/type/testCase";
 import type { FullResult } from "@playwright/test/reporter";
 
 beforeEach(() => {

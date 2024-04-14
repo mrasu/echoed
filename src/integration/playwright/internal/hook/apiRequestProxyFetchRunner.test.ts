@@ -3,7 +3,7 @@ import { ApiRequestProxyFetchRunner } from "@/integration/playwright/internal/ho
 import { getTraceIdFromAPIResponse } from "@/integration/playwright/internal/util/apiResponse";
 import { MockFileLogger } from "@/testUtil/fileLog/mockFileLogger";
 import { buildPlaywrightTestInfo } from "@/testUtil/playwright/testInfo";
-import { FetchFinishedLog, FetchStartedLog } from "@/types";
+import { FetchFinishedLog, FetchStartedLog } from "@/type/log";
 import { APIRequestContext } from "@playwright/test";
 
 describe("ApiRequestProxyFetchRunner", () => {

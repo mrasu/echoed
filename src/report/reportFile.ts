@@ -9,8 +9,8 @@ import { IDirectory } from "@/fs/iDirectory";
 import { IReportFile } from "@/report/iReportFile";
 import { OtelLogRecordConverter } from "@/report/otelLogRecordConverter";
 import { OtelSpanConverter } from "@/report/otelSpanConverter";
-import { TestCaseResult } from "@/testCaseResult";
-import { TestResult } from "@/testResult";
+import { TestCaseResult } from "@/report/testCaseResult";
+import { TestResult } from "@/report/testResult";
 import {
   IConfig,
   ICoverageInfo,

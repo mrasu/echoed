@@ -1,6 +1,6 @@
-import { TestCase } from "@/testCase";
 import { OtelLogRecord } from "@/type/otelLogRecord";
 import { OtelSpan } from "@/type/otelSpan";
+import { TestCase } from "@/type/testCase";
 
 export interface IServer {
   stopAfter(waitSec: number): Promise<{

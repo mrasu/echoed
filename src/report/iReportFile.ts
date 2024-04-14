@@ -1,6 +1,6 @@
 import { CoverageResult } from "@/coverage/coverageResult";
 import { IFile } from "@/fs/IFile";
-import { TestResult } from "@/testResult";
+import { TestResult } from "@/report/testResult";
 
 export interface IReportFile {
   generate(

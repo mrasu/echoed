@@ -13,7 +13,7 @@ import { ECHOED_USER_AGENT, USER_AGENT_HEADER_KEY } from "@/server/request";
 import { buildCypressSpec } from "@/testUtil/cypress/cypressSpec";
 import { buildCypressResponse } from "@/testUtil/cypress/response";
 import { MockFileLogger } from "@/testUtil/fileLog/mockFileLogger";
-import { FetchFinishedLog, FetchStartedLog } from "@/types";
+import { FetchFinishedLog, FetchStartedLog } from "@/type/log";
 
 describe("RequestCommander", () => {
   const url = "https://example.com";

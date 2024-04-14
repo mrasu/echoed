@@ -3,7 +3,6 @@ import { PropagationTestConfig } from "@/config/propagationTestConfig";
 import { Reporter } from "@/integration/jest/reporter/reporter";
 import { TestCaseStartInfo } from "@/integration/jest/reporter/testCase";
 import { Logger } from "@/logger";
-import { TestCase } from "@/testCase";
 import { MockFile } from "@/testUtil/fs/mockFile";
 import { buildMockFsContainer } from "@/testUtil/fs/mockFsContainer";
 import { buildAggregatedResult } from "@/testUtil/jest/aggregatedResult";
@@ -16,6 +15,7 @@ import {
   DEFAULT_TEST_FULL_NAME,
 } from "@/testUtil/jest/testCaseStartInfo";
 import { MockReportFile } from "@/testUtil/report/mockReportFile";
+import { TestCase } from "@/type/testCase";
 
 beforeEach(() => {
   Logger.setEnable(false);
@@ -163,7 +163,7 @@ describe("Reporter", () => {
       expect(reporter.currentTestQueues.get(DEFAULT_TEST_PATH)).toMatchObject([
         buildTestStartInfoObject("0", DEFAULT_TEST_PATH, startedAt),
       ]);
-      expect(reporter.collectedTestCaseElements.size).toBe(0);
+      expect(reporter.collectedTestCases.size).toBe(0);
     });
 
     describe("when run multiple test parallely", () => {
@@ -250,10 +250,10 @@ describe("Reporter", () => {
       );
       await reporter.onTestCaseResult(buildTest(), buildTestCaseResult());
 
-      expect(reporter.collectedTestCaseElements.size).toBe(1);
-      expect(
-        reporter.collectedTestCaseElements.get(DEFAULT_TEST_PATH),
-      ).toMatchObject([buildTestCaseObject("0", DEFAULT_TEST_PATH, startedAt)]);
+      expect(reporter.collectedTestCases.size).toBe(1);
+      expect(reporter.collectedTestCases.get(DEFAULT_TEST_PATH)).toMatchObject([
+        buildTestCaseObject("0", DEFAULT_TEST_PATH, startedAt),
+      ]);
     });
 
     describe("when running multiple tests", () => {
@@ -272,9 +272,9 @@ describe("Reporter", () => {
         );
         await reporter.onTestCaseResult(buildTest(), buildTestCaseResult());
 
-        expect(reporter.collectedTestCaseElements.size).toBe(1);
+        expect(reporter.collectedTestCases.size).toBe(1);
         expect(
-          reporter.collectedTestCaseElements.get(DEFAULT_TEST_PATH),
+          reporter.collectedTestCases.get(DEFAULT_TEST_PATH),
         ).toMatchObject([
           buildTestCaseObject("0", DEFAULT_TEST_PATH, startedAt),
           buildTestCaseObject("1", DEFAULT_TEST_PATH, startedAt + 222),
@@ -314,15 +314,15 @@ describe("Reporter", () => {
           buildTestCaseResult(),
         );
 
-        expect(reporter.collectedTestCaseElements.size).toBe(2);
+        expect(reporter.collectedTestCases.size).toBe(2);
         expect(
-          reporter.collectedTestCaseElements.get("/path/to/dummy1.test.js"),
+          reporter.collectedTestCases.get("/path/to/dummy1.test.js"),
         ).toMatchObject([
           buildTestCaseObject("0", "/path/to/dummy1.test.js", startedAt),
           buildTestCaseObject("2", "/path/to/dummy1.test.js", startedAt + 222),
         ]);
         expect(
-          reporter.collectedTestCaseElements.get("/path/to/dummy2.test.js"),
+          reporter.collectedTestCases.get("/path/to/dummy2.test.js"),
         ).toMatchObject([
           buildTestCaseObject("1", "/path/to/dummy2.test.js", startedAt),
         ]);
@@ -345,9 +345,9 @@ describe("Reporter", () => {
         await reporter.onTestCaseResult(buildTest(), buildTestCaseResult());
         await reporter.onTestCaseResult(buildTest(), buildTestCaseResult());
 
-        expect(reporter.collectedTestCaseElements.size).toBe(1);
+        expect(reporter.collectedTestCases.size).toBe(1);
         expect(
-          reporter.collectedTestCaseElements.get(DEFAULT_TEST_PATH),
+          reporter.collectedTestCases.get(DEFAULT_TEST_PATH),
         ).toMatchObject([
           buildTestCaseObject("0", DEFAULT_TEST_PATH, startedAt),
           buildTestCaseObject("1", DEFAULT_TEST_PATH, startedAt + 222),

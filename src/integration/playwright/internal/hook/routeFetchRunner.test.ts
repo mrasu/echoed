@@ -6,7 +6,7 @@ import { MockFileLogger } from "@/testUtil/fileLog/mockFileLogger";
 import { buildInitializedBrowserContext } from "@/testUtil/playwright/browserContext";
 import { buildRoute } from "@/testUtil/playwright/route";
 import { buildPlaywrightTestInfo } from "@/testUtil/playwright/testInfo";
-import { FetchFailedLog, FetchFinishedLog, FetchStartedLog } from "@/types";
+import { FetchFailedLog, FetchFinishedLog, FetchStartedLog } from "@/type/log";
 
 describe("RouteFetchRunner", () => {
   const url = "https://example.com/dummy";
