@@ -1,4 +1,5 @@
 import { EventBus } from "@/eventBus/infra/eventBus";
+import { TimeoutError } from "@/eventBus/infra/timeoutError";
 import {
   JsonReceiveSpanEvent,
   JsonWaitForSpanEvent,
@@ -53,9 +54,20 @@ export class SpanBus {
       filter,
       wantId,
     });
-    const span = await listener;
 
-    return span;
+    try {
+      return await listener;
+    } catch (e) {
+      if (e instanceof TimeoutError) {
+        const waitTime = new Intl.NumberFormat("en").format(waitTimeoutMs);
+        return {
+          error: true,
+          reason: `No matching span found within ${waitTime}ms.`,
+        };
+      }
+
+      throw e;
+    }
   }
 
   private async emitWaitForSpanEvent(event: WaitForSpanEvent): Promise<void> {

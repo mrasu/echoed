@@ -1,7 +1,6 @@
 import { EventBus, WatchCallback } from "@/eventBus/infra/eventBus";
+import { TimeoutError } from "@/eventBus/infra/timeoutError";
 import { ErrorMessage } from "@/type/common";
-
-const TIMEOUT_ERROR_MESSAGE: ErrorMessage = { error: true, reason: "timeout" };
 
 export class MemoryBus implements EventBus {
   private watchingEvents: Map<string, WatchCallback[]> = new Map();
@@ -17,7 +16,7 @@ export class MemoryBus implements EventBus {
     timeoutMs: number,
     fn: (data: unknown) => Promise<T | undefined>,
   ): Promise<T | ErrorMessage> {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       const callback = async (data: unknown): Promise<void> => {
         const res = await fn(data);
         if (!res) {
@@ -31,7 +30,7 @@ export class MemoryBus implements EventBus {
 
       const timeoutId = setTimeout(() => {
         this.off(eventName, callback);
-        resolve(TIMEOUT_ERROR_MESSAGE);
+        reject(new TimeoutError());
       }, timeoutMs);
 
       this.on(eventName, callback);

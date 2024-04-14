@@ -26,9 +26,7 @@ export async function requestWaitForSpanEvent(
   const resp = restoreWaitForSpanEventResponse(jsonResponse);
 
   if ("error" in resp) {
-    throw new EchoedFatalError(
-      `Error happens while waiting for span. ${resp.reason}`,
-    );
+    throw new EchoedFatalError(resp.reason);
   }
 
   return resp.span;
