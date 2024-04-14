@@ -128,20 +128,24 @@
   };
   const dataset = traceTrees.map(createDataset);
 
-  const data: ChartConfiguration<"bar">["data"] = {
-    labels: label,
-    datasets: [
-      {
-        tree: dataset,
-      },
-    ],
-  };
+  const data: ChartConfiguration<"bar", [number, number], ILabelNode2>["data"] =
+    {
+      labels: label,
+      datasets: [
+        {
+          // Ignore type error to allow [number, number] as value type.
+          // @ts-ignore
+          tree: dataset,
+          barThickness: 20,
+        },
+      ],
+    };
 
   onMount(() => {
     const canvas = <HTMLCanvasElement>document.getElementById("canvas");
     canvas.width = window.innerWidth * 0.8;
     canvas.height = spans.length * 50 + 100;
-    const chart = new Chart(canvas, {
+    const chart = new Chart<"bar", [number, number], ILabelNode2>(canvas, {
       type: "bar",
       data: data,
       options: {
@@ -157,9 +161,6 @@
         },
         animation: false,
         responsive: true,
-        title: {
-          display: false,
-        },
         indexAxis: "y",
         layout: {
           padding: {
@@ -167,7 +168,6 @@
             left: 250,
           },
         },
-        barThickness: 20,
         scales: {
           x: {
             title: {
@@ -179,7 +179,6 @@
             hierarchyGroupLabelPosition: "first",
             ticks: {
               mirror: true,
-              beginAtZero: true,
             },
             padding: 0,
             type: "hierarchical",
