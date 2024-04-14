@@ -42,6 +42,7 @@ module.exports = {
   rootDir: "src",
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/$1",
+    "^@shared/(.*)$": "<rootDir>/../shared/$1",
   },
   transform: {
     ...mergeTransform(tsjPreset.transform, customTsjTransform),

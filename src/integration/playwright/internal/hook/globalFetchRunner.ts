@@ -4,7 +4,7 @@ import {
   GlobalFetch,
 } from "@/integration/common/commonFetchRunner";
 import { readResponseText } from "@/integration/common/util/response";
-import { Base64String } from "@/type/base64String";
+import { HexString } from "@/type/hexString";
 import { TestInfo } from "@playwright/test";
 
 export class GlobalFetchRunner {
@@ -35,7 +35,7 @@ export class GlobalFetchRunner {
 
   private async logFetchStarted(
     testInfo: TestInfo,
-    traceId: Base64String,
+    traceId: HexString,
     startAt: Date,
   ): Promise<void> {
     await this.testActionLogger.logFetchStarted(
@@ -47,7 +47,7 @@ export class GlobalFetchRunner {
   }
 
   private async logFetchFinished(
-    traceId: Base64String,
+    traceId: HexString,
     requestInfo: FetchRequestInfo,
     response: Response,
   ): Promise<void> {

@@ -1,3 +1,4 @@
+import { SpanKind, StatusCode } from "@shared/type/echoedParam";
 import { z } from "zod";
 
 export const JsonLong = z.string();
@@ -66,7 +67,7 @@ export type JsonLink = z.infer<typeof JsonLink>;
 
 export const JsonStatus = z.strictObject({
   message: z.string().nullish(),
-  code: z.number().nullish(),
+  code: z.enum(StatusCode).nullish(),
 });
 export type JsonStatus = z.infer<typeof JsonStatus>;
 
@@ -94,7 +95,7 @@ export const JsonSpan = z.strictObject({
   endTimeUnixNano: JsonLong.optional(),
   events: z.array(JsonEvent).optional(),
   links: z.array(JsonLink).optional(),
-  kind: z.string().optional(),
+  kind: z.enum(SpanKind).optional(),
   status: JsonStatus.optional(),
   resource: JsonResource.optional(),
   scope: JsonInstrumentationScope.optional(),

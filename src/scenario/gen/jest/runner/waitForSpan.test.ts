@@ -4,15 +4,15 @@ import { WaitForSpanEventResponse } from "@/server/parameter/waitForSpanParamete
 import { buildEchoedActContext } from "@/testUtil/scenario/context";
 import { buildJsonSpan } from "@/testUtil/type/jsonSpan";
 import { setTraceIdToResponse } from "@/traceLoggingFetch";
-import { Base64String } from "@/type/base64String";
-import { toBase64 } from "@/util/byte";
+import { HexString } from "@/type/hexString";
+import { toBase64String } from "@/util/byte";
 import fetchMock from "jest-fetch-mock";
 
 describe("waitForSpan", () => {
   const span = buildJsonSpan({
-    traceId: toBase64(Uint8Array.from([1, 2, 3])).base64String,
-    spanId: toBase64(Uint8Array.from([11, 12, 13])).base64String,
-    parentSpanId: toBase64(Uint8Array.from([21, 22, 23])).base64String,
+    traceId: toBase64String(Uint8Array.from([1, 2, 3])),
+    spanId: toBase64String(Uint8Array.from([11, 12, 13])),
+    parentSpanId: toBase64String(Uint8Array.from([21, 22, 23])),
     attributes: [
       {
         key: "dummyAttr",
@@ -51,7 +51,7 @@ describe("waitForSpan", () => {
   describe("call", () => {
     it("should return span", async () => {
       const response = {} as Response;
-      setTraceIdToResponse(response, new Base64String("dummy-trace-id"));
+      setTraceIdToResponse(response, new HexString("dummy-trace-id"));
       const filter = {};
 
       const actual = await waitForSpan(

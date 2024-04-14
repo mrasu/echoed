@@ -4,7 +4,7 @@ import { deleteServerPortFromEnv, setServerPortToEnv } from "@/env";
 import { WaitForSpanEventResponse } from "@/server/parameter/waitForSpanParameter";
 import { buildJsonSpan } from "@/testUtil/type/jsonSpan";
 import { setTraceIdToResponse } from "@/traceLoggingFetch";
-import { Base64String } from "@/type/base64String";
+import { HexString } from "@/type/hexString";
 import fetchMock from "jest-fetch-mock";
 
 describe("waitForSpan", () => {
@@ -36,7 +36,7 @@ describe("waitForSpan", () => {
 
   describe("when traceId is set to response", () => {
     beforeEach(() => {
-      setTraceIdToResponse(res, new Base64String("dummy-trace-id"));
+      setTraceIdToResponse(res, new HexString("dummy-trace-id"));
     });
 
     describe("when server-port env is not set anywhere", () => {

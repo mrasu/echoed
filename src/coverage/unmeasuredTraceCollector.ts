@@ -1,5 +1,5 @@
 import { OtelSpan } from "@/type/otelSpan";
-import { toBase64 } from "@/util/byte";
+import { toHex } from "@/util/byte";
 
 export class UnmeasuredTraceCollector {
   private readonly traceIds = new Set<string>();
@@ -7,7 +7,7 @@ export class UnmeasuredTraceCollector {
   addSpans(spans: OtelSpan[]): void {
     for (const span of spans) {
       if (!span.traceId) continue;
-      this.traceIds.add(toBase64(span.traceId).base64String);
+      this.traceIds.add(toHex(span.traceId).hexString);
     }
   }
 

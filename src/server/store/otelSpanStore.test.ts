@@ -3,7 +3,7 @@ import { OtelSpanStore } from "@/server/store/otelSpanStore";
 import { buildTraceId } from "@/testUtil/otel/id";
 import { buildOtelLogRecord } from "@/testUtil/otel/otelLogRecord";
 import { buildHttpOtelSpan } from "@/testUtil/otel/otelSpan";
-import { toBase64 } from "@/util/byte";
+import { toHex } from "@/util/byte";
 import { Mutex } from "async-mutex";
 
 describe("OtelSpanStore", () => {
@@ -15,7 +15,7 @@ describe("OtelSpanStore", () => {
         await store.capture(span);
 
         expect(store.capturedSpans).toEqual(
-          new Map([[toBase64(span.traceId).base64String, [span]]]),
+          new Map([[toHex(span.traceId).hexString, [span]]]),
         );
       });
     });
@@ -29,7 +29,7 @@ describe("OtelSpanStore", () => {
         await store.capture(span2);
 
         expect(store.capturedSpans).toEqual(
-          new Map([[toBase64(span1.traceId).base64String, [span1, span2]]]),
+          new Map([[toHex(span1.traceId).hexString, [span1, span2]]]),
         );
       });
     });
@@ -46,8 +46,8 @@ describe("OtelSpanStore", () => {
 
         expect(store.capturedLogs).toEqual(
           new Map([
-            [traceId1.base64String, [span1]],
-            [traceId2.base64String, [span2]],
+            [traceId1.hexString, [span1]],
+            [traceId2.hexString, [span2]],
           ]),
         );
       });

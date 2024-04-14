@@ -1,5 +1,5 @@
-import { Base64String } from "@/type/base64String";
 import { ErrorMessage } from "@/type/common";
+import { HexString } from "@/type/hexString";
 import { JsonSpan } from "@/type/jsonSpan";
 import { Span } from "@/type/span";
 import {
@@ -10,13 +10,13 @@ import {
 import { z } from "zod";
 
 export type WaitForSpanEventRequestObjectParam = {
-  base64TraceId: string;
+  hexTraceId: string;
   filter: SpanFilterOption;
   waitTimeoutMs: number;
 };
 
 export const WaitForSpanEventRequestParam = z.strictObject({
-  base64TraceId: z.string(),
+  hexTraceId: z.string(),
   filter: JsonSpanFilterOption,
   waitTimeoutMs: z.number(),
 });
@@ -26,7 +26,7 @@ export type WaitForSpanEventRequestParam = z.infer<
 >;
 
 export type RestoredWaitForSpanEventRequestParam = {
-  traceId: Base64String;
+  traceId: HexString;
   filter: SpanFilterOption;
   waitTimeoutMs: number;
 };
@@ -35,7 +35,7 @@ export function restoreWaitForSpanEventRequestParam(
   data: WaitForSpanEventRequestParam,
 ): RestoredWaitForSpanEventRequestParam {
   return {
-    traceId: new Base64String(data.base64TraceId),
+    traceId: new HexString(data.hexTraceId),
     filter: restoreSpanFilterOption(data.filter),
     waitTimeoutMs: data.waitTimeoutMs,
   };

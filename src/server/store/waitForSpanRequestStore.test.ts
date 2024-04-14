@@ -10,7 +10,7 @@ describe("WaitForSpanRequestStore", () => {
   describe("update", () => {
     const traceId = buildTraceId();
     const event: WaitForSpanEvent = {
-      base64TraceId: traceId.base64String,
+      hexTraceId: traceId.hexString,
       wantId: "",
       filter: {
         attributes: {},
@@ -27,7 +27,7 @@ describe("WaitForSpanRequestStore", () => {
 
         const request = new WaitForSpanRequest(spanBus, event);
         let found: WaitForSpanRequest[] = [];
-        await store.update(traceId.base64String, (requests) => {
+        await store.update(traceId.hexString, (requests) => {
           found = requests;
           return [...requests, request];
         });
@@ -43,12 +43,12 @@ describe("WaitForSpanRequestStore", () => {
 
         const request = new WaitForSpanRequest(spanBus, event);
         const existings: WaitForSpanRequest[] = [request];
-        await store.update(traceId.base64String, () => {
+        await store.update(traceId.hexString, () => {
           return existings;
         });
 
         let found: WaitForSpanRequest[] = [request];
-        await store.update(traceId.base64String, (requests) => {
+        await store.update(traceId.hexString, (requests) => {
           found = requests;
           return existings;
         });

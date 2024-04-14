@@ -7,7 +7,7 @@ import { WaitForSpanEventResponse } from "@/server/parameter/waitForSpanParamete
 import { ECHOED_USER_AGENT, USER_AGENT_HEADER_KEY } from "@/server/request";
 import { Requester } from "@/server/requester/requester";
 import { buildCypressSpec } from "@/testUtil/cypress/cypressSpec";
-import { Base64String } from "@/type/base64String";
+import { HexString } from "@/type/hexString";
 import { mock } from "jest-mock-extended";
 
 describe("WaitForSpanCommander", () => {
@@ -32,7 +32,7 @@ describe("WaitForSpanCommander", () => {
       });
       const spec = buildCypressSpec();
       initializeEchoedContext(spec);
-      setTraceIdToCypressSpec(spec, url, new Base64String("traceId"));
+      setTraceIdToCypressSpec(spec, url, new HexString("traceId"));
       const commander = new WaitForSpanCommander(requester, spec);
 
       const span = await commander.run(1234, url, {}, { timeoutMs: 10000 });
@@ -44,7 +44,7 @@ describe("WaitForSpanCommander", () => {
           [USER_AGENT_HEADER_KEY]: ECHOED_USER_AGENT,
         },
         JSON.stringify({
-          base64TraceId: "traceId",
+          hexTraceId: "traceId",
           filter: { attributes: {}, resource: { attributes: {} } },
           waitTimeoutMs: 10000,
         }),

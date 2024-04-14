@@ -8,7 +8,7 @@ import { EchoedFatalError } from "@/echoedFatalError";
 import { getServerPortFromEnv } from "@/env";
 import { getTraceIdFromAPIResponse } from "@/integration/playwright/internal/util/apiResponse";
 import { getLastTraceIdFromContext } from "@/integration/playwright/internal/util/browserContext";
-import { Base64String } from "@/type/base64String";
+import { HexString } from "@/type/hexString";
 import { APIResponse, BrowserContext } from "@playwright/test";
 
 export async function waitForSpanCreatedIn(
@@ -43,7 +43,7 @@ export async function waitForSpanFromPlaywrightFetch(
 }
 
 async function waitForSpanForTraceId(
-  traceId: Base64String,
+  traceId: HexString,
   filter: SpanFilterOption,
   options?: WaitOption,
 ): Promise<Span> {

@@ -35,11 +35,11 @@ describe("RouteFetchRunner", () => {
 
       const traceId = fetchFinishedLog.traceId;
       const contextTraceId = getLastTraceIdFromContext(browserContext, url);
-      expect(contextTraceId?.base64String).toBe(traceId);
+      expect(contextTraceId?.hexString).toBe(traceId);
 
       const response = route.fulfill.mock.calls[0][0]?.response;
       const responseTraceId = getTraceIdFromAPIResponse(response!);
-      expect(responseTraceId?.base64String).toBe(traceId);
+      expect(responseTraceId?.hexString).toBe(traceId);
     });
 
     describe("when run after Test ended", () => {

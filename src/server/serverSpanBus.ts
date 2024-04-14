@@ -37,11 +37,11 @@ export class ServerSpanBus {
   private async handleWaitForSpanRequest(
     request: WaitForSpanRequest,
   ): Promise<void> {
-    const base64TraceId = request.traceId.base64String;
+    const hexTraceId = request.traceId.hexString;
 
     let spans: OtelSpan[] | undefined = [];
-    await this.waitForSpanRequestStore.update(base64TraceId, (requests) => {
-      spans = this.otelSpanStore.getCaptured(base64TraceId);
+    await this.waitForSpanRequestStore.update(hexTraceId, (requests) => {
+      spans = this.otelSpanStore.getCaptured(hexTraceId);
 
       requests.push(request);
       return requests;

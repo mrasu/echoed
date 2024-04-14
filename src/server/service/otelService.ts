@@ -5,7 +5,7 @@ import { OtelSpanStore } from "@/server/store/otelSpanStore";
 import { WaitForSpanRequestStore } from "@/server/store/waitForSpanRequestStore";
 import { OtelLogRecord } from "@/type/otelLogRecord";
 import { OtelSpan } from "@/type/otelSpan";
-import { toBase64 } from "@/util/byte";
+import { toHex } from "@/util/byte";
 import LogsData = opentelemetry.proto.logs.v1.LogsData;
 import TracesData = opentelemetry.proto.trace.v1.TracesData;
 
@@ -39,7 +39,7 @@ export class OtelService {
   private async captureSpan(span: OtelSpan): Promise<void> {
     this.debugLogSpan(span);
 
-    const traceId = toBase64(span.traceId).base64String;
+    const traceId = toHex(span.traceId).hexString;
 
     await this.otelSpanStore.capture(span);
 

@@ -1,11 +1,11 @@
 import { TraceHistory } from "@/integration/common/traceHistory";
-import { Base64String } from "@/type/base64String";
+import { HexString } from "@/type/hexString";
 
 describe("TraceHistory", () => {
   describe("push", () => {
     it("should push the trace", () => {
       const traceHistory = new TraceHistory();
-      const traceId = new Base64String("traceId");
+      const traceId = new HexString("traceId");
       traceHistory.push("url", traceId);
       expect(traceHistory.copiedTraces).toEqual([["url", traceId]]);
     });
@@ -13,8 +13,8 @@ describe("TraceHistory", () => {
     describe("when push the same url multiple times", () => {
       it("should hold all traces", () => {
         const traceHistory = new TraceHistory();
-        const traceId1 = new Base64String("traceId1");
-        const traceId2 = new Base64String("traceId2");
+        const traceId1 = new HexString("traceId1");
+        const traceId2 = new HexString("traceId2");
         traceHistory.push("url", traceId1);
         traceHistory.push("url", traceId2);
         expect(traceHistory.copiedTraces).toEqual([
@@ -27,7 +27,7 @@ describe("TraceHistory", () => {
     describe("when push the different url", () => {
       it("should hold all traces", () => {
         const traceHistory = new TraceHistory();
-        const traceId = new Base64String("traceId");
+        const traceId = new HexString("traceId");
         traceHistory.push("url1", traceId);
         traceHistory.push("url2", traceId);
         expect(traceHistory.copiedTraces).toEqual([
@@ -42,8 +42,8 @@ describe("TraceHistory", () => {
     describe("when the pattern is string", () => {
       it("should return the matched trace", () => {
         const traceHistory = new TraceHistory();
-        const traceId1 = new Base64String("traceId1");
-        const traceId2 = new Base64String("traceId2");
+        const traceId1 = new HexString("traceId1");
+        const traceId2 = new HexString("traceId2");
         traceHistory.push("url1", traceId1);
         traceHistory.push("url2", traceId2);
         expect(traceHistory.getLastTraceId("url1")).toBe(traceId1);
@@ -52,8 +52,8 @@ describe("TraceHistory", () => {
       describe("when multiple urls are matched", () => {
         it("should return the last matched trace", () => {
           const traceHistory = new TraceHistory();
-          const traceId1 = new Base64String("traceId1");
-          const traceId2 = new Base64String("traceId2");
+          const traceId1 = new HexString("traceId1");
+          const traceId2 = new HexString("traceId2");
           traceHistory.push("url", traceId1);
           traceHistory.push("url", traceId2);
           expect(traceHistory.getLastTraceId("url")).toBe(traceId2);
@@ -63,7 +63,7 @@ describe("TraceHistory", () => {
       describe("when not matched", () => {
         it("should return undefined", () => {
           const traceHistory = new TraceHistory();
-          const traceId = new Base64String("traceId");
+          const traceId = new HexString("traceId");
           traceHistory.push("url", traceId);
           expect(traceHistory.getLastTraceId("notMatched")).toBeUndefined();
         });
@@ -73,8 +73,8 @@ describe("TraceHistory", () => {
     describe("when the pattern is RegExp", () => {
       it("should return the matched trace", () => {
         const traceHistory = new TraceHistory();
-        const traceId1 = new Base64String("traceId1");
-        const traceId2 = new Base64String("traceId2");
+        const traceId1 = new HexString("traceId1");
+        const traceId2 = new HexString("traceId2");
         traceHistory.push("url1", traceId1);
         traceHistory.push("url2", traceId2);
         expect(traceHistory.getLastTraceId(/url1/)).toBe(traceId1);
@@ -83,8 +83,8 @@ describe("TraceHistory", () => {
       describe("when multiple urls are matched", () => {
         it("should return the last matched trace", () => {
           const traceHistory = new TraceHistory();
-          const traceId1 = new Base64String("traceId1");
-          const traceId2 = new Base64String("traceId2");
+          const traceId1 = new HexString("traceId1");
+          const traceId2 = new HexString("traceId2");
           traceHistory.push("url1", traceId1);
           traceHistory.push("url2", traceId2);
           expect(traceHistory.getLastTraceId(/url/)).toBe(traceId2);
@@ -94,7 +94,7 @@ describe("TraceHistory", () => {
       describe("when not matched", () => {
         it("should return undefined", () => {
           const traceHistory = new TraceHistory();
-          const traceId = new Base64String("traceId");
+          const traceId = new HexString("traceId");
           traceHistory.push("url", traceId);
           expect(traceHistory.getLastTraceId(/notMatched/)).toBeUndefined();
         });

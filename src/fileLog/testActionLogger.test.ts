@@ -1,6 +1,6 @@
 import { TestActionLogger } from "@/fileLog/testActionLogger";
 import { MockFileLogger } from "@/testUtil/fileLog/mockFileLogger";
-import { Base64String } from "@/type/base64String";
+import { HexString } from "@/type/hexString";
 import { FetchFailedLog, FetchFinishedLog, FetchStartedLog } from "@/types";
 
 describe("TestActionLogger", () => {
@@ -12,7 +12,7 @@ describe("TestActionLogger", () => {
       const startAt = new Date();
       await logger.logFetchStarted(
         "testId",
-        new Base64String("traceId"),
+        new HexString("traceId"),
         "testPath",
         startAt,
       );
@@ -36,7 +36,7 @@ describe("TestActionLogger", () => {
       const logger = new TestActionLogger(mockFileLogger);
 
       await logger.logFetchFinished(
-        new Base64String("traceId"),
+        new HexString("traceId"),
         {
           url: "https://localhost:3000/api/v1/cart",
           method: "GET",
@@ -71,7 +71,7 @@ describe("TestActionLogger", () => {
       const logger = new TestActionLogger(mockFileLogger);
 
       await logger.logFetchFailed(
-        new Base64String("traceId"),
+        new HexString("traceId"),
         {
           url: "https://localhost:3000/api/v1/cart",
           method: "GET",

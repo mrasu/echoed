@@ -2,7 +2,7 @@ import { Eq } from "@/comparision/eq";
 import { OpenApiIgnoreOperationConfig } from "@/config/config";
 import { SpanCollector } from "@/coverage/openApi/spanCollector";
 import { buildHttpOtelSpan } from "@/testUtil/otel/otelSpan";
-import { toBase64 } from "@/util/byte";
+import { toHex } from "@/util/byte";
 
 describe("SpanCollector", () => {
   const ignorePath = "/ignored";
@@ -29,7 +29,7 @@ describe("SpanCollector", () => {
     });
 
     describe("when operation is not ignored", () => {
-      const spanId = toBase64(new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 0]));
+      const spanId = toHex(new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 0]));
 
       describe("when operation matches no element", () => {
         it("should add spans to the operations", () => {

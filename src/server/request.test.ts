@@ -30,7 +30,7 @@ describe("requestWaitForSpanEvent", () => {
     it("should return span", async () => {
       const requester = new FetchRequester();
       const span = await requestWaitForSpanEvent(requester, 1, {
-        base64TraceId: "dummy-trace-id",
+        hexTraceId: "dummy-trace-id",
         filter: {
           name: new Eq("dummy/name"),
           attributes: {},
@@ -54,7 +54,7 @@ describe("requestWaitForSpanEvent", () => {
       await expect(async () => {
         const requester = new FetchRequester();
         await requestWaitForSpanEvent(requester, 1, {
-          base64TraceId: "dummy-trace-id",
+          hexTraceId: "dummy-trace-id",
           filter: {
             name: new Eq("dummy/name"),
             attributes: {},
@@ -77,7 +77,7 @@ describe("requestWaitForSpanEvent", () => {
       await expect(async () => {
         const requester = new FetchRequester();
         await requestWaitForSpanEvent(requester, 1, {
-          base64TraceId: "dummy-trace-id",
+          hexTraceId: "dummy-trace-id",
           filter: {
             name: new Eq("dummy/name"),
             attributes: {},

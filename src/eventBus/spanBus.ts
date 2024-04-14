@@ -7,8 +7,8 @@ import {
   restoreReceiveSpanEvent,
   restoreWaitForSpanEvent,
 } from "@/eventBus/parameter";
-import { Base64String } from "@/type/base64String";
 import { ErrorMessage } from "@/type/common";
+import { HexString } from "@/type/hexString";
 import { JsonSpan } from "@/type/jsonSpan";
 import { OtelSpan } from "@/type/otelSpan";
 import { SpanFilterOption } from "@/type/spanFilterOption";
@@ -30,7 +30,7 @@ export class SpanBus {
   }
 
   async requestWaitForSpan(
-    traceId: Base64String,
+    traceId: HexString,
     filter: SpanFilterOption,
     waitTimeoutMs: number,
   ): Promise<JsonSpan | ErrorMessage> {
@@ -42,17 +42,14 @@ export class SpanBus {
       async (origData: unknown) => {
         const data = JsonReceiveSpanEvent.parse(origData);
         const event = restoreReceiveSpanEvent(data);
-        if (
-          event.wantId === wantId &&
-          event.base64TraceId === traceId.base64String
-        ) {
+        if (event.wantId === wantId && event.hexTraceId === traceId.hexString) {
           return Promise.resolve(event.span);
         }
         return Promise.resolve(undefined);
       },
     );
     await this.emitWaitForSpanEvent({
-      base64TraceId: traceId.base64String,
+      hexTraceId: traceId.hexString,
       filter,
       wantId,
     });
@@ -67,12 +64,12 @@ export class SpanBus {
 
   async emitReceiveSpanEvent(
     wantId: string,
-    traceId: Base64String,
+    traceId: HexString,
     span: OtelSpan,
   ): Promise<void> {
     const event: ReceiveSpanEmitEvent = {
       wantId,
-      base64TraceId: traceId.base64String,
+      hexTraceId: traceId.hexString,
       span,
     };
     await this.bus.emit(RECEIVE_SPAN_EVENT_NAME, event);

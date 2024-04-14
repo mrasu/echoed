@@ -1,22 +1,22 @@
 import { buildNotDisplayableMessage } from "@/integration/common/util/response";
-import { Base64String } from "@/type/base64String";
+import { HexString } from "@/type/hexString";
 import { isReadableContentType } from "@/util/request";
 import { APIResponse } from "@playwright/test";
 
 const traceIdPropertyName = "__echoed_traceId";
 
-export type WrappedResponse = { [traceIdPropertyName]: Base64String };
+export type WrappedResponse = { [traceIdPropertyName]: HexString };
 
 export function setTraceIdToAPIResponse(
   response: APIResponse,
-  traceId: Base64String,
+  traceId: HexString,
 ): void {
   (response as unknown as WrappedResponse)[traceIdPropertyName] = traceId;
 }
 
 export function getTraceIdFromAPIResponse(
   response: APIResponse,
-): Base64String | undefined {
+): HexString | undefined {
   return (response as unknown as WrappedResponse)[traceIdPropertyName];
 }
 

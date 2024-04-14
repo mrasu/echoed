@@ -10,7 +10,7 @@ import {
 } from "@/integration/cypress/internal/util/cypressResponse";
 import { setTraceIdToCypressSpec } from "@/integration/cypress/internal/util/cypressSpec";
 import { toDisplayableRequestBody } from "@/integration/cypress/internal/util/request";
-import { Base64String } from "@/type/base64String";
+import { HexString } from "@/type/hexString";
 import { generateTraceparent } from "@/util/traceparent";
 
 export class RequestRunner {
@@ -44,7 +44,7 @@ export class RequestRunner {
     });
   }
 
-  private async logFetchStarted(traceId: Base64String): Promise<void> {
+  private async logFetchStarted(traceId: HexString): Promise<void> {
     await this.testActionLogger.logFetchStarted(
       undefined,
       traceId,
@@ -54,7 +54,7 @@ export class RequestRunner {
   }
 
   private async logFetchFinished(
-    traceId: Base64String,
+    traceId: HexString,
     req: CypressHttpRequest,
     res: CypressHttpResponse,
   ): Promise<void> {

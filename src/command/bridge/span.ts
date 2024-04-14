@@ -4,7 +4,7 @@ import { Span } from "@/command/spanType";
 import { requestWaitForSpanEvent } from "@/server/request";
 import { FetchRequester } from "@/server/requester/fetchRequester";
 import { Requester } from "@/server/requester/requester";
-import { Base64String } from "@/type/base64String";
+import { HexString } from "@/type/hexString";
 
 const DEFAULT_TIMEOUT_MS = 10_000;
 
@@ -20,7 +20,7 @@ export function fulfillWaitOption(options?: WaitOption): FulfilledWaitOption {
 
 export async function waitForSpanForTraceId(
   port: number,
-  traceId: Base64String,
+  traceId: HexString,
   filter: SpanFilterOption,
   options: FulfilledWaitOption,
 ): Promise<Span> {
@@ -37,12 +37,12 @@ export async function waitForSpanForTraceId(
 export async function waitForSpanForTraceIdWithRequester(
   requester: Requester,
   port: number,
-  traceId: Base64String,
+  traceId: HexString,
   filter: SpanFilterOption,
   options: FulfilledWaitOption,
 ): Promise<Span> {
   const param = {
-    base64TraceId: traceId.base64String,
+    hexTraceId: traceId.hexString,
     filter: convertSpanFilterOption(filter),
     waitTimeoutMs: options.timeoutMs,
   };

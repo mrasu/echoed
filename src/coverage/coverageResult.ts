@@ -1,5 +1,5 @@
-import { Base64String } from "@/type/base64String";
-import { Method } from "@/type/http";
+import { HexString } from "@/type/hexString";
+import { HttpMethod } from "@shared/type/http";
 
 export class CoverageResult {
   constructor(public readonly coverages: Coverage[]) {}
@@ -21,14 +21,14 @@ export type HttpCoverage = {
 
 export type HttpOperationCoverage = {
   path: string;
-  method: Method;
+  method: HttpMethod;
   passed: boolean;
 };
 
 export type HttpOperationTraces = {
   path: string;
-  method: Method;
-  traceIds: Base64String[];
+  method: HttpMethod;
+  traceIds: HexString[];
 };
 
 export type RpcCoverage = {
@@ -45,5 +45,5 @@ export type RpcMethodCoverage = {
 export type RpcMethodTraces = {
   service: string;
   method: string;
-  traceIds: Base64String[];
+  traceIds: HexString[];
 };

@@ -2,10 +2,10 @@ import { Comparable } from "@/comparision/comparable";
 import { WaitForSpanEvent } from "@/eventBus/parameter";
 import { SpanBus } from "@/eventBus/spanBus";
 import { opentelemetry } from "@/generated/otelpbj";
-import { Base64String } from "@/type/base64String";
+import { HexString } from "@/type/hexString";
 import { OtelSpan } from "@/type/otelSpan";
 import { SpanFilterOption } from "@/type/spanFilterOption";
-import { toBase64 } from "@/util/byte";
+import { toHex } from "@/util/byte";
 
 export class WaitForSpanRequest {
   public readonly bus: SpanBus;
@@ -26,8 +26,8 @@ export class WaitForSpanRequest {
     await this.bus.emitReceiveSpanEvent(this.wantId, this.traceId, span);
   }
 
-  get traceId(): Base64String {
-    return new Base64String(this.event.base64TraceId);
+  get traceId(): HexString {
+    return new HexString(this.event.hexTraceId);
   }
 
   private get wantId(): string {
@@ -39,7 +39,7 @@ export class WaitForSpanRequest {
   }
 
   matches(span: OtelSpan): boolean {
-    if (!this.traceId.equals(toBase64(span.traceId))) return false;
+    if (!this.traceId.equals(toHex(span.traceId))) return false;
 
     if (this.filter.name) {
       if (!this.filter.name.matchString(span.name)) return false;

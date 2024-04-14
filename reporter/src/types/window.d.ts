@@ -1,4 +1,4 @@
-import type { IEchoedParam } from "./echoed_param";
+import type { IEchoedParam } from "@shared/type/echoedParam";
 
 declare global {
   interface Window {

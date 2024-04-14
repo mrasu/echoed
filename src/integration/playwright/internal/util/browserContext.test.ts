@@ -3,7 +3,7 @@ import {
   initializeEchoedContext,
   setTraceIdToContext,
 } from "@/integration/playwright/internal/util/browserContext";
-import { Base64String } from "@/type/base64String";
+import { HexString } from "@/type/hexString";
 import { BrowserContext } from "@playwright/test";
 
 describe("setTraceIdToContext and getLastTraceIdFromContext", () => {
@@ -15,20 +15,20 @@ describe("setTraceIdToContext and getLastTraceIdFromContext", () => {
 
   it("should set traceIds", () => {
     const url = "https://example.com";
-    setTraceIdToContext(ctx, url, new Base64String("dummy-trace-id"));
+    setTraceIdToContext(ctx, url, new HexString("dummy-trace-id"));
 
     const traceId = getLastTraceIdFromContext(ctx, url);
-    expect(traceId).toEqual(new Base64String("dummy-trace-id"));
+    expect(traceId).toEqual(new HexString("dummy-trace-id"));
   });
 
   describe("when setting with the same url multiple times", () => {
     it("should return the last traceId", () => {
       const url = "https://example.com";
-      setTraceIdToContext(ctx, url, new Base64String("dummy-trace-id"));
-      setTraceIdToContext(ctx, url, new Base64String("dummy-trace-id2"));
+      setTraceIdToContext(ctx, url, new HexString("dummy-trace-id"));
+      setTraceIdToContext(ctx, url, new HexString("dummy-trace-id2"));
 
       const traceId = getLastTraceIdFromContext(ctx, url);
-      expect(traceId).toEqual(new Base64String("dummy-trace-id2"));
+      expect(traceId).toEqual(new HexString("dummy-trace-id2"));
     });
   });
 
@@ -36,14 +36,14 @@ describe("setTraceIdToContext and getLastTraceIdFromContext", () => {
     it("should return traceId for the specified url", () => {
       const url1 = "https://example.com/1";
       const url2 = "https://example.com/2";
-      setTraceIdToContext(ctx, url1, new Base64String("dummy-trace-id1"));
-      setTraceIdToContext(ctx, url2, new Base64String("dummy-trace-id2"));
+      setTraceIdToContext(ctx, url1, new HexString("dummy-trace-id1"));
+      setTraceIdToContext(ctx, url2, new HexString("dummy-trace-id2"));
 
       const traceId1 = getLastTraceIdFromContext(ctx, url1);
-      expect(traceId1).toEqual(new Base64String("dummy-trace-id1"));
+      expect(traceId1).toEqual(new HexString("dummy-trace-id1"));
 
       const traceId2 = getLastTraceIdFromContext(ctx, url2);
-      expect(traceId2).toEqual(new Base64String("dummy-trace-id2"));
+      expect(traceId2).toEqual(new HexString("dummy-trace-id2"));
     });
   });
 });

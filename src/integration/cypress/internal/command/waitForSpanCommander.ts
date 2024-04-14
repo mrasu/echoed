@@ -8,7 +8,7 @@ import { EchoedFatalError } from "@/echoedFatalError";
 import { getTraceIdFromCypressResponse } from "@/integration/cypress/internal/util/cypressResponse";
 import { getLastTraceIdFromCypressSpec } from "@/integration/cypress/internal/util/cypressSpec";
 import { Requester } from "@/server/requester/requester";
-import { Base64String } from "@/type/base64String";
+import { HexString } from "@/type/hexString";
 
 export class WaitForSpanCommander {
   constructor(
@@ -29,7 +29,7 @@ export class WaitForSpanCommander {
 
   private extractTraceId(
     urlPatternOrResponse: string | RegExp | Cypress.Response<unknown>,
-  ): Base64String {
+  ): HexString {
     if (
       typeof urlPatternOrResponse === "object" &&
       "body" in urlPatternOrResponse
@@ -59,7 +59,7 @@ export class WaitForSpanCommander {
 
   private async waitForSpanForTraceId(
     port: number,
-    traceId: Base64String,
+    traceId: HexString,
     filter: SpanFilterOption,
     options: FulfilledWaitOption,
   ): Promise<Span> {

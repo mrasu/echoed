@@ -3,7 +3,7 @@ import { Reg } from "@/comparision/reg";
 import { EventBus } from "@/eventBus/infra/eventBus";
 import { WaitForSpanEvent } from "@/eventBus/parameter";
 import { SpanBus } from "@/eventBus/spanBus";
-import { Base64String } from "@/type/base64String";
+import { HexString } from "@/type/hexString";
 import { SpanFilterOption } from "@/type/spanFilterOption";
 import { mock } from "jest-mock-extended";
 import { MockProxy } from "jest-mock-extended/lib/Mock";
@@ -34,14 +34,14 @@ describe("SpanBus", () => {
       spanBus.listenWaitForSpanEvent(callback);
 
       await spanBus.requestWaitForSpan(
-        new Base64String("trace-id"),
+        new HexString("trace-id"),
         defaultFilter,
         0,
       );
 
       const expected: WaitForSpanEvent = {
         wantId: expect.any(String) as string,
-        base64TraceId: "trace-id",
+        hexTraceId: "trace-id",
         filter: defaultFilter,
       };
       expect(bus.emit.mock.calls[0][1]).toEqual(expected);
@@ -58,16 +58,12 @@ describe("SpanBus", () => {
     });
 
     it("should emit request", async () => {
-      await bus.requestWaitForSpan(
-        new Base64String("trace-id"),
-        defaultFilter,
-        0,
-      );
+      await bus.requestWaitForSpan(new HexString("trace-id"), defaultFilter, 0);
 
       const emittedData = mockBus.emit.mock.calls;
       expect(emittedData.length).toBe(1);
       expect(emittedData[0][1]).toEqual({
-        base64TraceId: "trace-id",
+        hexTraceId: "trace-id",
         filter: defaultFilter,
         wantId: expect.any(String) as string,
       });

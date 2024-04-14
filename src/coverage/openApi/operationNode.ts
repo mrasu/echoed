@@ -3,14 +3,15 @@ import {
   OpenAPIPathItemObject,
   PathWildcard,
 } from "@/coverage/openApi/operationTree";
-import { Method, toMethod } from "@/type/http";
+import { toMethod } from "@/type/http";
+import { HttpMethod } from "@shared/type/http";
 
 type PartialPath = string | symbol;
 
 export class OperationNode {
   partialPath: PartialPath;
   private readonly children: Map<PartialPath, OperationNode> = new Map();
-  private readonly operations: Map<Method, Operation> = new Map();
+  private readonly operations: Map<HttpMethod, Operation> = new Map();
 
   constructor(partialPath: PartialPath) {
     this.partialPath = partialPath;
@@ -42,7 +43,7 @@ export class OperationNode {
     child.add(partialPaths.slice(1), pathItemObject, specPath);
   }
 
-  get(partialPaths: PartialPath[], method: Method): Operation | undefined {
+  get(partialPaths: PartialPath[], method: HttpMethod): Operation | undefined {
     if (partialPaths.length === 0) {
       return this.operations.get(method);
     }

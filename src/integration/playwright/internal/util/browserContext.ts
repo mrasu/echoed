@@ -1,6 +1,6 @@
 import { EchoedFatalError } from "@/echoedFatalError";
 import { TraceHistory } from "@/integration/common/traceHistory";
-import { Base64String } from "@/type/base64String";
+import { HexString } from "@/type/hexString";
 import { BrowserContext } from "@playwright/test";
 
 type EchoedContext = {
@@ -35,7 +35,7 @@ export function initializeEchoedContext(context: BrowserContext): void {
 export function setTraceIdToContext(
   context: BrowserContext,
   url: string,
-  traceId: Base64String,
+  traceId: HexString,
 ): void {
   const traces = getEchoedContext(context).traces;
   traces.push(url, traceId);
@@ -44,7 +44,7 @@ export function setTraceIdToContext(
 export function getLastTraceIdFromContext(
   context: BrowserContext,
   pattern: string | RegExp,
-): Base64String | undefined {
+): HexString | undefined {
   const traces = getEchoedContext(context).traces;
   if (!traces) {
     return undefined;

@@ -7,112 +7,21 @@ import {
 import { IFile } from "@/fs/IFile";
 import { IDirectory } from "@/fs/iDirectory";
 import { IReportFile } from "@/report/iReportFile";
+import { OtelLogRecordConverter } from "@/report/otelLogRecordConverter";
+import { OtelSpanConverter } from "@/report/otelSpanConverter";
 import { TestCaseResult } from "@/testCaseResult";
 import { TestResult } from "@/testResult";
-import { OtelLogRecord } from "@/type/otelLogRecord";
-import { OtelSpan } from "@/type/otelSpan";
-
-type EchoedParam = {
-  config: ReportConfig;
-  testInfos: TestInfo[];
-  coverageInfos: CoverageInfo[];
-  propagationFailedTraces: PropagationFailedTrace[];
-  traces: Trace[];
-};
-
-type ReportConfig = {
-  propagationTestEnabled: boolean;
-};
-
-type TestInfo = {
-  testId: string;
-  file: string;
-  name: string;
-  startTimeMillis: number;
-  status: string;
-  orderedTraceIds: string[];
-  fetches: Fetch[];
-  failureDetails?: string[];
-  failureMessages?: string[];
-  duration?: number;
-  testEndTimeMillis: number;
-};
-
-type Fetch = {
-  traceId: string;
-  request: FetchRequest;
-  response: FetchResponse | FetchFailedResponse;
-};
-
-type FetchRequest = {
-  url: string;
-  method: string;
-  body?: string;
-};
-
-type FetchResponse = {
-  status: number;
-  body?: string;
-};
-
-type FetchFailedResponse = {
-  failed: true;
-  reason: string;
-};
-
-type CoverageInfo = {
-  serviceName: string;
-  serviceNamespace: string | undefined;
-  httpCoverage?: HttpCoverage;
-  rpcCoverage?: RpcCoverage;
-  unmeasuredTraceIds?: string[];
-};
-
-type HttpCoverage = {
-  operationCoverages: HttpOperationCoverage[];
-  undocumentedOperations: HttpOperationTraces[];
-};
-
-type HttpOperation = {
-  path: string;
-  method: string;
-};
-
-type HttpOperationCoverage = HttpOperation & {
-  passed: boolean;
-};
-
-type HttpOperationTraces = HttpOperation & {
-  traceIds: string[];
-};
-
-type RpcCoverage = {
-  methodCoverages: RpcMethodCoverage[];
-  undocumentedMethods: RpcMethodTraces[];
-};
-
-type RpcMethod = {
-  service: string;
-  method: string;
-};
-
-type RpcMethodCoverage = RpcMethod & {
-  passed: boolean;
-};
-
-type RpcMethodTraces = RpcMethod & {
-  traceIds: string[];
-};
-
-type PropagationFailedTrace = {
-  traceId: string;
-};
-
-type Trace = {
-  traceId: string;
-  spans: OtelSpan[];
-  logRecords: OtelLogRecord[];
-};
+import {
+  IConfig,
+  ICoverageInfo,
+  IEchoedParam,
+  IFetch,
+  IHttpCoverage,
+  IPropagationFailedTrace,
+  IRpcCoverage,
+  ITestInfo,
+  ITrace,
+} from "@shared/type/echoedParam";
 
 const REPORT_HTML_TEMPLATE_PATH_FROM_ROOT_DIR = "reporter/dist/index.html";
 
@@ -155,19 +64,23 @@ export class ReportFile implements IReportFile {
   private createEchoedParam(
     testResult: TestResult,
     coverageResult: CoverageResult,
-  ): EchoedParam {
+  ): IEchoedParam {
     const testInfos = this.buildTestInfos(testResult);
     const propagationFailedTraces =
       this.buildPropagationFailedTraces(testResult);
     const coverageInfos = this.buildCoverageInfos(coverageResult);
     const config = this.buildReportConfig();
 
-    const traces: Trace[] = [];
+    const traces: ITrace[] = [];
     for (const traceId of testResult.capturedSpans.keys()) {
       traces.push({
         traceId: traceId,
-        spans: testResult.capturedSpans.get(traceId) ?? [],
-        logRecords: testResult.capturedLogs.get(traceId) ?? [],
+        spans: OtelSpanConverter.convertAll(
+          testResult.capturedSpans.get(traceId) ?? [],
+        ),
+        logRecords: OtelLogRecordConverter.convertAll(
+          testResult.capturedLogs.get(traceId) ?? [],
+        ),
       });
     }
 
@@ -180,10 +93,10 @@ export class ReportFile implements IReportFile {
     };
   }
 
-  private buildTestInfos(testResult: TestResult): TestInfo[] {
+  private buildTestInfos(testResult: TestResult): ITestInfo[] {
     const results = [...testResult.testCaseResults.values()].flat();
     const testInfos = results.map((result) => {
-      const testInfo: TestInfo = {
+      const testInfo: ITestInfo = {
         testId: result.testId,
         file: result.file,
         name: result.name,
@@ -194,7 +107,6 @@ export class ReportFile implements IReportFile {
         failureDetails: result.failureDetails,
         failureMessages: result.failureMessages,
         duration: result.duration,
-        testEndTimeMillis: result.testEndTimeMillis,
       };
       return testInfo;
     });
@@ -202,8 +114,8 @@ export class ReportFile implements IReportFile {
     return testInfos;
   }
 
-  private toFetches(testCaseResult: TestCaseResult): Fetch[] {
-    return testCaseResult.fetches.map((fetch): Fetch => {
+  private toFetches(testCaseResult: TestCaseResult): IFetch[] {
+    return testCaseResult.fetches.map((fetch): IFetch => {
       return {
         traceId: fetch.traceId,
         request: { ...fetch.request },
@@ -214,8 +126,8 @@ export class ReportFile implements IReportFile {
 
   private buildPropagationFailedTraces(
     testResult: TestResult,
-  ): PropagationFailedTrace[] {
-    const propagationFailedTraces: PropagationFailedTrace[] = [];
+  ): IPropagationFailedTrace[] {
+    const propagationFailedTraces: IPropagationFailedTrace[] = [];
     for (const traceId of testResult.propagationFailedSpans.keys()) {
       propagationFailedTraces.push({
         traceId: traceId,
@@ -225,10 +137,10 @@ export class ReportFile implements IReportFile {
     return propagationFailedTraces;
   }
 
-  private buildCoverageInfos(coverageResult: CoverageResult): CoverageInfo[] {
-    const coverageInfos: CoverageInfo[] = [];
+  private buildCoverageInfos(coverageResult: CoverageResult): ICoverageInfo[] {
+    const coverageInfos: ICoverageInfo[] = [];
     for (const coverage of coverageResult.coverages) {
-      const coverageInfo: CoverageInfo = {
+      const coverageInfo: ICoverageInfo = {
         serviceName: coverage.serviceName,
         serviceNamespace: coverage.serviceNamespace,
         httpCoverage: this.buildHttpCoverage(coverage.httpCoverage),
@@ -243,7 +155,7 @@ export class ReportFile implements IReportFile {
 
   private buildHttpCoverage(
     httpCoverage: HttpCoverageResult | undefined,
-  ): HttpCoverage | undefined {
+  ): IHttpCoverage | undefined {
     if (!httpCoverage) return undefined;
 
     const coverages = httpCoverage.operationCoverages.map((cov) => {
@@ -259,7 +171,7 @@ export class ReportFile implements IReportFile {
         return {
           path: cov.path,
           method: cov.method,
-          traceIds: cov.traceIds.map((v) => v.base64String),
+          traceIds: cov.traceIds.map((v) => v.hexString),
         };
       },
     );
@@ -272,7 +184,7 @@ export class ReportFile implements IReportFile {
 
   private buildRpcCoverage(
     rpcCoverage: RpcCoverageResult | undefined,
-  ): RpcCoverage | undefined {
+  ): IRpcCoverage | undefined {
     if (!rpcCoverage) return undefined;
 
     const coverages = rpcCoverage.methodCoverages.map((cov) => {
@@ -288,7 +200,7 @@ export class ReportFile implements IReportFile {
         return {
           service: cov.service,
           method: cov.method,
-          traceIds: cov.traceIds.map((v) => v.base64String),
+          traceIds: cov.traceIds.map((v) => v.hexString),
         };
       },
     );
@@ -299,7 +211,7 @@ export class ReportFile implements IReportFile {
     };
   }
 
-  private buildReportConfig(): ReportConfig {
+  private buildReportConfig(): IConfig {
     return {
       propagationTestEnabled: this.config.propagationTestConfig.enabled,
     };

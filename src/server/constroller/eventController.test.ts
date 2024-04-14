@@ -37,7 +37,7 @@ describe("EventController", () => {
     const traceId = buildTraceId();
 
     const requestParam: WaitForSpanEventRequestParam = {
-      base64TraceId: traceId.base64String,
+      hexTraceId: traceId.hexString,
       filter: {
         attributes: {},
         resource: {

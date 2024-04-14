@@ -38,7 +38,7 @@ describe("RequestCommander", () => {
           headers: { [TRACEPARENT_HEADER_KEY]: expect.any(String) as string },
         },
       });
-      expect(bag.traceId.base64String).toEqual(expect.any(String) as string);
+      expect(bag.traceId.hexString).toEqual(expect.any(String) as string);
     });
 
     describe("when args is string", () => {
@@ -184,7 +184,7 @@ describe("RequestCommander", () => {
       );
       expect(fetchStartedLog).toEqual({
         type: "fetchStarted",
-        traceId: bag.traceId.base64String,
+        traceId: bag.traceId.hexString,
         testPath: spec.relative,
         timeMillis: expect.any(Number) as number,
       });
@@ -242,7 +242,7 @@ describe("RequestCommander", () => {
 
       expect(fetchFinishedLog).toEqual({
         type: "fetchFinished",
-        traceId: bag.traceId.base64String,
+        traceId: bag.traceId.hexString,
         request: {
           url,
           method: "GET",

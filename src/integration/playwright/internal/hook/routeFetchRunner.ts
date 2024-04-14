@@ -5,7 +5,7 @@ import {
   setTraceIdToAPIResponse,
 } from "@/integration/playwright/internal/util/apiResponse";
 import { setTraceIdToContext } from "@/integration/playwright/internal/util/browserContext";
-import { Base64String } from "@/type/base64String";
+import { HexString } from "@/type/hexString";
 import { generateTraceparent } from "@/util/traceparent";
 import { APIResponse, BrowserContext, Route, TestInfo } from "@playwright/test";
 
@@ -71,7 +71,7 @@ export class RouteFetchRunner {
 
   private async logFetchStarted(
     testInfo: TestInfo,
-    traceId: Base64String,
+    traceId: HexString,
     startAt: Date,
   ): Promise<void> {
     await this.testActionLogger.logFetchStarted(
@@ -84,7 +84,7 @@ export class RouteFetchRunner {
 
   private async logFetchFailed(
     route: Route,
-    traceId: Base64String,
+    traceId: HexString,
     reason: string,
   ): Promise<void> {
     const requestInfo: FetchRequestInfo = {
@@ -98,7 +98,7 @@ export class RouteFetchRunner {
 
   private async logFetchFinished(
     route: Route,
-    traceId: Base64String,
+    traceId: HexString,
     response: APIResponse,
   ): Promise<void> {
     const requestInfo: FetchRequestInfo = {

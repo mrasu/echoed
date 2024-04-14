@@ -1,23 +1,23 @@
 import { buildNotDisplayableMessage } from "@/integration/common/util/response";
 import { CypressHttpResponse } from "@/integration/cypress/internal/cypressHttpResponse";
 import { normalizeHeaders } from "@/integration/cypress/internal/util/headers";
-import { Base64String } from "@/type/base64String";
+import { HexString } from "@/type/hexString";
 import { isReadableContentType } from "@/util/request";
 
 const traceIdPropertyName = "__echoed_traceId";
 
-type WrappedResponse = { [traceIdPropertyName]: Base64String };
+type WrappedResponse = { [traceIdPropertyName]: HexString };
 
 export function setTraceIdToCypressResponse(
   response: Cypress.Response<unknown> | CypressHttpResponse,
-  traceId: Base64String,
+  traceId: HexString,
 ): void {
   (response as unknown as WrappedResponse)[traceIdPropertyName] = traceId;
 }
 
 export function getTraceIdFromCypressResponse(
   response: Cypress.Response<unknown> | CypressHttpResponse,
-): Base64String | undefined {
+): HexString | undefined {
   return (response as unknown as WrappedResponse)[traceIdPropertyName];
 }
 

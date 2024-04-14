@@ -1,5 +1,5 @@
 import { IFileLogger } from "@/fileLog/iFileLogger";
-import { Base64String } from "@/type/base64String";
+import { HexString } from "@/type/hexString";
 import { FetchFailedLog, FetchFinishedLog, FetchStartedLog } from "@/types";
 import { truncateString } from "@/util/string";
 
@@ -16,14 +16,14 @@ export class TestActionLogger {
 
   async logFetchStarted(
     testId: string | undefined,
-    traceId: Base64String,
+    traceId: HexString,
     testPath: string,
     startAt: Date,
   ): Promise<void> {
     const value: FetchStartedLog = {
       type: "fetchStarted",
       testId: testId,
-      traceId: traceId.base64String,
+      traceId: traceId.hexString,
       testPath: testPath,
       timeMillis: startAt.getTime(),
     };
@@ -32,7 +32,7 @@ export class TestActionLogger {
   }
 
   async logFetchFinished(
-    traceId: Base64String,
+    traceId: HexString,
     requestInfo: FetchRequestInfo,
     responseStatus: number,
     responseBody: string,
@@ -43,7 +43,7 @@ export class TestActionLogger {
 
     const value: FetchFinishedLog = {
       type: "fetchFinished",
-      traceId: traceId.base64String,
+      traceId: traceId.hexString,
       request: {
         url: requestInfo.url,
         method: requestInfo.method,
@@ -59,13 +59,13 @@ export class TestActionLogger {
   }
 
   async logFetchFailed(
-    traceId: Base64String,
+    traceId: HexString,
     requestInfo: FetchRequestInfo,
     reason: string,
   ): Promise<void> {
     const value: FetchFailedLog = {
       type: "fetchFailed",
-      traceId: traceId.base64String,
+      traceId: traceId.hexString,
       request: {
         url: requestInfo.url,
         method: requestInfo.method,

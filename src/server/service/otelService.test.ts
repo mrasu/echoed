@@ -4,7 +4,7 @@ import { OtelLogStore } from "@/server/store/otelLogStore";
 import { OtelSpanStore } from "@/server/store/otelSpanStore";
 import { WaitForSpanRequestStore } from "@/server/store/waitForSpanRequestStore";
 import { buildSpanId, buildTraceId } from "@/testUtil/otel/id";
-import { toBase64 } from "@/util/byte";
+import { toHex } from "@/util/byte";
 import { Mutex } from "async-mutex";
 import TracesData = opentelemetry.proto.trace.v1.TracesData;
 import LogsData = opentelemetry.proto.logs.v1.LogsData;
@@ -60,7 +60,7 @@ describe("OtelService", () => {
       await otelService.handleOtelTraces(tracesData);
 
       expect(spanStore.capturedSpans.size).toBe(1);
-      const span = spanStore.capturedSpans.get(traceId.base64String)?.pop();
+      const span = spanStore.capturedSpans.get(traceId.hexString)?.pop();
       expect(span?.traceId).toEqual(traceId.uint8Array);
     });
 
@@ -105,14 +105,12 @@ describe("OtelService", () => {
         await otelService.handleOtelTraces(tracesData);
 
         expect(spanStore.capturedSpans.size).toBe(1);
-        expect(spanStore.capturedSpans.get(traceId.base64String)?.length).toBe(
-          2,
-        );
+        expect(spanStore.capturedSpans.get(traceId.hexString)?.length).toBe(2);
 
         const spanIds = new Set(
           spanStore.capturedSpans
-            .get(traceId.base64String)
-            ?.map((span) => toBase64(span.spanId)) ?? [],
+            .get(traceId.hexString)
+            ?.map((span) => toHex(span.spanId)) ?? [],
         );
         expect(spanIds).toEqual(new Set([spanId1, spanId2]));
       });
@@ -158,14 +156,14 @@ describe("OtelService", () => {
         await otelService.handleOtelTraces(tracesData);
 
         expect(new Set(spanStore.capturedSpans.keys())).toEqual(
-          new Set([traceId1.base64String, traceId2.base64String]),
+          new Set([traceId1.hexString, traceId2.hexString]),
         );
 
         const spans = [];
         for (const capturedSpans of spanStore.capturedSpans.values()) {
           spans.push(...capturedSpans);
         }
-        const traceIds = new Set(spans.map((v) => toBase64(v.traceId)));
+        const traceIds = new Set(spans.map((v) => toHex(v.traceId)));
         expect(traceIds).toEqual(new Set([traceId1, traceId2]));
       });
     });
@@ -221,7 +219,7 @@ describe("OtelService", () => {
       await otelService.handleOtelLogs(logsData);
 
       expect(logStore.capturedLogs.size).toBe(1);
-      const span = logStore.capturedLogs.get(traceId.base64String)?.pop();
+      const span = logStore.capturedLogs.get(traceId.hexString)?.pop();
       expect(span?.traceId).toEqual(traceId.uint8Array);
     });
 
@@ -266,12 +264,12 @@ describe("OtelService", () => {
         await otelService.handleOtelLogs(logsData);
 
         expect(logStore.capturedLogs.size).toBe(1);
-        expect(logStore.capturedLogs.get(traceId.base64String)?.length).toBe(2);
+        expect(logStore.capturedLogs.get(traceId.hexString)?.length).toBe(2);
 
         const spanIds = new Set(
           logStore.capturedLogs
-            .get(traceId.base64String)
-            ?.map((span) => toBase64(span.spanId)) ?? [],
+            .get(traceId.hexString)
+            ?.map((span) => toHex(span.spanId)) ?? [],
         );
         expect(spanIds).toEqual(new Set([spanId1, spanId2]));
       });
@@ -317,14 +315,14 @@ describe("OtelService", () => {
         await otelService.handleOtelLogs(tracesData);
 
         expect(new Set(logStore.capturedLogs.keys())).toEqual(
-          new Set([traceId1.base64String, traceId2.base64String]),
+          new Set([traceId1.hexString, traceId2.hexString]),
         );
 
         const spans = [];
         for (const capturedSpans of logStore.capturedLogs.values()) {
           spans.push(...capturedSpans);
         }
-        const traceIds = new Set(spans.map((v) => toBase64(v.traceId)));
+        const traceIds = new Set(spans.map((v) => toHex(v.traceId)));
         expect(traceIds).toEqual(new Set([traceId1, traceId2]));
       });
     });

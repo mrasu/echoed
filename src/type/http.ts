@@ -1,20 +1,10 @@
-export const Methods = [
-  "get",
-  "post",
-  "put",
-  "delete",
-  "options",
-  "head",
-  "patch",
-] as const;
+import { HttpMethod, HttpMethods } from "@shared/type/http";
 
-const MethodsSet = new Set(Methods);
-export type Method = (typeof Methods)[number];
-
-export function toMethod(method: string): Method | undefined {
+const MethodsSet = new Set(HttpMethods);
+export function toMethod(method: string): HttpMethod | undefined {
   const normalizedMethod = method.toLowerCase();
-  if (!MethodsSet.has(normalizedMethod as Method)) {
+  if (!MethodsSet.has(normalizedMethod as HttpMethod)) {
     return undefined;
   }
-  return normalizedMethod as Method;
+  return normalizedMethod as HttpMethod;
 }

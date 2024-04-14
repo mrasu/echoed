@@ -1,5 +1,5 @@
-import { Methods } from "@/type/http";
 import { JsonSchema } from "@/type/jsonZod";
+import { HttpMethods } from "@shared/type/http";
 import { z } from "zod";
 
 const attributeRecord = z.record(
@@ -44,7 +44,7 @@ export const ConfigSchemaZod = z.strictObject({
                     ignores: z.array(
                       z.strictObject({
                         path: stringOrRegexp,
-                        method: z.enum(Methods),
+                        method: z.enum(HttpMethods),
                       }),
                     ),
                   }),

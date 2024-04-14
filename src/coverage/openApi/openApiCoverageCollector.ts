@@ -7,10 +7,11 @@ import {
   ServiceCoverageCollectorResult,
 } from "@/coverage/serviceCoverageCollector";
 import { opentelemetry } from "@/generated/otelpbj";
-import { Method, toMethod } from "@/type/http";
+import { toMethod } from "@/type/http";
 import { OtelSpan } from "@/type/otelSpan";
 import { TwoKeyValuesMap } from "@/util/twoKeyValuesMap";
 import { removeQueryAndHashFromPath } from "@/util/url";
+import { HttpMethod } from "@shared/type/http";
 import { OpenAPI } from "openapi-types";
 import Span = opentelemetry.proto.trace.v1.Span;
 
@@ -33,7 +34,7 @@ export class OpenApiCoverageCollector implements ServiceCoverageCollector {
   ) {}
 
   markVisited(spans: OtelSpan[]): void {
-    const paths = new TwoKeyValuesMap<string, Method, OtelSpan[]>();
+    const paths = new TwoKeyValuesMap<string, HttpMethod, OtelSpan[]>();
     for (const span of spans) {
       // Ignore Client span as it is not related to "this" service's coverage
       if (span.kind === Span.SpanKind.SPAN_KIND_CLIENT) continue;
@@ -70,7 +71,7 @@ export class OpenApiCoverageCollector implements ServiceCoverageCollector {
     return removeQueryAndHashFromPath(httpTarget);
   }
 
-  private extractHttpMethod(span: OtelSpan): Method | undefined {
+  private extractHttpMethod(span: OtelSpan): HttpMethod | undefined {
     let attribute = span.getAttribute("http.request.method");
     if (!attribute) {
       attribute = span.getAttribute("http.method");

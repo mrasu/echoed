@@ -53,7 +53,7 @@ describe("RequestRunner", () => {
       );
       expect(fetchFinishedLog.request.url).toEqual(request.url);
 
-      expect(getTraceIdFromCypressResponse(response)?.base64String).toBe(
+      expect(getTraceIdFromCypressResponse(response)?.hexString).toBe(
         fetchStartedLog.traceId,
       );
     });

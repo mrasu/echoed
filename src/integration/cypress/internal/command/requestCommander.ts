@@ -7,7 +7,7 @@ import {
 } from "@/integration/cypress/internal/util/cypressResponse";
 import { setTraceIdToCypressSpec } from "@/integration/cypress/internal/util/cypressSpec";
 import { toDisplayableRequestBody } from "@/integration/cypress/internal/util/request";
-import { Base64String } from "@/type/base64String";
+import { HexString } from "@/type/hexString";
 import { generateTraceparent } from "@/util/traceparent";
 import http from "http";
 
@@ -25,7 +25,7 @@ export type ParamBag = {
   isEchoedRequest: boolean;
   requestUrl: string;
   traceparent: string;
-  traceId: Base64String;
+  traceId: HexString;
 };
 
 export class RequestCommander {

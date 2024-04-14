@@ -1,17 +1,17 @@
-import { Base64String } from "@/type/base64String";
+import { HexString } from "@/type/hexString";
 
 export class TraceHistory {
-  private traces: [string, Base64String][] = [];
+  private traces: [string, HexString][] = [];
 
-  push(key: string, traceId: Base64String): void {
+  push(key: string, traceId: HexString): void {
     this.traces.push([key, traceId]);
   }
 
-  get copiedTraces(): [string, Base64String][] {
+  get copiedTraces(): [string, HexString][] {
     return this.traces.map((v) => [v[0], v[1]]);
   }
 
-  getLastTraceId(pattern: string | RegExp): Base64String | undefined {
+  getLastTraceId(pattern: string | RegExp): HexString | undefined {
     const trace = this.traces.reverse().find(([key]) => {
       if (pattern instanceof RegExp) {
         return pattern.test(key);

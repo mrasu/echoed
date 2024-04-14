@@ -3,17 +3,17 @@
     "target": "es6",
     "module": "nodenext",
     "outDir": "./dist",
-    "rootDir": "./src",
     "strict": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "declaration": false,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@shared/*": ["./shared/*"],
     },
     "skipLibCheck": true,
     "noImplicitOverride": true
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*", "../shared/**/*"],
 }

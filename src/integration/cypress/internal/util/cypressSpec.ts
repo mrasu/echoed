@@ -1,6 +1,6 @@
 import { EchoedFatalError } from "@/echoedFatalError";
 import { TraceHistory } from "@/integration/common/traceHistory";
-import { Base64String } from "@/type/base64String";
+import { HexString } from "@/type/hexString";
 
 type EchoedContext = {
   traces: TraceHistory;
@@ -34,7 +34,7 @@ export function initializeEchoedContext(spec: Cypress.Spec): void {
 export function setTraceIdToCypressSpec(
   spec: Cypress.Spec,
   url: string,
-  traceId: Base64String,
+  traceId: HexString,
 ): void {
   const traces = getEchoedContext(spec).traces;
   traces.push(url, traceId);
@@ -43,7 +43,7 @@ export function setTraceIdToCypressSpec(
 export function getLastTraceIdFromCypressSpec(
   spec: Cypress.Spec,
   pattern: string | RegExp,
-): Base64String | undefined {
+): HexString | undefined {
   const traces = getEchoedContext(spec).traces;
   if (!traces) {
     return undefined;

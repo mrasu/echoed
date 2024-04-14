@@ -4,7 +4,7 @@ import { PropagationTestConfig } from "@/config/propagationTestConfig";
 import { ScenarioCompileConfig } from "@/config/scenarioCompileConfig";
 import { IFile } from "@/fs/IFile";
 import { FsContainer } from "@/fs/fsContainer";
-import { Method } from "@/type/http";
+import { HttpMethod } from "@shared/type/http";
 
 export const ECHOED_CONFIG_FILE_NAME = ".echoed.yml";
 
@@ -47,7 +47,7 @@ export type OpenApiUndocumentedOperationConfig = {
 
 export type OpenApiIgnoreOperationConfig = {
   path: Comparable;
-  method: Method;
+  method: HttpMethod;
 };
 
 export type ProtoConfig = {

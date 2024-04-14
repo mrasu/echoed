@@ -5,7 +5,7 @@ import { opentelemetry } from "@/generated/otelpbj";
 import { buildOpenApiConfig } from "@/testUtil/config/openApiConfig";
 import { buildV3Document } from "@/testUtil/openapi/apiV3";
 import { OtelSpan } from "@/type/otelSpan";
-import { toBase64 } from "@/util/byte";
+import { toHex } from "@/util/byte";
 import SwaggerParser from "@apidevtools/swagger-parser";
 import SpanKind = opentelemetry.proto.trace.v1.Span.SpanKind;
 
@@ -265,7 +265,7 @@ describe("openApiCoverageCollector", () => {
               {
                 path: "/unmatched",
                 method: "post",
-                traceIds: [toBase64(traceId)],
+                traceIds: [toHex(traceId)],
               },
             ],
           },

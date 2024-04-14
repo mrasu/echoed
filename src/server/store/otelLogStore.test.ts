@@ -1,7 +1,7 @@
 import { OtelLogStore } from "@/server/store/otelLogStore";
 import { buildTraceId } from "@/testUtil/otel/id";
 import { buildOtelLogRecord } from "@/testUtil/otel/otelLogRecord";
-import { toBase64 } from "@/util/byte";
+import { toHex } from "@/util/byte";
 
 describe("OtelLogStore", () => {
   describe("capture", () => {
@@ -12,7 +12,7 @@ describe("OtelLogStore", () => {
         await store.capture(log);
 
         expect(store.capturedLogs).toEqual(
-          new Map([[toBase64(log.traceId).base64String, [log]]]),
+          new Map([[toHex(log.traceId).hexString, [log]]]),
         );
       });
     });
@@ -26,7 +26,7 @@ describe("OtelLogStore", () => {
         await store.capture(log2);
 
         expect(store.capturedLogs).toEqual(
-          new Map([[toBase64(log1.traceId).base64String, [log1, log2]]]),
+          new Map([[toHex(log1.traceId).hexString, [log1, log2]]]),
         );
       });
     });
@@ -43,8 +43,8 @@ describe("OtelLogStore", () => {
 
         expect(store.capturedLogs).toEqual(
           new Map([
-            [traceId1.base64String, [log1]],
-            [traceId2.base64String, [log2]],
+            [traceId1.hexString, [log1]],
+            [traceId2.hexString, [log2]],
           ]),
         );
       });

@@ -1,34 +1,36 @@
 import { Buffer } from "buffer";
-import type {
-  ILongable,
-  IEchoedParam,
-  ISpan,
-  IKeyValue,
-  IEvent,
-  ILink,
-  IStatus,
-  IKeyValueList,
-  IAnyValue,
-  IArrayValue,
-  ITestInfo,
-  ILogRecord,
-  IResource,
-  IInstrumentationScope,
-  IFetch,
-  IFetchRequest,
-  IFetchResponse,
-  ITrace,
-  IConfig,
-  ICoverageInfo,
-  IHttpCoverage,
-  IHttpOperationCoverage,
-  IRpcCoverage,
-  IRpcMethodCoverage,
-  IPropagationFailedTrace,
-  IHttpOperationTraces,
-  IRpcMethodTraces,
-  IFetchFailedResponse,
-} from "@/types/echoed_param";
+import {
+  type ILongable,
+  type IEchoedParam,
+  type ISpan,
+  type IKeyValue,
+  type IEvent,
+  type ILink,
+  type IStatus,
+  type IKeyValueList,
+  type IAnyValue,
+  type IArrayValue,
+  type ITestInfo,
+  type ILogRecord,
+  type IResource,
+  type IInstrumentationScope,
+  type IFetch,
+  type IFetchRequest,
+  type IFetchResponse,
+  type ITrace,
+  type IConfig,
+  type ICoverageInfo,
+  type IHttpCoverage,
+  type IHttpOperationCoverage,
+  type IRpcCoverage,
+  type IRpcMethodCoverage,
+  type IPropagationFailedTrace,
+  type IHttpOperationTraces,
+  type IRpcMethodTraces,
+  type IFetchFailedResponse,
+  SpanKind,
+  StatusCode,
+} from "../../../shared/type/echoedParam";
 import Long from "long";
 import type { HttpMethod } from "./util/http";
 
@@ -133,9 +135,7 @@ export class TestInfo {
     this.startDate = new Date(testInfo.startTimeMillis);
     this.statusString = testInfo.status;
     this.fetches = testInfo.fetches.map((fetch) => new Fetch(fetch));
-    this.orderedTraceIds = testInfo.orderedTraceIds.map((traceId) =>
-      toHex(decodeBase64(traceId)),
-    );
+    this.orderedTraceIds = testInfo.orderedTraceIds.map((traceId) => traceId);
 
     this.failureDetails = testInfo.failureDetails?.map((v) => JSON.parse(v));
     this.failureMessages = testInfo.failureMessages;
@@ -164,7 +164,7 @@ export class Fetch {
   response: FetchResponse | FetchFailedResponse;
 
   constructor(fetch: IFetch) {
-    this.traceId = toHex(decodeBase64(fetch.traceId));
+    this.traceId = fetch.traceId;
     this.request = new FetchRequest(fetch.request);
 
     const response = fetch.response;
@@ -219,7 +219,7 @@ export class Span {
   endTimeUnixNano?: Long;
   events?: Event[];
   links?: Link[];
-  kind?: string;
+  kind?: SpanKind;
   status?: Status;
   resource?: Resource;
   scope?: InstrumentationScope;
@@ -229,9 +229,9 @@ export class Span {
   constructor(span: ISpan) {
     this.attributes = new Attributes(span.attributes);
 
-    this.traceId = toHex(decodeBase64(span.traceId));
-    this.spanId = toHex(decodeBase64(span.spanId));
-    this.parentSpanId = toHex(decodeBase64(span.parentSpanId));
+    this.traceId = span.traceId;
+    this.spanId = span.spanId;
+    this.parentSpanId = span.parentSpanId;
     this.name = span.name || DEFAULT_SPAN_NAME;
     this.startTimeUnixNano = span.startTimeUnixNano
       ? Long.fromString(span.startTimeUnixNano)
@@ -415,8 +415,8 @@ export class Link {
   droppedAttributesCount?: number;
 
   constructor(link: ILink) {
-    this.traceId = link.traceId ? toHex(decodeBase64(link.traceId)) : undefined;
-    this.spanId = link.spanId ? toHex(decodeBase64(link.spanId)) : undefined;
+    this.traceId = link.traceId ? link.traceId : undefined;
+    this.spanId = link.spanId ? link.spanId : undefined;
     this.traceState = link.traceState || undefined;
     this.attributes = link.attributes?.map((kv) => new KeyValue(kv));
     this.droppedAttributesCount = link.droppedAttributesCount || undefined;
@@ -425,7 +425,7 @@ export class Link {
 
 export class Status {
   message?: string;
-  code?: string;
+  code?: StatusCode;
 
   constructor(status: IStatus) {
     this.message = status.message || undefined;
@@ -476,12 +476,8 @@ export class LogRecord {
   flags?: number;
 
   constructor(logRecord: ILogRecord) {
-    this.traceId = logRecord.traceId
-      ? toHex(decodeBase64(logRecord.traceId))
-      : undefined;
-    this.spanId = logRecord.spanId
-      ? toHex(decodeBase64(logRecord.spanId))
-      : undefined;
+    this.traceId = logRecord.traceId ?? undefined;
+    this.spanId = logRecord.spanId ?? undefined;
     this.timeUnixNano = logRecord.timeUnixNano
       ? Long.fromString(logRecord.timeUnixNano)
       : undefined;
@@ -545,8 +541,8 @@ export class AnyValue {
     this.boolValue = value.boolValue || undefined;
     this.intValue = value.intValue || undefined;
     this.doubleValue = value.doubleValue || undefined;
-    this.bytesValue = value.bytesValue
-      ? decodeBase64(value.bytesValue)
+    this.bytesValue = value.base64BytesValue
+      ? decodeBase64(value.base64BytesValue)
       : undefined;
     this.arrayValue = value.arrayValue
       ? new ArrayValue(value.arrayValue)
@@ -610,10 +606,7 @@ export class CoverageInfo {
       ? new RpcCoverage(coverage.rpcCoverage)
       : undefined;
 
-    this.unmeasuredTraceIds =
-      coverage.unmeasuredTraceIds?.map((traceId) =>
-        toHex(decodeBase64(traceId)),
-      ) ?? [];
+    this.unmeasuredTraceIds = coverage.unmeasuredTraceIds ?? [];
   }
 
   get urlEncodedFullServiceName(): string {
@@ -708,9 +701,7 @@ export class HttpOperationTraces {
   constructor(traces: IHttpOperationTraces) {
     this.path = traces.path;
     this.method = traces.method;
-    this.traceIds = traces.traceIds.map((traceId) =>
-      toHex(decodeBase64(traceId)),
-    );
+    this.traceIds = traces.traceIds;
   }
 }
 
@@ -776,9 +767,7 @@ export class RpcMethodTraces {
   constructor(traces: IRpcMethodTraces) {
     this.service = traces.service;
     this.method = traces.method;
-    this.traceIds = traces.traceIds.map((traceId) =>
-      toHex(decodeBase64(traceId)),
-    );
+    this.traceIds = traces.traceIds;
   }
 }
 
@@ -786,7 +775,7 @@ export class PropagationFailedTrace {
   traceId: string;
 
   constructor(propagationFailedTrace: IPropagationFailedTrace) {
-    this.traceId = toHex(decodeBase64(propagationFailedTrace.traceId));
+    this.traceId = propagationFailedTrace.traceId;
   }
 }
 
@@ -795,10 +784,7 @@ export class Traces {
 
   constructor(traces: ITrace[]) {
     this.traceMap = new Map<string, Trace>(
-      traces.map((trace) => [
-        toHex(decodeBase64(trace.traceId)),
-        new Trace(trace),
-      ]),
+      traces.map((trace) => [trace.traceId, new Trace(trace)]),
     );
   }
 
@@ -824,7 +810,7 @@ export class Trace {
   logRecords: LogRecord[];
 
   constructor(trace: ITrace) {
-    this.traceId = toHex(decodeBase64(trace.traceId));
+    this.traceId = trace.traceId;
     this.spans = trace.spans.map((span: ISpan) => new Span(span));
     this.logRecords = trace.logRecords.map(
       (log: ILogRecord) => new LogRecord(log),

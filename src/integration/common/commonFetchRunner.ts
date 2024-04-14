@@ -1,7 +1,7 @@
 import { FetchRequestInfo } from "@/fileLog/testActionLogger";
 import { ECHOED_USER_AGENT, USER_AGENT_HEADER_KEY } from "@/server/request";
 import { setTraceIdToResponse } from "@/traceLoggingFetch";
-import { Base64String } from "@/type/base64String";
+import { HexString } from "@/type/hexString";
 import { readBodyInit, readStreamFully } from "@/util/stream";
 import { generateTraceparent } from "@/util/traceparent";
 
@@ -14,9 +14,9 @@ export class CommonFetchRunner {
   async run(
     input: RequestInfo | URL,
     init: RequestInit | undefined,
-    onStart: (traceId: Base64String) => Promise<void>,
+    onStart: (traceId: HexString) => Promise<void>,
     onFinished: (
-      traceId: Base64String,
+      traceId: HexString,
       requestInfo: FetchRequestInfo,
       response: Response,
     ) => Promise<void>,

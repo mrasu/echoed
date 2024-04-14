@@ -1,7 +1,7 @@
 import { EventBus } from "@/eventBus/infra/eventBus";
 import { SpanBus } from "@/eventBus/spanBus";
-import { Base64String } from "@/type/base64String";
 import { ErrorMessage } from "@/type/common";
+import { HexString } from "@/type/hexString";
 import { JsonSpan } from "@/type/jsonSpan";
 import { SpanFilterOption } from "@/type/spanFilterOption";
 
@@ -9,7 +9,7 @@ export class WaitForSpanService {
   constructor(private bus: EventBus) {}
 
   async handleWaitForSpanEvent(
-    traceId: Base64String,
+    traceId: HexString,
     filter: SpanFilterOption,
     waitTimeoutMs: number,
   ): Promise<JsonSpan | ErrorMessage> {

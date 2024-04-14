@@ -1,10 +1,10 @@
-import { Base64String } from "@/type/base64String";
+import { HexString } from "@/type/hexString";
 import { buildRandomHexBytes, buildRandomHexUUID } from "@/util/random";
 
-export function buildTraceId(): Base64String {
-  return new Base64String(buildRandomHexUUID());
+export function buildTraceId(): HexString {
+  return new HexString(buildRandomHexUUID());
 }
 
-export function buildSpanId(): Base64String {
-  return new Base64String(buildRandomHexBytes(8));
+export function buildSpanId(): HexString {
+  return new HexString(buildRandomHexBytes(8));
 }

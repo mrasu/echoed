@@ -1,3 +1,4 @@
+import { SpanKind, StatusCode } from "@shared/type/echoedParam";
 import Long from "long";
 
 export type Span = {
@@ -10,7 +11,7 @@ export type Span = {
   endTimeUnixNano?: Long;
   events?: Event[];
   links?: Link[];
-  kind?: string;
+  kind?: SpanKind;
   status?: Status;
   resource?: Resource;
   scope?: InstrumentationScope;
@@ -33,7 +34,7 @@ export type Link = {
 
 export type Status = {
   message?: string;
-  code?: number;
+  code?: StatusCode;
 };
 
 export type Resource = {

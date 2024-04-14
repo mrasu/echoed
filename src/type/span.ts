@@ -11,6 +11,7 @@ import {
   JsonStatus,
 } from "@/type/jsonSpan";
 import { decodeBase64 } from "@/util/byte";
+import { SpanKind, StatusCode } from "@shared/type/echoedParam";
 import Long from "long";
 
 export class Span {
@@ -23,7 +24,7 @@ export class Span {
   endTimeUnixNano?: Long;
   events?: Event[];
   links?: Link[];
-  kind?: string;
+  kind?: SpanKind;
   status?: Status;
   resource?: Resource;
   scope?: InstrumentationScope;
@@ -83,7 +84,7 @@ export class Link {
 
 export class Status {
   message?: string;
-  code?: number;
+  code?: StatusCode;
 
   constructor(status: JsonStatus) {
     this.message = status.message ?? undefined;

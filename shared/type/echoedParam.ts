@@ -1,4 +1,4 @@
-import type { HttpMethod } from "@/lib/util/http";
+import { type HttpMethod } from "@shared/type/http";
 
 export type IEchoedParam = {
   config: IConfig;
@@ -57,85 +57,102 @@ export type ISpan = {
   endTimeUnixNano?: ILongable;
   events?: IEvent[];
   links?: ILink[];
-  kind?: string;
+  kind?: SpanKind;
   status?: IStatus;
   resource?: IResource;
   scope?: IInstrumentationScope;
 };
 
+export const SpanKind = [
+  "SPAN_KIND_UNSPECIFIED",
+  "SPAN_KIND_INTERNAL",
+  "SPAN_KIND_SERVER",
+  "SPAN_KIND_CLIENT",
+  "SPAN_KIND_PRODUCER",
+  "SPAN_KIND_CONSUMER",
+] as const;
+export type SpanKind = (typeof SpanKind)[number];
+
 export type ILogRecord = {
-  traceId?: string | null;
-  spanId?: string | null;
-  timeUnixNano?: ILongable | null;
-  observedTimeUnixNano?: ILongable | null;
-  severityNumber?: string | null;
-  severityText?: string | null;
-  body?: IAnyValue | null;
-  attributes?: IKeyValue[] | null;
-  droppedAttributesCount?: number | null;
-  flags?: number | null;
+  traceId?: string;
+  spanId?: string;
+  timeUnixNano?: ILongable;
+  observedTimeUnixNano?: ILongable;
+  severityNumber?: string;
+  severityText?: string;
+  body?: IAnyValue;
+  attributes?: IKeyValue[];
+  droppedAttributesCount?: number;
+  flags?: number;
 };
 
 export type ILongable = string;
 
 export type IKeyValue = {
-  key?: string | null;
-  value?: IAnyValue | null;
+  key?: string;
+  value?: IAnyValue;
 };
 
 export type IAnyValue = {
-  stringValue?: string | null;
-  boolValue?: boolean | null;
-  intValue?: ILongable | null;
-  doubleValue?: number | null;
-  arrayValue?: IArrayValue | null;
-  kvlistValue?: IKeyValueList | null;
-  bytesValue?: string | null;
+  stringValue?: string;
+  boolValue?: boolean;
+  intValue?: ILongable;
+  doubleValue?: number;
+  arrayValue?: IArrayValue;
+  kvlistValue?: IKeyValueList;
+  base64BytesValue?: string;
 };
 
 export type IArrayValue = {
-  values?: IAnyValue[] | null;
+  values?: IAnyValue[];
 };
 
 export type IKeyValueList = {
-  values?: IKeyValue[] | null;
+  values?: IKeyValue[];
 };
 
 export type IEvent = {
-  timeUnixNano?: ILongable | null;
-  name?: string | null;
-  attributes?: IKeyValue[] | null;
-  droppedAttributesCount?: number | null;
+  timeUnixNano?: ILongable;
+  name?: string;
+  attributes?: IKeyValue[];
+  droppedAttributesCount?: number;
 };
 
 export type ILink = {
-  traceId?: string | null;
-  spanId?: string | null;
-  traceState?: string | null;
-  attributes?: IKeyValue[] | null;
-  droppedAttributesCount?: number | null;
+  traceId?: string;
+  spanId?: string;
+  traceState?: string;
+  attributes?: IKeyValue[];
+  droppedAttributesCount?: number;
 };
 
 export type IStatus = {
-  message?: string | null;
-  code?: string | null;
+  message?: string;
+  code?: StatusCode;
 };
 
+export const StatusCode = [
+  "STATUS_CODE_UNSET",
+  "STATUS_CODE_OK",
+  "STATUS_CODE_ERROR",
+] as const;
+export type StatusCode = (typeof StatusCode)[number];
+
 export type IResource = {
-  attributes?: IKeyValue[] | null;
-  droppedAttributesCount?: number | null;
+  attributes?: IKeyValue[];
+  droppedAttributesCount?: number;
 };
 
 export type IInstrumentationScope = {
-  name?: string | null;
-  version?: string | null;
-  attributes?: IKeyValue[] | null;
-  droppedAttributesCount?: number | null;
+  name?: string;
+  version?: string;
+  attributes?: IKeyValue[];
+  droppedAttributesCount?: number;
 };
 
 export type ICoverageInfo = {
   serviceName: string;
-  serviceNamespace?: string | null;
+  serviceNamespace?: string;
   httpCoverage?: IHttpCoverage;
   rpcCoverage?: IRpcCoverage;
   unmeasuredTraceIds?: string[];
@@ -146,15 +163,16 @@ export type IHttpCoverage = {
   undocumentedOperations: IHttpOperationTraces[];
 };
 
-export type IHttpOperationCoverage = {
+type HttpOperation = {
   path: string;
   method: HttpMethod;
+};
+
+export type IHttpOperationCoverage = HttpOperation & {
   passed: boolean;
 };
 
-export type IHttpOperationTraces = {
-  path: string;
-  method: HttpMethod;
+export type IHttpOperationTraces = HttpOperation & {
   traceIds: string[];
 };
 
@@ -163,15 +181,16 @@ export type IRpcCoverage = {
   undocumentedMethods: IRpcMethodTraces[];
 };
 
-export type IRpcMethodCoverage = {
+type RpcMethod = {
   service: string;
   method: string;
+};
+
+export type IRpcMethodCoverage = RpcMethod & {
   passed: boolean;
 };
 
-export type IRpcMethodTraces = {
-  service: string;
-  method: string;
+export type IRpcMethodTraces = RpcMethod & {
   traceIds: string[];
 };
 

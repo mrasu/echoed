@@ -49,7 +49,7 @@ describe("ApiRequestProxyFetchRunner", () => {
           expect(fetchFinishedLog.request.url).toBe(url);
 
           const responseTraceId = getTraceIdFromAPIResponse(response);
-          expect(responseTraceId?.base64String).toBe(fetchStartedLog.traceId);
+          expect(responseTraceId?.hexString).toBe(fetchStartedLog.traceId);
         });
       });
 

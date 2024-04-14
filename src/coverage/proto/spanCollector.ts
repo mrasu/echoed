@@ -1,7 +1,7 @@
 import { ProtoIgnoreMethodConfig } from "@/config/config";
 import { RpcMethodTraces } from "@/coverage/coverageResult";
 import { OtelSpan } from "@/type/otelSpan";
-import { toBase64 } from "@/util/byte";
+import { toHex } from "@/util/byte";
 import { TwoKeyValuesMap } from "@/util/twoKeyValuesMap";
 
 export class SpanCollector {
@@ -33,7 +33,7 @@ export class SpanCollector {
     return this.operations.entries().map(([service, method, spans]) => {
       const traceIds = spans
         .filter((span) => span.traceId)
-        .map((span) => toBase64(span.traceId));
+        .map((span) => toHex(span.traceId));
 
       return {
         service,

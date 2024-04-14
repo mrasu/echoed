@@ -40,7 +40,7 @@ describe("GlobalFetchRunner", () => {
       expect(fetchFinishedLog.request.url).toBe(url);
 
       const responseTraceId = getTraceIdFromResponse(response);
-      expect(responseTraceId?.base64String).toBe(fetchStartedLog.traceId);
+      expect(responseTraceId?.hexString).toBe(fetchStartedLog.traceId);
     });
   });
 });

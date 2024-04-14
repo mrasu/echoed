@@ -4,12 +4,12 @@ import {
   setTraceIdToAPIResponse,
 } from "@/integration/playwright/internal/util/apiResponse";
 import { buildPlaywrightApiResponse } from "@/testUtil/playwright/apiResponse";
-import { Base64String } from "@/type/base64String";
+import { HexString } from "@/type/hexString";
 
 describe("setTraceIdToResponse", () => {
   it("should set traceId to response", () => {
     const response = buildPlaywrightApiResponse();
-    const traceId = new Base64String("dummy-trace-id");
+    const traceId = new HexString("dummy-trace-id");
 
     setTraceIdToAPIResponse(response, traceId);
 

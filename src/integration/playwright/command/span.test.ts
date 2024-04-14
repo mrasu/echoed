@@ -12,7 +12,7 @@ import {
   buildInitializedBrowserContext,
 } from "@/testUtil/playwright/browserContext";
 import { buildJsonSpan } from "@/testUtil/type/jsonSpan";
-import { Base64String } from "@/type/base64String";
+import { HexString } from "@/type/hexString";
 import { APIResponse } from "@playwright/test";
 import fetchMock from "jest-fetch-mock";
 
@@ -51,7 +51,7 @@ describe("waitForSpanCreatedIn", () => {
       setTraceIdToContext(
         context,
         "https://example.com/dummy",
-        new Base64String("traceId"),
+        new HexString("traceId"),
       );
 
       const span = await waitForSpanCreatedIn(
@@ -113,7 +113,7 @@ describe("waitForSpanFromPlaywrightFetch", () => {
   describe("when response holds matching trace", () => {
     it("should emit data to server", async () => {
       const response = {} as APIResponse;
-      setTraceIdToAPIResponse(response, new Base64String("traceId"));
+      setTraceIdToAPIResponse(response, new HexString("traceId"));
 
       const span = await waitForSpanFromPlaywrightFetch(
         response,

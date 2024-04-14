@@ -5,7 +5,7 @@ import { OtelLogStore } from "@/server/store/otelLogStore";
 import { OtelSpanStore } from "@/server/store/otelSpanStore";
 import { WaitForSpanRequestStore } from "@/server/store/waitForSpanRequestStore";
 import { buildTraceId } from "@/testUtil/otel/id";
-import { toBase64 } from "@/util/byte";
+import { toHex } from "@/util/byte";
 import { Mutex } from "async-mutex";
 import LogsData = opentelemetry.proto.logs.v1.LogsData;
 
@@ -60,8 +60,8 @@ describe("OtelLogController", () => {
       expect(res).toEqual("{}");
       expect(logStore.capturedLogs.size).toBe(1);
 
-      const tt = toBase64(
-        logStore.capturedLogs.get(traceId.base64String)!.pop()!.traceId,
+      const tt = toHex(
+        logStore.capturedLogs.get(traceId.hexString)!.pop()!.traceId,
       );
       expect(tt).toEqual(traceId);
     });

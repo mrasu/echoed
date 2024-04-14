@@ -4,7 +4,7 @@ import {
   readAPIResponseText,
   setTraceIdToAPIResponse,
 } from "@/integration/playwright/internal/util/apiResponse";
-import { Base64String } from "@/type/base64String";
+import { HexString } from "@/type/hexString";
 import { generateTraceparent } from "@/util/traceparent";
 import { APIRequestContext, APIResponse, TestInfo } from "@playwright/test";
 import { Request } from "playwright-core";
@@ -82,7 +82,7 @@ export class ApiRequestProxyFetchRunner {
 
   private async logFetchStarted(
     testInfo: TestInfo,
-    traceId: Base64String,
+    traceId: HexString,
     startAt: Date,
   ): Promise<void> {
     await this.testActionLogger.logFetchStarted(
@@ -95,7 +95,7 @@ export class ApiRequestProxyFetchRunner {
 
   private async logFetchFinished(
     options: Parameters<APIRequestContext["fetch"]>[1],
-    traceId: Base64String,
+    traceId: HexString,
     response: APIResponse,
   ): Promise<void> {
     const requestInfo: FetchRequestInfo = {

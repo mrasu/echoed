@@ -5,7 +5,7 @@ import { SpanCollector } from "@/coverage/proto/spanCollector";
 import { opentelemetry } from "@/generated/otelpbj";
 import { buildProtoConfig } from "@/testUtil/config/protoConfig";
 import { OtelSpan } from "@/type/otelSpan";
-import { toBase64 } from "@/util/byte";
+import { toHex } from "@/util/byte";
 import path from "path";
 import protobuf, { Service as ProtobufService, Root } from "protobufjs";
 import SpanKind = opentelemetry.proto.trace.v1.Span.SpanKind;
@@ -197,7 +197,7 @@ describe("ProtoCoverageCollector", () => {
               {
                 service: "myPackage.AwesomeService",
                 method: "AddItem",
-                traceIds: [toBase64(defaultTraceId)],
+                traceIds: [toHex(defaultTraceId)],
               },
             ],
           },
@@ -269,7 +269,7 @@ describe("ProtoCoverageCollector", () => {
               {
                 service: "myPackage.CartService",
                 method: "AwesomeMethod",
-                traceIds: [toBase64(defaultTraceId)],
+                traceIds: [toHex(defaultTraceId)],
               },
             ],
           },

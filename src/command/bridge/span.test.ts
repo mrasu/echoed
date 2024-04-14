@@ -14,12 +14,12 @@ import { ECHOED_USER_AGENT, USER_AGENT_HEADER_KEY } from "@/server/request";
 import { Requester } from "@/server/requester/requester";
 import { Resp } from "@/server/requester/resp";
 import { buildJsonSpan } from "@/testUtil/type/jsonSpan";
-import { Base64String } from "@/type/base64String";
+import { HexString } from "@/type/hexString";
 import fetchMock from "jest-fetch-mock";
 
 describe("waitForSpanForTraceId", () => {
   const port = 1;
-  const traceId = new Base64String("dummy-trace-id");
+  const traceId = new HexString("dummy-trace-id");
 
   beforeEach(() => {
     fetchMock.enableMocks();
@@ -52,7 +52,7 @@ describe("waitForSpanForTraceId", () => {
             [USER_AGENT_HEADER_KEY]: ECHOED_USER_AGENT,
           },
           body: JSON.stringify({
-            base64TraceId: traceId.base64String,
+            hexTraceId: traceId.hexString,
             filter: {
               name: new Eq("dummy/name").toJSON(),
               attributes: {},
@@ -70,7 +70,7 @@ describe("waitForSpanForTraceId", () => {
 
 describe("waitForSpanForTraceIdWithRequester", () => {
   const port = 1;
-  const traceId = new Base64String("dummy-trace-id");
+  const traceId = new HexString("dummy-trace-id");
 
   const buildRequester = (): [
     Requester,
@@ -110,7 +110,7 @@ describe("waitForSpanForTraceIdWithRequester", () => {
       });
       expect(post.mock.calls[0][2]).toEqual(
         JSON.stringify({
-          base64TraceId: traceId.base64String,
+          hexTraceId: traceId.hexString,
           filter: {
             name: new Eq("dummy/name").toJSON(),
             attributes: {},
@@ -148,7 +148,7 @@ describe("waitForSpanForTraceIdWithRequester", () => {
       });
       expect(post.mock.calls[0][2]).toEqual(
         JSON.stringify({
-          base64TraceId: traceId.base64String,
+          hexTraceId: traceId.hexString,
           filter: {
             attributes: {
               dummyStr: new Eq("dummy-value").toJSON(),
@@ -190,7 +190,7 @@ describe("waitForSpanForTraceIdWithRequester", () => {
       });
       expect(post.mock.calls[0][2]).toEqual(
         JSON.stringify({
-          base64TraceId: traceId.base64String,
+          hexTraceId: traceId.hexString,
           filter: {
             attributes: {},
             resource: {
@@ -229,7 +229,7 @@ describe("waitForSpanForTraceIdWithRequester", () => {
       });
       expect(post.mock.calls[0][2]).toEqual(
         JSON.stringify({
-          base64TraceId: traceId.base64String,
+          hexTraceId: traceId.hexString,
           filter: {
             attributes: {
               key: new Eq("value").toJSON(),
@@ -267,7 +267,7 @@ describe("waitForSpanForTraceIdWithRequester", () => {
       });
       expect(post.mock.calls[0][2]).toEqual(
         JSON.stringify({
-          base64TraceId: traceId.base64String,
+          hexTraceId: traceId.hexString,
           filter: {
             attributes: {
               key: new Reg(/abc/i).toJSON(),
@@ -308,7 +308,7 @@ describe("waitForSpanForTraceIdWithRequester", () => {
       });
       expect(post.mock.calls[0][2]).toEqual(
         JSON.stringify({
-          base64TraceId: traceId.base64String,
+          hexTraceId: traceId.hexString,
           filter: {
             attributes: {
               keyGt: new Gt(1).toJSON(),

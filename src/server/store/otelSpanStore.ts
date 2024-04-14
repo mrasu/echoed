@@ -1,5 +1,5 @@
 import { OtelSpan } from "@/type/otelSpan";
-import { toBase64 } from "@/util/byte";
+import { toHex } from "@/util/byte";
 import { Mutex } from "async-mutex";
 
 export class OtelSpanStore {
@@ -8,7 +8,7 @@ export class OtelSpanStore {
   constructor(private spanMutex: Mutex) {}
 
   async capture(span: OtelSpan): Promise<void> {
-    const traceId = toBase64(span.traceId).base64String;
+    const traceId = toHex(span.traceId).hexString;
     await this.spanMutex.runExclusive(() => {
       if (!this.capturedSpans.has(traceId)) {
         this.capturedSpans.set(traceId, []);

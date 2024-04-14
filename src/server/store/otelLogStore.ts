@@ -1,5 +1,5 @@
 import { OtelLogRecord } from "@/type/otelLogRecord";
-import { toBase64 } from "@/util/byte";
+import { toHex } from "@/util/byte";
 import { Mutex } from "async-mutex";
 
 export class OtelLogStore {
@@ -10,7 +10,7 @@ export class OtelLogStore {
   constructor() {}
 
   async capture(log: OtelLogRecord): Promise<void> {
-    const traceId = toBase64(log.traceId).base64String;
+    const traceId = toHex(log.traceId).hexString;
 
     await this.mutex.runExclusive(() => {
       if (!this.capturedLogs.has(traceId)) {
