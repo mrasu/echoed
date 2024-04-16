@@ -19,6 +19,8 @@ jobs:
         working-directory: ./create-echoed
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
       - uses: actions/setup-node@v4
         with:
           node-version-file: .node-version
