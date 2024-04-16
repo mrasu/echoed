@@ -85,8 +85,6 @@ service:
 
 const noCheckFiles = new Set([
   "docker-compose.yml",
-  "src/currencyservice/Dockerfile",
-  "src/currencyservice/src/meter_common.h",
   "src/frontend/schema.yaml",
 ]);
 
@@ -96,9 +94,11 @@ function getDiff(origLines, overrideLines) {
 
   const removedDiff = origLines
     .map((line, linenum) => [line, linenum])
+    .filter(([line]) => !/^\s*$/.test(line))
     .filter(([line]) => !overrideLinesSet.has(line));
   const addedDiff = overrideLines
     .map((line, linenum) => [line, linenum])
+    .filter(([line]) => !/^\s*$/.test(line))
     .filter(([line]) => !origLinesSet.has(line));
 
   return {
