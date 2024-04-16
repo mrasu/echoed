@@ -1,3 +1,6 @@
 [submodule "src/opentelemetry-proto"]
 	path = src/opentelemetry-proto
 	url = git@github.com:open-telemetry/opentelemetry-proto.git
+[submodule "create-echoed/template/base/example/opentelemetry-demo"]
+	path = create-echoed/template/base/example/opentelemetry-demo
+	url = git@github.com:open-telemetry/opentelemetry-demo.git

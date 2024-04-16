@@ -7,7 +7,9 @@
   "scripts": {
     "dev": "tsc-watch --onSuccess 'tsup --sourcemap'",
     "build": "tsc && rm -rf ./dist && tsup",
-    "check": "eslint . && prettier --check src"
+    "check": "npm run check:lint && npm run check:script",
+    "check:lint": "eslint . && prettier --check src",
+    "check:script": "node ./scripts/check-otel-demo.js"
   },
   "keywords": [
     "opentelemetry",
