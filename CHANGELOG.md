@@ -1,3 +1,8 @@
+## Unreleased
+### Changed
+- Refactoring
+- Update dependencies to silence Dependabot
+
 ## 0.3.0
 ### Added
 - Add support for Cypress
