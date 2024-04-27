@@ -1,7 +1,7 @@
 {
   "name": "echoed",
   "author": "mrasu",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "license": "MIT",
   "description": "Observable Integration Testing using OpenTelemetry on top of Jest.",
   "scripts": {

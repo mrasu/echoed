@@ -1,4 +1,4 @@
-## Unreleased
+## 0.3.1
 ### Changed
 - Refactoring
 - Update dependencies to silence Dependabot
