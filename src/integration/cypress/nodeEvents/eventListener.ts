@@ -84,8 +84,8 @@ export class EventListener {
     if (this.echoedConfig.propagationTestConfig.enabled) {
       const passed = logPropagationTestResult(testResult);
 
-      logFileCreated(outFile);
       if (!passed) {
+        logFileCreated(outFile);
         // Throw error to exit with a non-zero status code. No other way found.
         throw new TestFailedError("Propagation leak found");
       }
