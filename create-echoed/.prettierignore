@@ -1,2 +1,3 @@
 /dist
-/template
+/template/base/example/opentelemetry-demo
+/template/base/example/opentelemetry-demo-override

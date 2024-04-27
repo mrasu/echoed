@@ -32,12 +32,12 @@ scenarios:
         assert:
           # `assertStatus` is a plugin at echoed/scenario/gen/jest/asserter
           - assertStatus:
-            - ${_.response}
-            - 200
+              - ${_.response}
+              - 200
           # `assertItemLength` is a plugin at /example/util/assertItemLength.ts
           - assertItemLength:
-            - ${_.jsonBody.items}
-            - 1
+              - ${_.jsonBody.items}
+              - 1
           - expect(_.jsonBody.items[0].productId).toBe(productId)
           - expect(_.jsonBody.items[0].productId).toBe(respondedProductId)
           - expect(_.jsonBody.items[0].quantity).toBe(quantity)

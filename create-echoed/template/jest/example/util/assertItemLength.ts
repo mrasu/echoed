@@ -8,4 +8,4 @@ export const assertItemLength: Asserter = (
   expect(items.length).toEqual(expectedLength);
 
   return Promise.resolve();
-}
+};

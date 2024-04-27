@@ -26,10 +26,10 @@ scenarios:
         assert:
           - expect(_.response.status).toBe(200)
           - |
-              expect(_.jsonBody).toEqual({
-                items: [ { productId, quantity: 1 } ],
-                userId: session.userId,
-              })
+            expect(_.jsonBody).toEqual({
+              items: [ { productId, quantity: 1 } ],
+              userId: session.userId,
+            })
       - description: Check product is added to cart
         act:
           runner: fetch

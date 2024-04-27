@@ -9,6 +9,6 @@ module.exports = defineConfig({
       options: Cypress.PluginConfigOptions,
     ) => {
       return install(on, options);
-    }
+    },
   },
 });

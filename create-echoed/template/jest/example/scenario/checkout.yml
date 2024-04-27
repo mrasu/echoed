@@ -20,10 +20,10 @@ scenarios:
         assert:
           - expect(_.response.status).toBe(200)
           - |
-              expect(_.jsonBody).toEqual({
-                items: [ { productId: firstProductId, quantity: 1 } ],
-                userId: session.userId,
-              })
+            expect(_.jsonBody).toEqual({
+              items: [ { productId: firstProductId, quantity: 1 } ],
+              userId: session.userId,
+            })
       - description: Add another product to cart
         act:
           runner: fetch
@@ -38,13 +38,13 @@ scenarios:
         assert:
           - expect(_.response.status).toBe(200)
           - |
-              expect(_.jsonBody).toEqual({
-                items: [
-                  { productId: firstProductId, quantity: 1 },
-                  { productId: secondProductId, quantity: 1 }
-                ],
-                userId: session.userId,
-              })
+            expect(_.jsonBody).toEqual({
+              items: [
+                { productId: firstProductId, quantity: 1 },
+                { productId: secondProductId, quantity: 1 }
+              ],
+              userId: session.userId,
+            })
       - description: Checkout
         act:
           runner: fetch
