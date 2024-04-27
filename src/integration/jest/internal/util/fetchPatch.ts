@@ -17,20 +17,16 @@ export function patchFetch(
 
   const fetchRunner = new FetchRunner(testActionLogger, global.fetch, testPath);
   const customFetch = async (
-    input: Request | URL,
+    input: RequestInfo | URL,
     init?: RequestInit,
   ): Promise<Response> => {
     return fetchRunner.run(input, init);
   };
   originalFetch = global.fetch;
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
   global.fetch = customFetch;
 }
 
 export function restoreFetch(global: Global.Global): void {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
   global.fetch = originalFetch;
 }

@@ -71,14 +71,8 @@ export class Hook {
       return globalFetchRunner.run(testInfo, input, init);
     };
 
-    // TODO: Support `NodeJS.fetch.RequestInfo` for customFetch.
-    //   The error happens because customFetch doesn't check type of NodeJS's fetch.
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     globalThis.fetch = customFetch;
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     globalThis.fetch = async (
       input: RequestInfo | URL,
       init?: RequestInit,
