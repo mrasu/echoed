@@ -1,4 +1,4 @@
-import { ScenarioContext } from "@/scenario/gen/internal/jest/scenarioContext";
+import { ScenarioContext } from "@/scenario/gen/internal/common/scenarioContext";
 
 export function buildScenarioContext(
   overrides?: Partial<ScenarioContext>,

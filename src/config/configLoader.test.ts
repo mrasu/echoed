@@ -9,7 +9,7 @@ import {
 } from "@/config/propagationTestConfig";
 import { ScenarioCompileConfig } from "@/config/scenarioCompileConfig";
 import { ConfigSchema } from "@/schema/configSchema";
-import { MockDirectory } from "@/testUtil/fs/mockDirectory";
+import { buildScenarioCompileTargetConfigs } from "@/testUtil/config/scenarioCompileTargetConfig";
 import { MockFile } from "@/testUtil/fs/mockFile";
 import { buildMockFsContainer } from "@/testUtil/fs/mockFsContainer";
 
@@ -242,9 +242,8 @@ describe("ConfigLoader", () => {
         compileConfig?: Partial<ScenarioCompileConfig>,
       ): ScenarioCompileConfig => {
         return new ScenarioCompileConfig(
-          compileConfig?.outDir ?? new MockDirectory("scenario_gen"),
+          compileConfig?.targets ?? buildScenarioCompileTargetConfigs(),
           compileConfig?.cleanOutDir ?? false,
-          compileConfig?.yamlDir ?? new MockDirectory("scenario"),
           compileConfig?.retry ?? 0,
           compileConfig?.env ?? {},
           {
@@ -285,7 +284,13 @@ describe("ConfigLoader", () => {
 
           expect(config.compileConfig).toEqual(
             buildExpectedCompileConfig({
-              outDir: new MockDirectory("dummy_out"),
+              targets: buildScenarioCompileTargetConfigs([
+                {
+                  yamlDir: "scenario",
+                  outDir: "dummy_out",
+                  type: "jest",
+                },
+              ]),
             }),
           );
         });
@@ -315,7 +320,51 @@ describe("ConfigLoader", () => {
 
           expect(config.compileConfig).toEqual(
             buildExpectedCompileConfig({
-              yamlDir: new MockDirectory("dummy_yaml_dir"),
+              targets: buildScenarioCompileTargetConfigs([
+                {
+                  yamlDir: "dummy_yaml_dir",
+                  outDir: "scenario_gen",
+                  type: "jest",
+                },
+              ]),
+            }),
+          );
+        });
+      });
+
+      describe("when targets exists", () => {
+        it("should set targets", () => {
+          const config = new ConfigLoader(fsContainer).loadFromObject(
+            buildSchemaObject({
+              targets: [
+                {
+                  yamlDir: "dummy_jest_yaml_dir",
+                  outDir: "dummy_jest_out_dir",
+                  type: "jest",
+                },
+                {
+                  yamlDir: "dummy_playwright_yaml_dir",
+                  outDir: "dummy_playwright_out_dir",
+                  type: "playwright",
+                },
+              ],
+            }),
+          );
+
+          expect(config.compileConfig).toEqual(
+            buildExpectedCompileConfig({
+              targets: buildScenarioCompileTargetConfigs([
+                {
+                  yamlDir: "dummy_jest_yaml_dir",
+                  outDir: "dummy_jest_out_dir",
+                  type: "jest",
+                },
+                {
+                  yamlDir: "dummy_playwright_yaml_dir",
+                  outDir: "dummy_playwright_out_dir",
+                  type: "playwright",
+                },
+              ]),
             }),
           );
         });

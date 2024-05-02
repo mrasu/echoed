@@ -8,14 +8,13 @@ import {
 import { InvalidConfigError } from "@/config/invalidConfigError";
 import { PropagationTestConfig } from "@/config/propagationTestConfig";
 import {
-  DEFAULT_SCENARIO_COMPILE_OUT_DIR,
-  DEFAULT_SCENARIO_COMPILE_YAML_DIR,
   ScenarioCompileConfig,
   ScenarioCompilePluginAsserterConfig,
   ScenarioCompilePluginConfig,
   ScenarioCompilePluginImportConfig,
   ScenarioCompilePluginRunnerConfig,
 } from "@/config/scenarioCompileConfig";
+import { ScenarioCompileTargetConfig } from "@/config/scenarioCompileTargetConfig";
 import {
   convertToComparable,
   convertToComparables,
@@ -33,6 +32,9 @@ import { override, transformRecord } from "@/util/record";
 import { formatZodError } from "@/util/zod";
 import yaml from "js-yaml";
 import { SafeParseReturnType } from "zod";
+
+export const DEFAULT_SCENARIO_COMPILE_OUT_DIR = "scenario_gen";
+export const DEFAULT_SCENARIO_COMPILE_YAML_DIR = "scenario";
 
 // value of `overrides` in create-echoed/template/.echoed.yml
 const EXAMPLE_TEMPLATE_OVERRIDDEN_CONFIG_PATH = "./example/.echoed.yml";
@@ -287,17 +289,39 @@ export class ConfigLoader {
     if (!compile) return;
 
     return new ScenarioCompileConfig(
-      this.fsContainer.newDirectory(
-        compile.outDir ?? DEFAULT_SCENARIO_COMPILE_OUT_DIR,
-      ),
+      this.convertScenarioCompileTargetConfig(compile),
       compile.cleanOutDir ?? false,
-      this.fsContainer.newDirectory(
-        compile.yamlDir ?? DEFAULT_SCENARIO_COMPILE_YAML_DIR,
-      ),
       compile.retry ?? 0,
       compile.env ?? {},
       this.convertScenarioCompilePluginConfig(compile.plugin),
     );
+  }
+
+  private convertScenarioCompileTargetConfig(
+    compile: NonNullable<scenarioCompile>,
+  ): ScenarioCompileTargetConfig[] {
+    if (!compile.targets) {
+      const yamlDir = compile.yamlDir ?? DEFAULT_SCENARIO_COMPILE_YAML_DIR;
+      const outDir = compile.outDir ?? DEFAULT_SCENARIO_COMPILE_OUT_DIR;
+
+      return [
+        new ScenarioCompileTargetConfig(
+          this.fsContainer.newDirectory(yamlDir),
+          this.fsContainer.newDirectory(outDir),
+          "jest",
+          true,
+        ),
+      ];
+    }
+
+    return compile.targets.map((target) => {
+      return new ScenarioCompileTargetConfig(
+        this.fsContainer.newDirectory(target.yamlDir),
+        this.fsContainer.newDirectory(target.outDir),
+        target.type,
+        target.useEchoedFeatures ?? true,
+      );
+    });
   }
 
   private convertScenarioCompilePluginConfig(

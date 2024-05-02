@@ -1,4 +1,5 @@
 import { ScenarioCompileConfig } from "@/config/scenarioCompileConfig";
+import { ScenarioCompileTargetConfig } from "@/config/scenarioCompileTargetConfig";
 import { LocalDirectory } from "@/fs/localDirectory";
 import { YamlScenarioCompiler } from "@/scenario/compile/yamlScenarioCompiler";
 import { MockDirectory } from "@/testUtil/fs/mockDirectory";
@@ -11,9 +12,15 @@ describe("YamlScenarioCompiler", () => {
       const fileContents = new MockFileContents();
       const echoedRootDir = new LocalDirectory(path.join(__dirname, "../../"));
       const compileConfig = new ScenarioCompileConfig(
-        new MockDirectory("out", fileContents),
+        [
+          new ScenarioCompileTargetConfig(
+            new LocalDirectory(path.join(__dirname, "jest/testdata/scenario")),
+            new MockDirectory("out", fileContents),
+            "jest",
+            true,
+          ),
+        ],
         true,
-        new LocalDirectory(path.join(__dirname, "testdata/scenario")),
         0,
         {},
         {

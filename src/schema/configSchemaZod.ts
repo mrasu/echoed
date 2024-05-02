@@ -96,6 +96,16 @@ export const ConfigSchemaZod = z.strictObject({
           outDir: z.string().optional(),
           cleanOutDir: z.boolean().optional(),
           yamlDir: z.string().optional(),
+          targets: z
+            .array(
+              z.strictObject({
+                yamlDir: z.string(),
+                outDir: z.string(),
+                type: z.enum(["jest", "playwright"]),
+                useEchoedFeatures: z.boolean().optional(),
+              }),
+            )
+            .optional(),
           retry: z.number().optional(),
           env: z.record(z.string().nullable()).optional(),
           plugin: z

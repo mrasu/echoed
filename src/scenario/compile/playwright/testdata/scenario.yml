@@ -1,0 +1,16 @@
+scenarios:
+  - name: Simple test should pass
+    fixtures:
+      - page
+    variable:
+      session: ${defaultSession()}
+    steps:
+      - description: Get cart
+        arrange:
+          - expectToBeVisible: "[data-cy=home-page]"
+          - await page.locator("[data-cy=cart-link]").click()
+        act:
+          raw: await page.locator("[data-cy=currency-switcher]").selectOption("EUR")
+        assert:
+          - expectToBeVisible: "[data-cy=product-detail]"
+          - expect(_.jsonBody.items.length).toBe(0)

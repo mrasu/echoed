@@ -111,7 +111,7 @@ scenarios:
           - expect(_.jsonBody.id).toBe(productId)
 ```
 
-For more details, refer to the [documentation](./docs/yamlScenario.md).  
+For more details, refer to the [documentation](./docs/yamlJestScenario.md) or [examples](create-echoed/template/jest/example/scenario).  
 
 ### Make Tests Observable
 
@@ -163,7 +163,35 @@ For more examples, refer to [documentation](./docs/howToUse.md#jest).
 
 You can write Playwright tests in TypeScript too.
 
+### YAML
+
+You can write tests using YAML, and Echoed will convert them into Playwright tests.  
+
+![Compilation flow](https://github.com/mrasu/echoed/raw/main/docs/img/scenarioYamlToPlaywright.jpg)
+
+The YAML below opens `http://localhost:8080` and validates DOM elements.
+
+```yaml
+scenarios:
+  - name: Validate Homepage
+    fixtures:
+      - page
+    steps:
+      - description: Check product list is shown
+        act:
+          raw: await page.goto("http://localhost:8080")
+        assert:
+          - expectToBeVisible: "[data-cy=home-page]"
+          - expectToHaveCount:
+              selector: "[data-cy=product-list] [data-cy=product-card]"
+              count: 10
+```
+
+For more details, refer to the [documentation](./docs/yamlPlaywrightScenario.md) or [examples](create-echoed/template/playwright/example/test/scenario). 
+
 ### Make Tests Observable
+
+You can write Playwright tests in TypeScript too.
 
 To generate an HTML report visualizing API traces, replace `test` of Playwright to Echoed's to intercept requests.
 
@@ -278,9 +306,8 @@ services:
 
 # Using Echoed without OpenTelemetry
 
-While Echoed's primary feature is to troubleshoot or analyze tests by visualizing OpenTelemetry data, it can also be used to write Jest tests in YAML.  
-To add Echoed into existing tests for writing tests in YAML, simply create a `.echoed.yml` file for configuration.  
-In the "Installation" document, you may see `nodeEnvironment` and `reporter` is added in `jest.config.js`. However, because these configurations are to collect OpenTelemetry data, when you don't use OpenTelemetry, there's no need to modify it.
+While Echoed's primary feature is to troubleshoot or analyze tests by visualizing OpenTelemetry data, it can also be used to write tests in YAML.  
+To add YAML tests into existing tests, simply create a `.echoed.yml` file for configuration and run `npx echoed compile`.  
 
 Alternatively, if you wish to create example tests without OpenTelemetry, you can do so using the following commands:
 ```bash
@@ -290,6 +317,16 @@ npm create echoed@latest -- --template jest-no-otel
 # Compile YAML to TypeScript and run tests
 npx echoed compile
 npx jest
+```
+
+Or for Playwright:
+```bash
+# Create example tests
+npm create echoed@latest -- --template playwright-no-otel
+
+# Compile YAML to TypeScript and run tests
+npx echoed compile
+npx playwright test
 ```
 
 # Configuration

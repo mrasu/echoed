@@ -222,6 +222,34 @@ export type ConfigSchema = {
       outDir?: string;
 
       /**
+       * Targets to the paths to compile
+       *
+       * When `targets` is specified, yamlDir and outDir are ignored.
+       */
+      targets?: {
+        /**
+         * Path to the directory to read YAML files
+         */
+        yamlDir: string;
+
+        /**
+         * Path to the directory to output generated files
+         */
+        outDir: string;
+
+        /**
+         * Type of tests to output.
+         */
+        type: "jest" | "playwright";
+
+        /**
+         * Whether to use Echoed's feature
+         * Default: true
+         */
+        useEchoedFeatures?: boolean;
+      }[];
+
+      /**
        * Whether to remove files in the output directory before compilation
        * Default: false
        */

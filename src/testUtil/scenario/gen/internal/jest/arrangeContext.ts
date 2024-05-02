@@ -1,6 +1,6 @@
-import { ArrangeContext } from "@/scenario/gen/internal/jest/arrangeContext";
-import { ScenarioContext } from "@/scenario/gen/internal/jest/scenarioContext";
-import { StepContext } from "@/scenario/gen/internal/jest/stepContext";
+import { ArrangeContext } from "@/scenario/gen/internal/common/arrangeContext";
+import { ScenarioContext } from "@/scenario/gen/internal/common/scenarioContext";
+import { StepContext } from "@/scenario/gen/internal/common/stepContext";
 import { buildStepContext } from "@/testUtil/scenario/gen/internal/jest/stepContext";
 
 export function buildArrangeContext(

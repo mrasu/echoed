@@ -1,5 +1,5 @@
-import { ScenarioContext } from "@/scenario/gen/internal/jest/scenarioContext";
-import { StepContext } from "@/scenario/gen/internal/jest/stepContext";
+import { ScenarioContext } from "@/scenario/gen/internal/common/scenarioContext";
+import { StepContext } from "@/scenario/gen/internal/common/stepContext";
 import { buildScenarioContext } from "@/testUtil/scenario/gen/internal/jest/scenarioContext";
 
 export function buildStepContext(

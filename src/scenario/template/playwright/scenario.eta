@@ -1,0 +1,19 @@
+<% let scenario = it.scenario%>
+const {
+  <% it.scenarioBook.hook.getBoundVariablesBefore("afterEach", 0).forEach(function(varName) { %>
+     <%=varName %>,
+  <% }) %>
+} = __scenarioBookCtx.getHookBoundVariablesForStep();
+
+<% Array.from(scenario.variable.entries()).forEach(function([key, value]) { %>
+  const <%=key%> = <%= value.toTsLine() %>;
+<% }) %>
+
+<% scenario.steps.forEach(function(step, stepIndex) { %>
+  await __scenarioCtx.runStep(async (__stepCtx) => {
+    // <%= step.description %>
+
+    <%~ include("../common/step", {scenario: scenario, step: step, stepIndex: stepIndex})%>
+  })
+
+<% }) %>

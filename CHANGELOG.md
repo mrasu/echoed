@@ -1,3 +1,7 @@
+## Unreleased
+### Added
+- Add support for YAML for Playwright 
+
 ## 0.3.1
 ### Changed
 - Refactoring

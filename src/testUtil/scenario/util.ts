@@ -1,17 +1,17 @@
-import { Act } from "@/scenario/compile/act";
-import { AsserterConfig } from "@/scenario/compile/asserterConfig";
-import { CommonPluginConfig } from "@/scenario/compile/commonPluginConfig";
-import { Config } from "@/scenario/compile/config";
-import { EnvConfig } from "@/scenario/compile/envConfig";
-import { Hook } from "@/scenario/compile/hook";
-import { PluginConfig } from "@/scenario/compile/pluginConfig";
-import { RunnerConfig } from "@/scenario/compile/runnerConfig";
-import { RunnerContainer } from "@/scenario/compile/runnerContainer";
-import { RunnerOption } from "@/scenario/compile/runnerOption";
-import { Scenario } from "@/scenario/compile/scenario";
-import { ScenarioBook } from "@/scenario/compile/scenarioBook";
-import { Step } from "@/scenario/compile/step";
-import { TsVariable } from "@/scenario/compile/tsVariable";
+import { Act } from "@/scenario/compile/common/act";
+import { AsserterConfig } from "@/scenario/compile/common/asserterConfig";
+import { CommonPluginConfig } from "@/scenario/compile/common/commonPluginConfig";
+import { Config } from "@/scenario/compile/common/config";
+import { EnvConfig } from "@/scenario/compile/common/envConfig";
+import { PluginConfig } from "@/scenario/compile/common/pluginConfig";
+import { RunnerConfig } from "@/scenario/compile/common/runnerConfig";
+import { RunnerContainer } from "@/scenario/compile/common/runnerContainer";
+import { RunnerOption } from "@/scenario/compile/common/runnerOption";
+import { TsVariable } from "@/scenario/compile/common/tsVariable";
+import { Hook } from "@/scenario/compile/jest/hook";
+import { Scenario } from "@/scenario/compile/jest/scenario";
+import { ScenarioBook } from "@/scenario/compile/jest/scenarioBook";
+import { Step } from "@/scenario/compile/jest/step";
 
 export const buildConfig = (opt?: {
   retry?: number;

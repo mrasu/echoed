@@ -121,6 +121,10 @@
       "default": "./dist/scenario/gen/internal/jest/index.js",
       "types": "./dist/scenario/gen/internal/jest/index.d.ts"
     },
+    "./scenario/gen/internal/playwright": {
+      "default": "./dist/scenario/gen/internal/playwright/index.js",
+      "types": "./dist/scenario/gen/internal/playwright/index.d.ts"
+    },
     "./scenario/gen/jest/asserter": {
       "default": "./dist/scenario/gen/jest/asserter/index.js",
       "types": "./dist/scenario/gen/jest/asserter/index.d.ts"
@@ -128,6 +132,10 @@
     "./scenario/gen/jest/runner": {
       "default": "./dist/scenario/gen/jest/runner/index.js",
       "types": "./dist/scenario/gen/jest/runner/index.d.ts"
+    },
+    "./scenario/gen/playwright/runner": {
+      "default": "./dist/scenario/gen/playwright/runner/index.js",
+      "types": "./dist/scenario/gen/playwright/runner/index.d.ts"
     }
   }
 }

@@ -1,0 +1,26 @@
+test.<%=it.hookType%>(() => {
+  __scenarioBookCtx.clearHookBoundVariablesFor("<%=it.hookType%>");
+})
+
+<% it.hook[it.hookType].forEach(function(hookExecutor, hookIndex) { %>
+  test.<%=it.hookType%>(async ({<%=hookExecutor.fixtures.toTs()%>}, testInfo) => {
+    await __scenarioBookCtx.runHook("<%=it.hookType%>", async (__hookContext) => {
+      // <%=it.hookType%> (<%=hookIndex%>)
+
+      const {
+        <% Array.from(it.hook.getBoundVariablesBefore(it.hookType, hookIndex)).forEach(function(varName) { %>
+           <%= varName %>,
+        <% }) %>
+      } = __hookContext.boundVariables;
+
+      <% if (hookExecutor.rawString) {%>
+        <%= hookExecutor.rawString.toTsLine() %>;
+      <% } else { %>
+        <% Array.from(hookExecutor.bind.entries()).forEach(function([key, value]) { %>
+          __hookContext.bindNewVariable("<%= key %>", <%= value.toTsLine() %>)
+        <% }) %>
+      <% } %>
+    })
+  })
+
+<% }) %>

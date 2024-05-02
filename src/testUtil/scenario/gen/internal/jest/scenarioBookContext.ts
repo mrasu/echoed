@@ -1,5 +1,5 @@
+import { BoundVariables } from "@/scenario/gen/internal/common/type";
 import { ScenarioBookContext } from "@/scenario/gen/internal/jest";
-import { BoundVariables } from "@/scenario/gen/internal/jest/type";
 
 export function buildScenarioBookContext(overrides?: {
   hookBoundVariables?: {

@@ -1,0 +1,35 @@
+<% let arrange = it.arrange %>
+
+let [_, _arranges] = [undefined as any, __arrangeCtx.arrangeResultHistory];
+const {
+  <% it.step.getArrangeBoundVariablesBefore(it.arrangeIndex).forEach(function(varName) { %>
+     <%=varName %>,
+  <% }) %>
+} = __arrangeCtx.boundVariables;
+
+<% if (arrange.tsString) {%>
+  <%= arrange.tsString.toTsLine() %>;
+<% } else if (arrange.runner) { %>
+  const __runnerArgument = <%= arrange.runner.argument ? arrange.runner.argument.toTsLine(): undefined %>;
+  const __arrangeOption = {
+    <% Array.from(arrange.runner.option.entries()).forEach(function([key, value]) {%>
+      "<%= key %>": <%= value.toTsLine() %>,
+    <% })%>
+  };
+
+  const __arrangeResult = await <%= arrange.runner.name %>(
+    __arrangeCtx.echoedArrangeContext,
+    __runnerArgument,
+    __scenarioBookCtx.buildRunnerOption("<%= arrange.runner.name %>", __arrangeOption),
+  );
+
+  [_, _arranges] = [__arrangeResult, __arrangeCtx.recordRunnerResult(__arrangeResult)];
+
+  <% Array.from(arrange.runner.bind.entries()).forEach(function([key, value]) { %>
+    __arrangeCtx.bindNewVariable("<%= key %>", <%= value.toTsLine() %>);
+  <% }) %>
+<% } else { %>
+  <% Array.from(arrange.bind.entries()).forEach(function([key, value]) { %>
+    __arrangeCtx.bindNewVariable("<%= key %>", <%= value.toTsLine() %>);
+  <% }) %>
+<% } %>

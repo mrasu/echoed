@@ -1,0 +1,27 @@
+__scenarioBookCtx.setDefaultRunnerOption({
+  <% it.config.plugin.getUsedRunners(it.scenarioBook).forEach(function(runner) { %>
+    <%= runner.name %>: {
+      <% Array.from(runner.option.entries()).forEach(function([key, value]) {%>
+        "<%= key %>": <%= value.toTsLine() %>,
+      <% })%>
+    },
+  <% }) %>
+});
+
+<% it.scenarioBook.runnerOptions.forEach(function(runnerOption) { %>
+  __scenarioBookCtx.overrideDefaultRunnerOption("<%= runnerOption.name %>", {
+    <% Array.from(runnerOption.option.entries()).forEach(function([key, value]) {%>
+      "<%= key %>": <%= value.toTsLine() %>,
+    <% })%>
+  });
+<% }) %>
+
+__scenarioBookCtx.setDefaultAsserterOption({
+  <% it.config.plugin.getUsedAsserters(it.scenarioBook).forEach(function(asserter) { %>
+    <%= asserter.name %>: {
+      <% Array.from(asserter.option.entries()).forEach(function([key, value]) {%>
+        "<%= key %>": <%= value.toTsLine() %>,
+      <% })%>
+    },
+  <% }) %>
+});
