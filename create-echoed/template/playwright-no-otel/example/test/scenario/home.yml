@@ -1,0 +1,39 @@
+use:
+  baseURL: ${_env.BASE_ENDPOINT}
+hook:
+  beforeEach:
+    - fixtures:
+        - page
+      raw: await page.goto("/")
+scenarios:
+  - name: Validate Homepage
+    fixtures:
+      - page
+    steps:
+      - description: Check product list is shown
+        arrange:
+          - expectToBeVisible: "[data-cy=home-page]"
+        assert:
+          - expectToHaveCount:
+              selector: "[data-cy=product-list] [data-cy=product-card]"
+              count: 10
+      - description: Check session is set
+        variable:
+          session: ${await getSession(page)}
+        assert:
+          - expectToContainText:
+              selector: "[data-cy=session-id]"
+              expected: ${session.userId}
+  - name: Homepage can change currency
+    fixtures:
+      - page
+    steps:
+      - description: Change currency to EUR
+        arrange:
+          - expectToBeVisible: "[data-cy=home-page]"
+        act:
+          raw: await page.locator("[data-cy=currency-switcher]").selectOption("EUR");
+        assert:
+          - expectToContainText:
+              selector: "[data-cy=product-card]:first-child"
+              expected: "€"

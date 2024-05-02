@@ -1,0 +1,15 @@
+scenario:
+  compile:
+    targets:
+      - yamlDir: example/test/scenario
+        outDir: example/test/scenario_gen
+        type: playwright
+        useEchoedFeatures: false
+    cleanOutDir: true
+    env:
+      BASE_ENDPOINT: http://localhost:8080
+    plugin:
+      commons:
+        - names:
+            - getSession
+          module: "@/example/util/session"

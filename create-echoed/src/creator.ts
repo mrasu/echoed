@@ -5,6 +5,7 @@ export const TEMPLATES = [
   "jest",
   "jest-no-otel",
   "playwright",
+  "playwright-no-otel",
   "cypress",
 ] as const;
 export type TEMPLATE = (typeof TEMPLATES)[number];

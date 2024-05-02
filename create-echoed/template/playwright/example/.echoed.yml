@@ -28,6 +28,21 @@ propagationTest:
           attributes:
             service.name: emailservice
 
+scenario:
+  compile:
+    targets:
+      - yamlDir: example/test/scenario
+        outDir: example/test/scenario_gen
+        type: playwright
+    cleanOutDir: true
+    env:
+      BASE_ENDPOINT: http://localhost:8080
+    plugin:
+      commons:
+        - names:
+            - getSession
+          module: "@/example/util/session"
+
 services:
   - name: frontend
     namespace: opentelemetry-demo

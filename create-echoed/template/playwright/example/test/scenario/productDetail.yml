@@ -1,0 +1,49 @@
+use:
+  baseURL: ${_env.BASE_ENDPOINT}
+hook:
+  beforeEach:
+    - fixtures:
+        - page
+      raw: await page.goto("/")
+scenarios:
+  - name: Product Detail Page is valid
+    fixtures:
+      - page
+    steps:
+      - description: Product Detail Page is shown
+        act:
+          raw: await page.locator("[data-cy=product-card]").first().click()
+        assert:
+          - expectToBeVisible: "[data-cy=product-detail]"
+          - expectToBeVisible: "[data-cy=product-picture]"
+          - expectToBeVisible: "[data-cy=product-name]"
+          - expectToBeVisible: "[data-cy=product-description]"
+          - expectToBeVisible: "[data-cy=product-add-to-cart]"
+          - expectToHaveCount:
+              selector: "[data-cy=recommendation-list] [data-cy=product-card]"
+              count: 4
+          - expectToBeVisible: "[data-cy=ad]"
+  - name: Product Detail Page is working
+    fixtures:
+      - page
+    steps:
+      - description: Product Detail Page is shown
+        act:
+          raw: await page.locator("[data-cy=product-card]").first().click()
+        assert:
+          - await expect(page).toHaveURL(/\/product\//);
+      - description: Add product to cart
+        act:
+          raw: await page.locator("[data-cy=product-add-to-cart]").click()
+        assert:
+          - await expect(page).toHaveURL(/\/cart$/);
+          - expectToHaveCount:
+              selector: "[data-cy=cart-item-count]"
+              count: 1
+      - description: Cart dropdown shows the item too
+        act:
+          raw: await page.locator("[data-cy=cart-icon]").click()
+        assert:
+          - expectToHaveCount:
+              selector: "[data-cy=cart-dropdown-item]"
+              count: 1

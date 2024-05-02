@@ -1,0 +1,65 @@
+use:
+  baseURL: ${_env.BASE_ENDPOINT}
+hook:
+  beforeEach:
+    - fixtures:
+        - page
+      raw: await page.goto("/")
+scenarios:
+  - name: Checkout Flow
+    fixtures:
+      - page
+    steps:
+      - description: Add product to cart
+        arrange:
+          - await page.locator("[data-cy=product-card]").first().click()
+        act:
+          raw: await page.locator("[data-cy=product-add-to-cart]").first().click()
+        assert:
+          - expectPageToHaveURL: ${/\/cart$/}
+          - expectToContainText:
+              selector: "[data-cy=cart-item-count]"
+              expected: "1"
+      - description: Add another product to cart
+        arrange:
+          - await page.goto("/")
+          - await page.locator("[data-cy=product-card]").last().click()
+        act:
+          raw: await page.locator("[data-cy=product-add-to-cart]").click()
+        assert:
+          - expectPageToHaveURL: ${/\/cart$/}
+          - expectToContainText:
+              selector: "[data-cy=cart-item-count]"
+              expected: "2"
+      - description: Go to cart page
+        arrange:
+          - await page.locator("[data-cy=cart-icon]").click()
+        act:
+          raw: await page.locator("[data-cy=cart-go-to-shopping]").click()
+        assert:
+          - expectPageToHaveURL: ${/\/cart$/}
+      - description: Checkout
+        act:
+          raw: await page.locator("[data-cy=checkout-place-order]").click()
+        assert:
+          - expectPageToHaveURL: ${/\/checkout/}
+          - expectToHaveCount:
+              selector: "[data-cy=checkout-item]"
+              count: 2
+      - description: Check span is made by the request to checkout
+        act:
+          runner: waitForSpanCreatedIn
+          argument:
+            context: ${page.context()}
+            urlPattern: ${/api\/checkout/}
+            filter:
+              name: "grpc.oteldemo.PaymentService/Charge"
+              resource:
+                attributes:
+                  service.name: paymentservice
+              attributes:
+                rpc.method: Charge
+        assert:
+          - |
+            const amountAttribute = _.getAttribute("app.payment.amount");
+            expect(amountAttribute?.value?.doubleValue).toBe(120.749999999);
