@@ -167,7 +167,7 @@ You can write Playwright tests in TypeScript too.
 
 You can write tests using YAML, and Echoed will convert them into Playwright tests.  
 
-![Compilation flow](https://github.com/mrasu/echoed/raw/main/docs/img/scenarioYamlToPlaywright.jpg)
+![Compilation flow](https://github.com/mrasu/echoed/raw/main/docs/img/scenarioYamlToPlaywright.png)
 
 The YAML below opens `http://localhost:8080` and validates DOM elements.
 

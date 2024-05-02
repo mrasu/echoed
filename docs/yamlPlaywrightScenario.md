@@ -125,27 +125,27 @@ When you use `${}` within a string, it gets replaced with the value of the varia
 
 Each `scenarios` comprises the following elements:
 
-#### `name`
+#### `scenarios.name`
 **scenarios.name** specifies the name of the scenario.
 
-#### `steps`
+#### `scenarios.steps`
 **scenarios.steps** are used to define a collection of steps that specify the actions to be taken.
 
-Each `steps` in a scenarios consists of the following elements:
+Each `scenarios.steps` in a scenarios consists of the following elements:
 
-#### `arrange`
-**scenarios.steps.arrange** is used to establish preconditions before `act`.
+#### `scenarios.steps.arrange`
+**scenarios.steps.arrange** is used to establish preconditions before `scenarios.steps.act`.
 
-#### `act`
+#### `scenarios.steps.act`
 **scenarios.steps.act** defines the action the test performs, such as clicking an element.
 
-#### `assert`
-**scenarios.steps.assert** is to compare the result of `act` with an expected value.  
+#### `scenarios.steps.assert`
+**scenarios.steps.assert** is to compare the result of `scenarios.steps.act` with an expected value.  
 You can use predefined asserter or write Jest's assertions directly.
 
-#### `bind`
+#### `scenarios.steps.bind`
 **scenarios.steps.bind** defines variables that can be used in subsequent steps.  
-For example, you can store the result of `act`.
+For example, you can store the result of `scenarios.steps.act`.
 
 These are the primary elements of YAML, and this overview does not cover all elements.  
 For a full list, refer to [playwrightScenarioYamlSchema.ts](../src/schema/playwrightScenarioYamlSchema.ts).
