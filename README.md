@@ -65,17 +65,23 @@ Echoed offers several installation methods depending on your needs:
     mkdir my_test_directory && cd my_test_directory
     npm create echoed@latest
     ```
-2. Review the example tests and run them by following instructions in the generated `README.md`:
+2. Install dependencies:
     ```bash
-    cat README.md
+    npm install
     ```
-3. Run test after compiling YAML tests:
+3. Start server in the `example` directory:
     ```bash
+    cd example
+    make start
+    ```
+4. Run test from project root directory after compiling YAML tests:
+    ```bash
+    cd ../
     npm run compile && npm run test
     ```
-4. Once you're familiar, remove the `example` directory and begin crafting your own tests:
+5. After test, you can view the HTML report in `report/result.html` (specified in `.echoed.yml`):
     ```bash
-    rm -rf ./example
+    open report/result.html
     ```
 
 ## Other Options

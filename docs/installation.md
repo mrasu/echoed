@@ -19,15 +19,30 @@ Echoed offers two installation methods, choose one that suits your needs:
     mkdir my_test_directory && cd my_test_directory
     npm create echoed@latest
     ```
-2. Review the example tests and run them by following instructions in the generated `README.md`:
+2. Install dependencies:
     ```bash
-    cat README.md
+    npm install
     ```
-3. Run test after compiling YAML tests:
+3. Start server in the `example` directory:
     ```bash
+    cd example
+    make start
+    ```
+4. Run test from project root directory after compiling YAML tests:
+    ```bash
+    cd ../
     npm run compile && npm run test
     ```
-4. Once you're familiar, remove the `example` directory and begin crafting your own tests:
+5. After test, you can view the HTML report in `report/result.html` (specified in `.echoed.yml`):
+    ```bash
+    open report/result.html
+    ```
+6. Stop server:
+    ```bash
+    cd example
+    make stop
+    ```
+7. Once you're familiar, remove the `example` directory and begin crafting your own tests:
     ```bash
     rm -rf ./example
     ```
@@ -84,15 +99,32 @@ Echoed offers two installation methods, choose one that suits your needs:
     mkdir my_test_directory && cd my_test_directory
     npm create echoed@latest -- --template playwright
     ```
-2. Review the example tests and run them by following instructions in the generated `README.md`:
+2. Install dependencies:
     ```bash
-    cat README.md
+    npm install
+    npx playwright install
+    sudo npx playwright install-deps
     ```
-3. Run test:
+3. Start server in the `example` directory:
     ```bash
-    npm run test
+    cd example
+    make start
     ```
-4. Once you're familiar, remove the `example` directory and begin crafting your own tests:
+4. Run test from project root directory after compiling YAML tests:
+    ```bash
+    cd ../
+    npm run compile && npm run test
+    ```
+5. After test, you can view the HTML report in `report/result.html` (specified in `.echoed.yml`):
+    ```bash
+    open report/result.html
+    ```
+6. Stop server:
+    ```bash
+    cd example
+    make stop
+    ```
+7. Once you're familiar, remove the `example` directory and begin crafting your own tests:
     ```bash
     rm -rf ./example
     ```
@@ -146,15 +178,30 @@ Echoed offers two installation methods, choose one that suits your needs:
     mkdir my_test_directory && cd my_test_directory
     npm create echoed@latest -- --template cypress
     ```
-2. Review the example tests and run them by following instructions in the generated `README.md`:
+2. Install dependencies:
     ```bash
-    cat README.md
+    npm install
     ```
-3. Run test:
+3. Start server in the `example` directory:
     ```bash
+    cd example
+    make start
+    ```
+4. Run test from project root directory:
+    ```bash
+    cd ../
     npm run test
     ```
-4. Once you're familiar, remove the `example` and `cypress/e2e/example` directory and begin crafting your own tests:
+5. After test, you can view the HTML report in `report/result.html` (specified in `.echoed.yml`):
+    ```bash
+    open report/result.html
+    ```
+6. Stop server:
+    ```bash
+    cd example
+    make stop
+    ```
+7. Once you're familiar, remove the `example` and `cypress/e2e/example` directory and begin crafting your own tests:
     ```bash
     rm -rf ./example ./cypress/e2e/example
     ```
