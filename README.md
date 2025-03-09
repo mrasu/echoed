@@ -301,11 +301,11 @@ For more option, refer to the [Configuration](#Configuration) section.
 services:
   - name: frontend
     namespace: opentelemetry-demo
-    openapi: "./example/opentelemetry-demo/src/frontend/schema.yaml"
+    openapi: "./example/echoed-opentelemetry-demo/src/frontend/schema.yaml"
   - name: cartservice
     namespace: opentelemetry-demo
     proto:
-      filePath: "./example/opentelemetry-demo/pb/demo.proto"
+      filePath: "./example/echoed-opentelemetry-demo/pb/demo.proto"
       services:
         - oteldemo.CartService
 ```

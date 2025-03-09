@@ -1,6 +1,6 @@
 .PHONY: start
 start:
-	cd opentelemetry-demo && docker compose up --force-recreate --remove-orphans --detach
+	cd echoed-opentelemetry-demo && docker compose up --force-recreate --remove-orphans --detach
 	@echo ""
 	@echo "OpenTelemetry Demo is starting..."
 	@./hack/wait_demo_up.sh
@@ -10,6 +10,6 @@ start:
 
 .PHONY: stop
 stop:
-	cd opentelemetry-demo && docker compose down --remove-orphans --volumes
+	cd echoed-opentelemetry-demo && docker compose down --remove-orphans --volumes
 	@echo ""
 	@echo "OpenTelemetry Demo is stopped."

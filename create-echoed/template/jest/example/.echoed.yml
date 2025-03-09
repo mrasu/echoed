@@ -38,53 +38,53 @@ scenario:
 services:
   - name: frontend
     namespace: opentelemetry-demo
-    openapi: "./example/opentelemetry-demo/src/frontend/schema.yaml"
+    openapi: "./example/echoed-opentelemetry-demo/src/frontend/schema.yaml"
   - name: cartservice
     namespace: opentelemetry-demo
     proto:
-      filePath: "./example/opentelemetry-demo/pb/demo.proto"
+      filePath: "./example/echoed-opentelemetry-demo/pb/demo.proto"
       services:
         - oteldemo.CartService
   - name: checkoutservice
     namespace: opentelemetry-demo
     proto:
-      filePath: "./example/opentelemetry-demo/pb/demo.proto"
+      filePath: "./example/echoed-opentelemetry-demo/pb/demo.proto"
       services:
         - oteldemo.CheckoutService
   - name: currencyservice
     namespace: opentelemetry-demo
     proto:
-      filePath: "./example/opentelemetry-demo/pb/demo.proto"
+      filePath: "./example/echoed-opentelemetry-demo/pb/demo.proto"
       services:
         - oteldemo.CurrencyService
   - name: emailservice
     namespace: opentelemetry-demo
     proto:
-      filePath: "./example/opentelemetry-demo/pb/demo.proto"
+      filePath: "./example/echoed-opentelemetry-demo/pb/demo.proto"
       services:
         - oteldemo.EmailService
   - name: paymentservice
     namespace: opentelemetry-demo
     proto:
-      filePath: "./example/opentelemetry-demo/pb/demo.proto"
+      filePath: "./example/echoed-opentelemetry-demo/pb/demo.proto"
       services:
         - oteldemo.PaymentService
   - name: productcatalogservice
     namespace: opentelemetry-demo
     proto:
-      filePath: "./example/opentelemetry-demo/pb/demo.proto"
+      filePath: "./example/echoed-opentelemetry-demo/pb/demo.proto"
       services:
         - oteldemo.ProductCatalogService
   - name: recommendationservice
     namespace: opentelemetry-demo
     proto:
-      filePath: "./example/opentelemetry-demo/pb/demo.proto"
+      filePath: "./example/echoed-opentelemetry-demo/pb/demo.proto"
       services:
         - oteldemo.RecommendationService
   - name: shippingservice
     namespace: opentelemetry-demo
     proto:
-      filePath: "./example/opentelemetry-demo/pb/demo.proto"
+      filePath: "./example/echoed-opentelemetry-demo/pb/demo.proto"
       services:
         - oteldemo.ShippingService
   # Not configure quoteservice and frontend-proxy to demonstrate "Not Configured Services" in the report

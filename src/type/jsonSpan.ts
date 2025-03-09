@@ -85,7 +85,8 @@ export const JsonInstrumentationScope = z.strictObject({
 });
 export type JsonInstrumentationScope = z.infer<typeof JsonInstrumentationScope>;
 
-export const JsonSpan = z.strictObject({
+// use `z.object` instead of `z.strictObject` as opentelemetry-proto varies.
+export const JsonSpan = z.object({
   attributes: z.array(JsonKeyValue).optional(),
   traceId: z.string(),
   spanId: z.string(),

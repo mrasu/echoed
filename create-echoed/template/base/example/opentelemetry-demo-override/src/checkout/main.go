@@ -20,10 +20,14 @@ import (
 
 	"github.com/IBM/sarama"
 	"github.com/google/uuid"
+	otelhooks "github.com/open-feature/go-sdk-contrib/hooks/open-telemetry/pkg"
+	flagd "github.com/open-feature/go-sdk-contrib/providers/flagd/pkg"
+	"github.com/open-feature/go-sdk/openfeature"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.opentelemetry.io/contrib/instrumentation/runtime"
 	"go.opentelemetry.io/otel"
+	otelcodes "go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
 	"go.opentelemetry.io/otel/propagation"
@@ -33,16 +37,13 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
-	flagd "github.com/open-feature/go-sdk-contrib/providers/flagd/pkg"
-	"github.com/open-feature/go-sdk/openfeature"
-	otelhooks "github.com/open-feature/go-sdk-contrib/hooks/open-telemetry/pkg"
 	healthpb "google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
 
-	pb "github.com/open-telemetry/opentelemetry-demo/src/checkoutservice/genproto/oteldemo"
-	"github.com/open-telemetry/opentelemetry-demo/src/checkoutservice/kafka"
-	"github.com/open-telemetry/opentelemetry-demo/src/checkoutservice/money"
+	pb "github.com/open-telemetry/opentelemetry-demo/src/checkout/genproto/oteldemo"
+	"github.com/open-telemetry/opentelemetry-demo/src/checkout/kafka"
+	"github.com/open-telemetry/opentelemetry-demo/src/checkout/money"
 )
 
 //go:generate go install google.golang.org/protobuf/cmd/protoc-gen-go
@@ -117,7 +118,7 @@ func initMeterProvider() *sdkmetric.MeterProvider {
 	return mp
 }
 
-type checkoutService struct {
+type checkout struct {
 	productCatalogSvcAddr string
 	cartSvcAddr           string
 	currencySvcAddr       string
@@ -137,7 +138,7 @@ type checkoutService struct {
 
 func main() {
 	var port string
-	mustMapEnv(&port, "CHECKOUT_SERVICE_PORT")
+	mustMapEnv(&port, "CHECKOUT_PORT")
 
 	tp := initTracerProvider()
 	defer func() {
@@ -159,42 +160,43 @@ func main() {
 	}
 
 	openfeature.SetProvider(flagd.NewProvider())
+	openfeature.AddHooks(otelhooks.NewTracesHook())
 
-	tracer = tp.Tracer("checkoutservice")
+	tracer = tp.Tracer("checkout")
 
-	svc := new(checkoutService)
+	svc := new(checkout)
 
-	mustMapEnv(&svc.shippingSvcAddr, "SHIPPING_SERVICE_ADDR")
-	c := mustCreateClient(context.Background(), svc.shippingSvcAddr)
+	mustMapEnv(&svc.shippingSvcAddr, "SHIPPING_ADDR")
+	c := mustCreateClient(svc.shippingSvcAddr)
 	svc.shippingSvcClient = pb.NewShippingServiceClient(c)
 	defer c.Close()
 
-	mustMapEnv(&svc.productCatalogSvcAddr, "PRODUCT_CATALOG_SERVICE_ADDR")
-	c = mustCreateClient(context.Background(), svc.productCatalogSvcAddr)
+	mustMapEnv(&svc.productCatalogSvcAddr, "PRODUCT_CATALOG_ADDR")
+	c = mustCreateClient(svc.productCatalogSvcAddr)
 	svc.productCatalogSvcClient = pb.NewProductCatalogServiceClient(c)
 	defer c.Close()
 
-	mustMapEnv(&svc.cartSvcAddr, "CART_SERVICE_ADDR")
-	c = mustCreateClient(context.Background(), svc.cartSvcAddr)
+	mustMapEnv(&svc.cartSvcAddr, "CART_ADDR")
+	c = mustCreateClient(svc.cartSvcAddr)
 	svc.cartSvcClient = pb.NewCartServiceClient(c)
 	defer c.Close()
 
-	mustMapEnv(&svc.currencySvcAddr, "CURRENCY_SERVICE_ADDR")
-	c = mustCreateClient(context.Background(), svc.currencySvcAddr)
+	mustMapEnv(&svc.currencySvcAddr, "CURRENCY_ADDR")
+	c = mustCreateClient(svc.currencySvcAddr)
 	svc.currencySvcClient = pb.NewCurrencyServiceClient(c)
 	defer c.Close()
 
-	mustMapEnv(&svc.emailSvcAddr, "EMAIL_SERVICE_ADDR")
-	c = mustCreateClient(context.Background(), svc.emailSvcAddr)
+	mustMapEnv(&svc.emailSvcAddr, "EMAIL_ADDR")
+	c = mustCreateClient(svc.emailSvcAddr)
 	svc.emailSvcClient = pb.NewEmailServiceClient(c)
 	defer c.Close()
 
-	mustMapEnv(&svc.paymentSvcAddr, "PAYMENT_SERVICE_ADDR")
-	c = mustCreateClient(context.Background(), svc.paymentSvcAddr)
+	mustMapEnv(&svc.paymentSvcAddr, "PAYMENT_ADDR")
+	c = mustCreateClient(svc.paymentSvcAddr)
 	svc.paymentSvcClient = pb.NewPaymentServiceClient(c)
 	defer c.Close()
 
-	svc.kafkaBrokerSvcAddr = os.Getenv("KAFKA_SERVICE_ADDR")
+	svc.kafkaBrokerSvcAddr = os.Getenv("KAFKA_ADDR")
 
 	if svc.kafkaBrokerSvcAddr != "" {
 		svc.KafkaProducerClient, err = kafka.CreateKafkaProducer([]string{svc.kafkaBrokerSvcAddr}, log)
@@ -228,15 +230,15 @@ func mustMapEnv(target *string, envKey string) {
 	*target = v
 }
 
-func (cs *checkoutService) Check(ctx context.Context, req *healthpb.HealthCheckRequest) (*healthpb.HealthCheckResponse, error) {
+func (cs *checkout) Check(ctx context.Context, req *healthpb.HealthCheckRequest) (*healthpb.HealthCheckResponse, error) {
 	return &healthpb.HealthCheckResponse{Status: healthpb.HealthCheckResponse_SERVING}, nil
 }
 
-func (cs *checkoutService) Watch(req *healthpb.HealthCheckRequest, ws healthpb.Health_WatchServer) error {
+func (cs *checkout) Watch(req *healthpb.HealthCheckRequest, ws healthpb.Health_WatchServer) error {
 	return status.Errorf(codes.Unimplemented, "health check via Watch not implemented")
 }
 
-func (cs *checkoutService) PlaceOrder(ctx context.Context, req *pb.PlaceOrderRequest) (*pb.PlaceOrderResponse, error) {
+func (cs *checkout) PlaceOrder(ctx context.Context, req *pb.PlaceOrderRequest) (*pb.PlaceOrderResponse, error) {
 	span := trace.SpanFromContext(ctx)
 	span.SetAttributes(
 		attribute.String("app.user.id", req.UserId),
@@ -315,6 +317,7 @@ func (cs *checkoutService) PlaceOrder(ctx context.Context, req *pb.PlaceOrderReq
 
 	// send to kafka only if kafka broker address is set
 	if cs.kafkaBrokerSvcAddr != "" {
+		log.Infof("sending to postProcessor")
 		cs.sendToPostProcessor(ctx, orderResult)
 	}
 
@@ -328,7 +331,7 @@ type orderPrep struct {
 	shippingCostLocalized *pb.Money
 }
 
-func (cs *checkoutService) prepareOrderItemsAndShippingQuoteFromCart(ctx context.Context, userID, userCurrency string, address *pb.Address) (orderPrep, error) {
+func (cs *checkout) prepareOrderItemsAndShippingQuoteFromCart(ctx context.Context, userID, userCurrency string, address *pb.Address) (orderPrep, error) {
 
 	ctx, span := tracer.Start(ctx, "prepareOrderItemsAndShippingQuoteFromCart")
 	defer span.End()
@@ -369,8 +372,8 @@ func (cs *checkoutService) prepareOrderItemsAndShippingQuoteFromCart(ctx context
 	return out, nil
 }
 
-func mustCreateClient(ctx context.Context, svcAddr string) *grpc.ClientConn {
-	c, err := grpc.DialContext(ctx, svcAddr,
+func mustCreateClient(svcAddr string) *grpc.ClientConn {
+	c, err := grpc.NewClient(svcAddr,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithStatsHandler(otelgrpc.NewClientHandler()),
 	)
@@ -381,7 +384,7 @@ func mustCreateClient(ctx context.Context, svcAddr string) *grpc.ClientConn {
 	return c
 }
 
-func (cs *checkoutService) quoteShipping(ctx context.Context, address *pb.Address, items []*pb.CartItem) (*pb.Money, error) {
+func (cs *checkout) quoteShipping(ctx context.Context, address *pb.Address, items []*pb.CartItem) (*pb.Money, error) {
 	shippingQuote, err := cs.shippingSvcClient.
 		GetQuote(ctx, &pb.GetQuoteRequest{
 			Address: address,
@@ -392,7 +395,7 @@ func (cs *checkoutService) quoteShipping(ctx context.Context, address *pb.Addres
 	return shippingQuote.GetCostUsd(), nil
 }
 
-func (cs *checkoutService) getUserCart(ctx context.Context, userID string) ([]*pb.CartItem, error) {
+func (cs *checkout) getUserCart(ctx context.Context, userID string) ([]*pb.CartItem, error) {
 	cart, err := cs.cartSvcClient.GetCart(ctx, &pb.GetCartRequest{UserId: userID})
 	if err != nil {
 		return nil, fmt.Errorf("failed to get user cart during checkout: %+v", err)
@@ -400,14 +403,14 @@ func (cs *checkoutService) getUserCart(ctx context.Context, userID string) ([]*p
 	return cart.GetItems(), nil
 }
 
-func (cs *checkoutService) emptyUserCart(ctx context.Context, userID string) error {
+func (cs *checkout) emptyUserCart(ctx context.Context, userID string) error {
 	if _, err := cs.cartSvcClient.EmptyCart(ctx, &pb.EmptyCartRequest{UserId: userID}); err != nil {
 		return fmt.Errorf("failed to empty user cart during checkout: %+v", err)
 	}
 	return nil
 }
 
-func (cs *checkoutService) prepOrderItems(ctx context.Context, items []*pb.CartItem, userCurrency string) ([]*pb.OrderItem, error) {
+func (cs *checkout) prepOrderItems(ctx context.Context, items []*pb.CartItem, userCurrency string) ([]*pb.OrderItem, error) {
 	out := make([]*pb.OrderItem, len(items))
 
 	for i, item := range items {
@@ -426,7 +429,7 @@ func (cs *checkoutService) prepOrderItems(ctx context.Context, items []*pb.CartI
 	return out, nil
 }
 
-func (cs *checkoutService) convertCurrency(ctx context.Context, from *pb.Money, toCurrency string) (*pb.Money, error) {
+func (cs *checkout) convertCurrency(ctx context.Context, from *pb.Money, toCurrency string) (*pb.Money, error) {
 	result, err := cs.currencySvcClient.Convert(ctx, &pb.CurrencyConversionRequest{
 		From:   from,
 		ToCode: toCurrency})
@@ -436,13 +439,13 @@ func (cs *checkoutService) convertCurrency(ctx context.Context, from *pb.Money, 
 	return result, err
 }
 
-func (cs *checkoutService) chargeCard(ctx context.Context, amount *pb.Money, paymentInfo *pb.CreditCardInfo) (string, error) {
-    paymentService := cs.paymentSvcClient
-	if cs.checkPaymentFailure(ctx) {
-        badAddress := "badAddress:50051"
-        c := mustCreateClient(context.Background(), badAddress)
+func (cs *checkout) chargeCard(ctx context.Context, amount *pb.Money, paymentInfo *pb.CreditCardInfo) (string, error) {
+	paymentService := cs.paymentSvcClient
+	if cs.isFeatureFlagEnabled(ctx, "paymentUnreachable") {
+		badAddress := "badAddress:50051"
+		c := mustCreateClient(badAddress)
 		paymentService = pb.NewPaymentServiceClient(c)
-    }
+	}
 
 	paymentResp, err := paymentService.Charge(ctx, &pb.ChargeRequest{
 		Amount:     amount,
@@ -453,8 +456,8 @@ func (cs *checkoutService) chargeCard(ctx context.Context, amount *pb.Money, pay
 	return paymentResp.GetTransactionId(), nil
 }
 
-func (cs *checkoutService) sendOrderConfirmation(ctx context.Context, email string, order *pb.OrderResult) error {
-	emailServicePayload, err := json.Marshal(map[string]interface{}{
+func (cs *checkout) sendOrderConfirmation(ctx context.Context, email string, order *pb.OrderResult) error {
+	emailPayload, err := json.Marshal(map[string]interface{}{
 		"email": email,
 		"order": order,
 	})
@@ -463,8 +466,8 @@ func (cs *checkoutService) sendOrderConfirmation(ctx context.Context, email stri
 	}
 
 	// Not using `otelhttp` intentionally to create not propagated spans and demonstrate not instrumented error in test
-	// resp, err := otelhttp.Post(ctx, cs.emailSvcAddr+"/send_order_confirmation", "application/json", bytes.NewBuffer(emailServicePayload))
-	resp, err := http.Post(cs.emailSvcAddr+"/send_order_confirmation", "application/json", bytes.NewBuffer(emailServicePayload))
+	// resp, err := otelhttp.Post(ctx, cs.emailSvcAddr+"/send_order_confirmation", "application/json", bytes.NewBuffer(emailPayload))
+	resp, err := http.Post(cs.emailSvcAddr+"/send_order_confirmation", "application/json", bytes.NewBuffer(emailPayload))
 	if err != nil {
 		return fmt.Errorf("failed POST to email service: %+v", err)
 	}
@@ -477,7 +480,7 @@ func (cs *checkoutService) sendOrderConfirmation(ctx context.Context, email stri
 	return err
 }
 
-func (cs *checkoutService) shipOrder(ctx context.Context, address *pb.Address, items []*pb.CartItem) (string, error) {
+func (cs *checkout) shipOrder(ctx context.Context, address *pb.Address, items []*pb.CartItem) (string, error) {
 	resp, err := cs.shippingSvcClient.ShipOrder(ctx, &pb.ShipOrderRequest{
 		Address: address,
 		Items:   items})
@@ -487,7 +490,7 @@ func (cs *checkoutService) shipOrder(ctx context.Context, address *pb.Address, i
 	return resp.GetTrackingId(), nil
 }
 
-func (cs *checkoutService) sendToPostProcessor(ctx context.Context, result *pb.OrderResult) {
+func (cs *checkout) sendToPostProcessor(ctx context.Context, result *pb.OrderResult) {
 	message, err := proto.Marshal(result)
 	if err != nil {
 		log.Errorf("Failed to marshal message to protobuf: %+v", err)
@@ -503,9 +506,55 @@ func (cs *checkoutService) sendToPostProcessor(ctx context.Context, result *pb.O
 	span := createProducerSpan(ctx, &msg)
 	defer span.End()
 
-	cs.KafkaProducerClient.Input() <- &msg
-	successMsg := <-cs.KafkaProducerClient.Successes()
-	log.Infof("Successful to write message. offset: %v", successMsg.Offset)
+	// Send message and handle response
+	startTime := time.Now()
+	select {
+	case cs.KafkaProducerClient.Input() <- &msg:
+		log.Infof("Message sent to Kafka: %v", msg)
+		select {
+		case successMsg := <-cs.KafkaProducerClient.Successes():
+			span.SetAttributes(
+				attribute.Bool("messaging.kafka.producer.success", true),
+				attribute.Int("messaging.kafka.producer.duration_ms", int(time.Since(startTime).Milliseconds())),
+				attribute.KeyValue(semconv.MessagingKafkaMessageOffset(int(successMsg.Offset))),
+			)
+			log.Infof("Successful to write message. offset: %v, duration: %v", successMsg.Offset, time.Since(startTime))
+		case errMsg := <-cs.KafkaProducerClient.Errors():
+			span.SetAttributes(
+				attribute.Bool("messaging.kafka.producer.success", false),
+				attribute.Int("messaging.kafka.producer.duration_ms", int(time.Since(startTime).Milliseconds())),
+			)
+			span.SetStatus(otelcodes.Error, errMsg.Err.Error())
+			log.Errorf("Failed to write message: %v", errMsg.Err)
+		case <-ctx.Done():
+			span.SetAttributes(
+				attribute.Bool("messaging.kafka.producer.success", false),
+				attribute.Int("messaging.kafka.producer.duration_ms", int(time.Since(startTime).Milliseconds())),
+			)
+			span.SetStatus(otelcodes.Error, "Context cancelled: "+ctx.Err().Error())
+			log.Warnf("Context canceled before success message received: %v", ctx.Err())
+		}
+	case <-ctx.Done():
+		span.SetAttributes(
+			attribute.Bool("messaging.kafka.producer.success", false),
+			attribute.Int("messaging.kafka.producer.duration_ms", int(time.Since(startTime).Milliseconds())),
+		)
+		span.SetStatus(otelcodes.Error, "Failed to send: "+ctx.Err().Error())
+		log.Errorf("Failed to send message to Kafka within context deadline: %v", ctx.Err())
+		return
+	}
+
+	ffValue := cs.getIntFeatureFlag(ctx, "kafkaQueueProblems")
+	if ffValue > 0 {
+		log.Infof("Warning: FeatureFlag 'kafkaQueueProblems' is activated, overloading queue now.")
+		for i := 0; i < ffValue; i++ {
+			go func(i int) {
+				cs.KafkaProducerClient.Input() <- &msg
+				_ = <-cs.KafkaProducerClient.Successes()
+			}(i)
+		}
+		log.Infof("Done with #%d messages for overload simulation.", ffValue)
+	}
 }
 
 func createProducerSpan(ctx context.Context, msg *sarama.ProducerMessage) trace.Span {
@@ -534,11 +583,30 @@ func createProducerSpan(ctx context.Context, msg *sarama.ProducerMessage) trace.
 	return span
 }
 
-func (cs *checkoutService) checkPaymentFailure(ctx context.Context) bool {
-	openfeature.AddHooks(otelhooks.NewTracesHook())
+func (cs *checkout) isFeatureFlagEnabled(ctx context.Context, featureFlagName string) bool {
 	client := openfeature.NewClient("checkout")
-	failureEnabled, _ := client.BooleanValue(
-		ctx, "paymentServiceUnreachable", false, openfeature.EvaluationContext{},
+
+	// Default value is set to false, but you could also make this a parameter.
+	featureEnabled, _ := client.BooleanValue(
+		ctx,
+		featureFlagName,
+		false,
+		openfeature.EvaluationContext{},
 	)
-	return failureEnabled
+
+	return featureEnabled
+}
+
+func (cs *checkout) getIntFeatureFlag(ctx context.Context, featureFlagName string) int {
+	client := openfeature.NewClient("checkout")
+
+	// Default value is set to 0, but you could also make this a parameter.
+	featureFlagValue, _ := client.IntValue(
+		ctx,
+		featureFlagName,
+		0,
+		openfeature.EvaluationContext{},
+	)
+
+	return int(featureFlagValue)
 }

@@ -18,6 +18,7 @@ export default defineConfig({
     rm ./dist/template_tmp/template/base/example/opentelemetry-demo/src/frontend/cypress.config.ts &&
     cp -Tr ./dist/template_tmp/template/base/example/opentelemetry-demo-override ./dist/template_tmp/template/base/example/opentelemetry-demo &&
     rm -r ./dist/template_tmp/template/base/example/opentelemetry-demo-override &&
+    mv ./dist/template_tmp/template/base/example/opentelemetry-demo ./dist/template_tmp/template/base/example/echoed-opentelemetry-demo &&
     mv ./dist/template_tmp/template ./dist &&
     rmdir ./dist/template_tmp &&
     mv ./dist/template/cypress/_gitignore ./dist/template/cypress/.gitignore &&

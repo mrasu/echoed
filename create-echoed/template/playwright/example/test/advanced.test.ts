@@ -11,7 +11,7 @@ const SPAN_FILTER = {
   name: "oteldemo.ProductCatalogService/ListProducts",
   resource: {
     attributes: {
-      "service.name": "productcatalogservice",
+      "service.name": "product-catalog",
     },
   },
   attributes: {

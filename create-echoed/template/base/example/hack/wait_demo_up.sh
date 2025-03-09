@@ -1,7 +1,7 @@
 #!/bin/bash
 set -u
 
-source ./opentelemetry-demo/.env
+source ./echoed-opentelemetry-demo/.env
 
 if [ -z "$ENVOY_PORT" ]; then
   echo "ENVOY_PORT is not set"
